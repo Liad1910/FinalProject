@@ -3,14 +3,17 @@ package com.example.finalproject;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.content.Intent;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -24,10 +27,11 @@ import java.util.Map;
 
 public class registerPage extends AppCompatActivity {
 
-    EditText eTEmail, eTPass, eTUsername, eTBirthYear, eTMovie, eTSeries, eTGenre;
+    EditText eTEmail, eTPass, eTUsername, eTBirthYear, eTMovie, eTSeries;
+    Spinner spGenre;
     TextView tVMsg;
     FirebaseFirestore db;
-    private static final String TAG = "RegisterPage";
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +39,10 @@ public class registerPage extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register_page);
 
-        FirebaseApp.initializeApp(this); // חשוב!
+        FirebaseApp.initializeApp(this);
 
         db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         eTEmail = findViewById(R.id.eTEmail);
         eTPass = findViewById(R.id.eTPass);
@@ -45,8 +50,24 @@ public class registerPage extends AppCompatActivity {
         eTBirthYear = findViewById(R.id.eTBirthYear);
         eTMovie = findViewById(R.id.eTMovie);
         eTSeries = findViewById(R.id.eTSeries);
-        eTGenre = findViewById(R.id.eTGenre);
+        spGenre = findViewById(R.id.spGenre);
         tVMsg = findViewById(R.id.tVMsg);
+
+        // Spinner - 6 ז'אנרים
+        String[] genres = {
+                "Choose favorite genre",
+                "Action",
+                "Comedy",
+                "Drama",
+                "Horror",
+                "Romance",
+                "Sci-Fi"
+        };
+
+        ArrayAdapter<String> genreAdapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, genres);
+        genreAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spGenre.setAdapter(genreAdapter);
     }
 
     public void createUser(View view) {
@@ -57,13 +78,18 @@ public class registerPage extends AppCompatActivity {
         String birthYear = eTBirthYear.getText().toString().trim();
         String movie = eTMovie.getText().toString().trim();
         String series = eTSeries.getText().toString().trim();
-        String genre = eTGenre.getText().toString().trim();
+        String genre = spGenre.getSelectedItem().toString();
 
+        // בדיקות שדות
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) ||
                 TextUtils.isEmpty(username) || TextUtils.isEmpty(birthYear) ||
-                TextUtils.isEmpty(movie) || TextUtils.isEmpty(series) ||
-                TextUtils.isEmpty(genre)) {
+                TextUtils.isEmpty(movie) || TextUtils.isEmpty(series)) {
             tVMsg.setText("Please fill all fields");
+            return;
+        }
+
+        if (genre.equals("Choose favorite genre")) {
+            tVMsg.setText("Please choose favorite genre");
             return;
         }
 
@@ -75,18 +101,21 @@ public class registerPage extends AppCompatActivity {
         ProgressDialog pd = new ProgressDialog(this);
         pd.setTitle("Connecting");
         pd.setMessage("Creating user...");
+        pd.setCancelable(false);
         pd.show();
 
-        com.google.firebase.auth.FirebaseAuth.getInstance()
-                .createUserWithEmailAndPassword(email, pass)
-                .addOnSuccessListener(result -> {
-                    pd.dismiss();
+        mAuth.createUserWithEmailAndPassword(email, pass)
+                .addOnSuccessListener((AuthResult result) -> {
 
                     FirebaseUser user = result.getUser();
-                    if (user == null) return;
+                    if (user == null) {
+                        pd.dismiss();
+                        tVMsg.setText("Unknown error (user is null)");
+                        return;
+                    }
 
                     String uid = user.getUid();
-                    tVMsg.setText("User created!\nSaving profile...");
+                    tVMsg.setText("Saving profile...");
 
                     Map<String, Object> map = new HashMap<>();
                     map.put("email", email);
@@ -98,10 +127,22 @@ public class registerPage extends AppCompatActivity {
 
                     db.collection("users").document(uid)
                             .set(map)
-                            .addOnSuccessListener(aVoid ->
-                                    tVMsg.setText("✅ Registered!\nUid: " + uid))
-                            .addOnFailureListener(e ->
-                                    tVMsg.setText("Firestore Error: " + e.getMessage()));
+                            .addOnSuccessListener(aVoid -> {
+                                pd.dismiss();
+                                tVMsg.setText("User created!");
+
+                                // מעבר למיין אחרי שהפרופיל נשמר
+                                Intent intent = new Intent(registerPage.this, MainActivity.class);
+                                // לנקות את הסטאק כדי שלא יהיה אפשר BACK להרשמה
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                        Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                pd.dismiss();
+                                tVMsg.setText("Firestore Error: " + e.getMessage());
+                            });
                 })
                 .addOnFailureListener(e -> {
                     pd.dismiss();

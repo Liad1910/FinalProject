@@ -1,104 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#000000"
+    android:background="#080015">
 
-    android:padding="16dp">
-
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="28dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="הרשמה"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:paddingBottom="16dp"/>
+        android:layout_height="wrap_content">
 
-    <EditText
-        android:id="@+id/eTEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="אימייל"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginBottom="8dp" />
+        <!-- שלט הניאון -->
+        <ImageView
+            android:id="@+id/imgNeonSign"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/img"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center"
+            android:layout_marginBottom="32dp" />
 
-    <EditText
-        android:id="@+id/eTPass"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="סיסמה"
-        android:inputType="textPassword"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginBottom="8dp" />
+        <!-- שדות מרובעים -->
+        <EditText
+            android:id="@+id/eTEmail"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="אימייל"
+            android:inputType="textEmailAddress"
+            android:backgroundTint="#00E5FF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88CFFF"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/eTUsername"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="שם משתמש"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginBottom="8dp" />
+        <EditText
+            android:id="@+id/eTPass"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="סיסמה"
+            android:inputType="textPassword"
+            android:backgroundTint="#00E5FF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88CFFF"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/eTBirthYear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="שנת לידה"
-        android:inputType="number"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:maxLength="4"
-        android:layout_marginBottom="8dp" />
+        <EditText
+            android:id="@+id/eTUsername"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="שם משתמש"
+            android:backgroundTint="#00E5FF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88CFFF"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/eTMovie"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="סרט אהוב"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginBottom="8dp" />
+        <EditText
+            android:id="@+id/eTBirthYear"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="שנת לידה"
+            android:inputType="number"
+            android:backgroundTint="#00E5FF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88CFFF"
+            android:maxLength="4"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/eTSeries"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="סדרה אהובה"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginBottom="8dp" />
+        <EditText
+            android:id="@+id/eTMovie"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="סרט אהוב"
+            android:backgroundTint="#00E5FF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88CFFF"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/eTGenre"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="ז'אנר אהוב"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginBottom="12dp" />
+        <EditText
+            android:id="@+id/eTSeries"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="סדרה אהובה"
+            android:backgroundTint="#00E5FF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88CFFF"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp" />
 
-    <Button
-        android:id="@+id/btnCreate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="צור משתמש"
-        android:onClick="createUser"
-        android:background="#FF1493"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="12dp" />
+        <!-- Spinner לז'אנר אהוב -->
+        <Spinner
+            android:id="@+id/spGenre"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="10dp"
+            android:layout_marginBottom="26dp" />
 
-    <TextView
-        android:id="@+id/tVMsg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp" />
+        <!-- כפתור יצירה -->
+        <Button
+            android:id="@+id/btnCreate"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="🚀 צור משתמש"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FF00E6"
+            android:elevation="6dp"
+            android:onClick="createUser"
+            android:layout_marginBottom="22dp" />
 
-</LinearLayout>
+        <!-- הודעה -->
+        <TextView
+            android:id="@+id/tVMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FF66FF"
+            android:textSize="15sp"
+            android:gravity="center"
+            android:shadowColor="#00FFFF"
+            android:shadowRadius="5" />
+
+    </LinearLayout>
+</ScrollView>

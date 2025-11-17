@@ -14,8 +14,32 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalProject">
         <activity
-            android:name=".loginPage"
+            android:name=".SeriesCategoryActivity"
             android:exported="false" />
+        <activity
+            android:name=".MoviesCategoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity_user_page"
+            android:exported="false" />
+        <activity
+            android:name=".ItMovieActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ThePianistActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ToAllTheBoysActivity"
+            android:exported="false" />
+        <activity
+            android:name=".WhiteChiksActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".loginPage"
+            android:exported="true" />
         <activity
             android:name=".registerPage"
             android:exported="true" />

@@ -1,68 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#000000"
-    android:padding="16dp"
-    android:focusable="true"
-    android:focusableInTouchMode="true">
+    android:background="#080015">
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="התחברות"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:paddingBottom="16dp"/>
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
 
-    <EditText
-        android:id="@+id/eTEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="אימייל"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginBottom="8dp"/>
+        <!-- שלט ניאון של התחברות -->
+        <ImageView
+            android:id="@+id/imgLoginNeon"
+            android:layout_width="387dp"
+            android:layout_height="214dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="36dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/img_1" />
 
-    <EditText
-        android:id="@+id/eTPass"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="סיסמה"
-        android:inputType="textPassword"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginBottom="12dp"
-        android:imeOptions="actionDone"/>
 
-    <CheckBox
-        android:id="@+id/cbStayConnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="השאר אותי מחובר"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="12dp"/>
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="התחבר/י"
-        android:onClick="loginUser"
-        android:background="#FF1493"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="4dp"/>
+        <!-- אימייל -->
+        <EditText
+            android:id="@+id/eTEmail"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:backgroundTint="#00E5FF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88CFFF"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="14dp"
+            android:elevation="2dp"/>
 
-    <TextView
-        android:id="@+id/tVMsg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        android:paddingTop="12dp"/>
+        <!-- סיסמה -->
+        <EditText
+            android:id="@+id/eTPass"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="סיסמה"
+            android:inputType="textPassword"
+            android:backgroundTint="#00E5FF"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#88CFFF"
+            android:imeOptions="actionDone"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="6dp"
+            android:elevation="2dp"/>
 
-</LinearLayout>
+        <!-- השאר אותי מחובר -->
+        <CheckBox
+            android:id="@+id/cbStayConnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="השאר אותי מחובר"
+            android:textColor="#FFFFFF"
+            android:paddingVertical="6dp"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- כפתור התחברות -->
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="🚀 התחבר/י"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FF00E6"
+            android:stateListAnimator="@null"
+            android:elevation="8dp"
+            android:onClick="loginUser"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- הודעת מצב -->
+        <TextView
+            android:id="@+id/tVMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FF66FF"
+            android:textSize="15sp"
+            android:gravity="center"
+            android:shadowColor="#00FFFF"
+            android:shadowRadius="5" />
+
+    </LinearLayout>
+</ScrollView>

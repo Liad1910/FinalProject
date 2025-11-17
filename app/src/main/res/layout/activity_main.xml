@@ -1,61 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:fitsSystemWindows="true">
 
-    <TextView
-        android:id="@+id/tvHelloMain"
+    <!-- התוכן הראשי שלך כמו שהיה קודם -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:fitsSystemWindows="true">
+
+        <!-- תפריט עליון -->
+        <LinearLayout
+            android:id="@+id/topMenu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="#111111"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- כפתור 3 קווים לתפריט הצד -->
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_sort_by_size"
+                android:background="@android:color/transparent"
+                android:tint="#FFFFFF"
+                android:contentDescription="Menu"
+                android:layout_margin="8dp" />
+
+            <Button
+                android:id="@+id/btnGo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="עמוד הרשמה"
+                android:backgroundTint="#8733DE"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_margin="8dp"/>
+
+            <Button
+                android:id="@+id/btnGoLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="עמוד לוגין"
+                android:backgroundTint="#00FFFF"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_margin="8dp"/>
+
+            <Button
+                android:id="@+id/btnUserPage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="דף משתמש"
+                android:backgroundTint="#FFA500"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_margin="8dp"/>
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="התנתקות"
+                android:backgroundTint="#FF00FF"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_margin="8dp"/>
+        </LinearLayout>
+
+        <!-- כותרת / שלום -->
+        <TextView
+            android:id="@+id/tvHelloMain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="שלום אנונימי"
+            android:textSize="24sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/topMenu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- תמונה מרכזית גדולה -->
+        <ImageView
+            android:id="@+id/ivMainImage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tvHelloMain"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.55"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:src="@drawable/up_poster"
+            android:elevation="10dp"/>
+
+        <!-- חץ אחורה -->
+        <ImageButton
+            android:id="@+id/btnPrev"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_media_previous"
+            android:tint="#FFFFFF"
+            app:layout_constraintTop_toTopOf="@id/ivMainImage"
+            app:layout_constraintBottom_toBottomOf="@id/ivMainImage"
+            app:layout_constraintStart_toStartOf="parent"
+            android:padding="8dp"/>
+
+        <!-- חץ קדימה -->
+        <ImageButton
+            android:id="@+id/btnNext"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_media_next"
+            android:tint="#FFFFFF"
+            app:layout_constraintTop_toTopOf="@id/ivMainImage"
+            app:layout_constraintBottom_toBottomOf="@id/ivMainImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:padding="8dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- תפריט צד (3 קווים) -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="שלום אנונימי"
-        android:textSize="22sp"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:layout_marginTop="40dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:menu="@menu/nav_drawer_menu" />
 
-    <Button
-        android:id="@+id/btnGo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="עמוד הרשמה"
-        android:onClick="goToRegister"
-        android:background="#FF1493"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/tvHelloMain"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
 
-    <Button
-        android:id="@+id/btnGoLogin"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="עמוד לוגין"
-        android:onClick="goToLogin"
-        android:background="#FF1493"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/btnGo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
-
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="התנתקות"
-        android:onClick="logout"
-        android:background="#FF1493"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/btnGoLogin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Movies -->
+    <item
+        android:id="@+id/nav_movies"
+        android:title="Movies">
+        <menu>
+            <item
+                android:id="@+id/nav_movies_action"
+                android:title="Action" />
+            <item
+                android:id="@+id/nav_movies_comedy"
+                android:title="Comedy" />
+            <item
+                android:id="@+id/nav_movies_drama"
+                android:title="Drama" />
+            <item
+                android:id="@+id/nav_movies_horror"
+                android:title="Horror" />
+            <item
+                android:id="@+id/nav_movies_romance"
+                android:title="Romance" />
+            <item
+                android:id="@+id/nav_movies_scifi"
+                android:title="Sci-Fi" />
+        </menu>
+    </item>
+
+    <!-- Series -->
+    <item
+        android:id="@+id/nav_series"
+        android:title="Series">
+        <menu>
+            <item
+                android:id="@+id/nav_series_action"
+                android:title="Action" />
+            <item
+                android:id="@+id/nav_series_comedy"
+                android:title="Comedy" />
+            <item
+                android:id="@+id/nav_series_drama"
+                android:title="Drama" />
+            <item
+                android:id="@+id/nav_series_horror"
+                android:title="Horror" />
+            <item
+                android:id="@+id/nav_series_romance"
+                android:title="Romance" />
+            <item
+                android:id="@+id/nav_series_scifi"
+                android:title="Sci-Fi" />
+        </menu>
+    </item>
+
+</menu>
