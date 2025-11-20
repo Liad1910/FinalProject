@@ -14,6 +14,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalProject">
         <activity
+            android:name=".WrongMissyActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TheMegActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ToyStoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BoozgalosMovieActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FightClubActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OppenheimerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TheGodfatherActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SchindlersListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MatrixActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MeanGirlsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ForrestGumpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".titanic"
+            android:exported="false" />
+        <activity
             android:name=".SeriesCategoryActivity"
             android:exported="false" />
         <activity
