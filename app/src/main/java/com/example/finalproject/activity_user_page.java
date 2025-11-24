@@ -23,7 +23,7 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class activity_user_page extends AppCompatActivity {
+public class activity_user_page extends BaseActivity {
 
     private static final String TAG = "UserPageActivity";
 

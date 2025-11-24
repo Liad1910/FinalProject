@@ -5,26 +5,27 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
+public class ThePianistActivity extends BaseActivity {   // ✅ CHANGED: יורש BaseActivity
 
-public class ThePianistActivity extends AppCompatActivity {
-
-    private static final String TRAILER_URL = "https://www.youtube.com/watch?v=BFwGqLa_oAo"; // טריילר רשמי
+    private static final String TRAILER_URL =
+            "https://www.youtube.com/watch?v=BFwGqLa_oAo";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.the_pianist);
+
+        setPageContent(R.layout.the_pianist);   // ✅ CHANGED: במקום setContentView
 
         Button btnTrailer   = findViewById(R.id.btnTrailer);
         Button btnShare     = findViewById(R.id.btnShare);
         Button btnFavorites = findViewById(R.id.btnFavorites);
 
+        // טריילר
         btnTrailer.setOnClickListener(v ->
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(TRAILER_URL))));
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(TRAILER_URL)))
+        );
 
+        // שיתוף
         btnShare.setOnClickListener(v -> {
             Intent i = new Intent(Intent.ACTION_SEND);
             i.setType("text/plain");
@@ -33,7 +34,7 @@ public class ThePianistActivity extends AppCompatActivity {
             startActivity(Intent.createChooser(i, "שתף דרך"));
         });
 
-        // שמירה למועדפים – מלאי לפי המימוש שלך (Firestore וכד')
+        // מועדפים
         btnFavorites.setOnClickListener(v -> {
             // TODO: save to favorites
         });

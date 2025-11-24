@@ -8,7 +8,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;  // ✅ CHANGED (נשאר, כי יורשים מ-AppCompatActivity)
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
@@ -16,7 +16,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
-public class loginPage extends AppCompatActivity {
+// ✅ CHANGED: במקום BaseActivity
+public class loginPage extends AppCompatActivity {  // ✅ CHANGED
 
     private EditText eTEmail, eTPass;
     private TextView tVMsg;
@@ -26,7 +27,9 @@ public class loginPage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login_page);
+
+        // ✅ CHANGED: נשאר setContentView רגיל (כי זה דף בלי תפריט)
+        setContentView(R.layout.activity_login_page);  // ✅ CHANGED (אם היה setPageContent - לא צריך)
 
         FirebaseApp.initializeApp(this);
         auth = FirebaseAuth.getInstance();
