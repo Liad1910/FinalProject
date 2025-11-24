@@ -37,4 +37,7 @@ public class BoozgalosMovieActivity extends BaseActivity {   // ✅ CHANGED
 
         // מועדפים
         btnFavorites.setOnClickListener(v -> {
-            // TODO: save movie t
+            // TODO: save movie to favorites
+        });
+    }
+}
