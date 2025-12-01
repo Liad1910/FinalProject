@@ -113,6 +113,23 @@
             android:hint="Enter favorite genre"
             android:layout_marginBottom="24dp" />
 
+        <TextView
+            android:id="@+id/tvFavoritesLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="המועדפים שלי:"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/tvFavorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="(אין מועדפים עדיין)"
+            android:layout_marginTop="4dp" />
+
+
         <!-- הודעות שגיאה / הצלחה -->
         <TextView
             android:id="@+id/tvMsgUser"

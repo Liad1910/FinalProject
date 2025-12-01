@@ -45,22 +45,40 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
     private NavigationView navView;
 
-    // תמונות הפוסטרים של הסרטים
+    // תמונות הפוסטרים של הסרטים (חייב להתאים ל-drawable)
     private final int[] images = {
-            R.drawable.up_poster,              // Up
-            R.drawable.white_chicks_poster,    // White Chicks
-            R.drawable.to_all_the_boys_poster, // To All the Boys I've Loved Before
-            R.drawable.the_pianist_poster,     // The Pianist
-            R.drawable.it_poster               // IT
+            R.drawable.up_poster,               // Up
+            R.drawable.white_chicks_poster,     // White Chicks
+            R.drawable.to_all_the_boys_poster,  // To All the Boys I've Loved Before
+            R.drawable.the_pianist_poster,      // The Pianist
+            R.drawable.it_poster                // IT
     };
 
-    // המסכים שכל תמונה מובילה אליהם
-    private final Class<?>[] targets = {
-            UpActivity.class,
-            WhiteChiksActivity.class,
-            ToAllTheBoysActivity.class,
-            ThePianistActivity.class,
-            ItMovieActivity.class
+    // מזהי סרטים (למועדפים)
+    private final String[] carouselMovieIds = {
+            "up_2009",
+            "white_chicks_2004",
+            "to_all_the_boys_2018",
+            "the_pianist_2002",
+            "it_2017"
+    };
+
+    // שמות הסרטים
+    private final String[] carouselMovieTitles = {
+            "Up (2009)",
+            "White Chicks (2004)",
+            "To All the Boys I've Loved Before (2018)",
+            "The Pianist (2002)",
+            "IT (2017)"
+    };
+
+    // קישורי טריילר (אפשר להחליף לטריילר אחר אם תרצי)
+    private final String[] carouselTrailerUrls = {
+            "https://www.youtube.com/results?search_query=Up+trailer",
+            "https://www.youtube.com/results?search_query=White+Chicks+trailer",
+            "https://www.youtube.com/results?search_query=To+All+the+Boys+I%27ve+Loved+Before+trailer",
+            "https://www.youtube.com/results?search_query=The+Pianist+trailer",
+            "https://www.youtube.com/watch?v=FnCdOQsX5kc" // IT official trailer
     };
 
     // ----- onCreate -----
@@ -106,10 +124,11 @@ public class MainActivity extends AppCompatActivity
         btnMenu.setOnClickListener(v ->
                 drawerLayout.openDrawer(GravityCompat.START));
 
-        // ----- טיפול בתמונות -----
+        // ----- טיפול בתמונות קרוסלה -----
         ivMainImage.setImageResource(images[currentIndex]);
-        ivMainImage.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, targets[currentIndex])));
+
+        // לחיצה על התמונה המרכזית – פותחת MovieContentActivity עם הסרט המתאים
+        ivMainImage.setOnClickListener(v -> openCurrentCarouselMovie());
 
         btnNext.setOnClickListener(v -> {
             currentIndex = (currentIndex + 1) % images.length;
@@ -134,56 +153,17 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    // ----- טיפול בלחיצות בתפריט הצד -----
-//    @Override
-//    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//        int id = item.getItemId();
-//
-//        switch (id) {
-//            case R.id.nav_movies_action:
-//                openMovies("Action");
-//                break;
-//            case R.id.nav_movies_comedy:
-//                openMovies("Comedy");
-//                break;
-//            case R.id.nav_movies_drama:
-//                openMovies("Drama");
-//                break;
-//            case R.id.nav_movies_horror:
-//                openMovies("Horror");
-//                break;
-//            case R.id.nav_movies_romance:
-//                openMovies("Romance");
-//                break;
-//            case R.id.nav_movies_scifi:
-//                openMovies("Sci-Fi");
-//                break;
-//
-//            case R.id.nav_series_action:
-//                openSeries("Action");
-//                break;
-//            case R.id.nav_series_comedy:
-//                openSeries("Comedy");
-//                break;
-//            case R.id.nav_series_drama:
-//                openSeries("Drama");
-//                break;
-//            case R.id.nav_series_horror:
-//                openSeries("Horror");
-//                break;
-//            case R.id.nav_series_romance:
-//                openSeries("Romance");
-//                break;
-//            case R.id.nav_series_scifi:
-//                openSeries("Sci-Fi");
-//                break;
-//        }
-//
-//        drawerLayout.closeDrawer(GravityCompat.START);
-//        return true;
-//    }
+    // פותח את הסרט לפי ה-index הנוכחי בקרוסלה
+    private void openCurrentCarouselMovie() {
+        Intent i = new Intent(MainActivity.this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID,    carouselMovieIds[currentIndex]);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, carouselMovieTitles[currentIndex]);
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL, carouselTrailerUrls[currentIndex]);
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, images[currentIndex]);
+        startActivity(i);
+    }
 
-    // במקום switch – if/else (עוקף את כל בעיית constant expression)
+    // ----- טיפול בלחיצות בתפריט הצד -----
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();

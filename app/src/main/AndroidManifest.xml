@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- הרשאת אינטרנט לפיירבייס ולטריילרים -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -13,81 +14,52 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalProject">
+
+        <!-- ⭐ מסך התוכן של סרט – MUST!! -->
         <activity
-            android:name=".WrongMissyActivity"
+            android:name=".MovieContentActivity"
             android:exported="false" />
-        <activity
-            android:name=".TheMegActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ToyStoryActivity"
-            android:exported="false" />
-        <activity
-            android:name=".BoozgalosMovieActivity"
-            android:exported="false" />
-        <activity
-            android:name=".FightClubActivity"
-            android:exported="false" />
-        <activity
-            android:name=".OppenheimerActivity"
-            android:exported="false" />
-        <activity
-            android:name=".TheGodfatherActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SchindlersListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MatrixActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MeanGirlsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ForrestGumpActivity"
-            android:exported="false" />
-        <activity
-            android:name=".titanic"
-            android:exported="false" />
-        <activity
-            android:name=".SeriesCategoryActivity"
-            android:exported="false" />
+
+        <!-- מסך קטגוריות סרטים -->
         <activity
             android:name=".MoviesCategoryActivity"
             android:exported="false" />
+
+        <!-- מסך קטגוריות סדרות -->
+        <activity
+            android:name=".SeriesCategoryActivity"
+            android:exported="false" />
+
+        <!-- דף משתמש -->
         <activity
             android:name=".activity_user_page"
             android:exported="false" />
-        <activity
-            android:name=".ItMovieActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ThePianistActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ToAllTheBoysActivity"
-            android:exported="false" />
-        <activity
-            android:name=".WhiteChiksActivity"
-            android:exported="false" />
-        <activity
-            android:name=".UpActivity"
-            android:exported="false" />
+
+        <!-- כבר לא צריך – את משתמשת במסך כללי לסרטים -->
+        <!-- <activity android:name=".ItMovieActivity" android:exported="false" /> -->
+
+        <!-- לוגין -->
         <activity
             android:name=".loginPage"
             android:exported="true" />
+
+        <!-- רישום -->
         <activity
             android:name=".registerPage"
             android:exported="true" />
+
+        <!-- מסך הבית -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
     </application>
 
 </manifest>
