@@ -37,9 +37,10 @@ public class MoviesCategoryActivity extends AppCompatActivity {
 
     private void setupMovieButtonsAndFilter() {
 
-        // 1) מיפוי סרטים לקטגוריות
+        // 1) מיפוי סרטים לקטגוריות (עבור הסינון)
         Map<Integer, List<String>> movieGenres = new HashMap<>();
 
+        // --- סרטים שהיו כבר ---
         movieGenres.put(R.id.btnTitanic,      Arrays.asList("Romance", "Drama"));
         movieGenres.put(R.id.btnForrestGump,  Arrays.asList("Drama", "Comedy"));
         movieGenres.put(R.id.btnMatrix,       Arrays.asList("Action", "Sci-Fi"));
@@ -57,10 +58,28 @@ public class MoviesCategoryActivity extends AppCompatActivity {
         movieGenres.put(R.id.btnPianist,      Arrays.asList("Drama"));
         movieGenres.put(R.id.btnGodfather,    Arrays.asList("Drama"));
         movieGenres.put(R.id.btnSchindlers,   Arrays.asList("Drama"));
-        movieGenres.put(R.id.btnT,           Arrays.asList("Horror")); // ⭐ IT
+        movieGenres.put(R.id.btnT,            Arrays.asList("Horror")); // IT
 
-        // 2) קליקים – כולם פותחים MovieContentActivity עם נתונים מתאימים
+        // --- סרטים חדשים שהוספת ---
 
+        movieGenres.put(R.id.btnAvatar,            Arrays.asList("Action", "Sci-Fi"));
+        movieGenres.put(R.id.btnDarkKnight,        Arrays.asList("Action"));
+        movieGenres.put(R.id.btnInception,         Arrays.asList("Action", "Sci-Fi"));
+        movieGenres.put(R.id.btnEndgame,           Arrays.asList("Action"));
+        movieGenres.put(R.id.btnLaLaLand,          Arrays.asList("Romance"));
+        movieGenres.put(R.id.btnLotrReturnKing,    Arrays.asList("Action", "Drama"));
+        movieGenres.put(R.id.btnJoker,             Arrays.asList("Drama"));
+        movieGenres.put(R.id.btnHarryPotter1,      Arrays.asList("Action", "Fantasy"));
+        movieGenres.put(R.id.btnPlanetApes,        Arrays.asList("Sci-Fi"));
+        movieGenres.put(R.id.btnT2,                Arrays.asList("Action", "Sci-Fi"));
+        movieGenres.put(R.id.btnPirates1,          Arrays.asList("Action", "Comedy"));
+        movieGenres.put(R.id.btnToyStory3,         Arrays.asList("Comedy"));
+        movieGenres.put(R.id.btnBarbie,            Arrays.asList("Comedy"));
+        movieGenres.put(R.id.btnTopGunMaverick,    Arrays.asList("Action"));
+
+        // 2) קליקים – כל כפתור פותח את MovieContentActivity
+
+        // ישנים
         findViewById(R.id.btnTitanic).setOnClickListener(v -> openTitanic());
         findViewById(R.id.btnForrestGump).setOnClickListener(v -> openForrestGump());
         findViewById(R.id.btnMatrix).setOnClickListener(v -> openMatrix());
@@ -73,12 +92,28 @@ public class MoviesCategoryActivity extends AppCompatActivity {
         findViewById(R.id.btnMissy).setOnClickListener(v -> openMissy());
         findViewById(R.id.btnchiks).setOnClickListener(v -> openWhiteChicks());
         findViewById(R.id.btnUp).setOnClickListener(v -> openUpMovie());
-        findViewById(R.id.btnToystory).setOnClickListener(v -> openToyStory()); // אותו סרט
+        findViewById(R.id.btnToystory).setOnClickListener(v -> openToyStory());
         findViewById(R.id.btnToalltheboys).setOnClickListener(v -> openToAllTheBoys());
         findViewById(R.id.btnPianist).setOnClickListener(v -> openPianist());
         findViewById(R.id.btnGodfather).setOnClickListener(v -> openGodfather());
         findViewById(R.id.btnSchindlers).setOnClickListener(v -> openSchindlersList());
-        findViewById(R.id.btnT).setOnClickListener(v -> openIT()); // ⭐ IT
+        findViewById(R.id.btnT).setOnClickListener(v -> openIT());
+
+        // חדשים
+        findViewById(R.id.btnAvatar).setOnClickListener(v -> openAvatar());
+        findViewById(R.id.btnDarkKnight).setOnClickListener(v -> openDarkKnight());
+        findViewById(R.id.btnInception).setOnClickListener(v -> openInception());
+        findViewById(R.id.btnEndgame).setOnClickListener(v -> openEndgame());
+        findViewById(R.id.btnLaLaLand).setOnClickListener(v -> openLaLaLand());
+        findViewById(R.id.btnLotrReturnKing).setOnClickListener(v -> openLotrReturnKing());
+        findViewById(R.id.btnJoker).setOnClickListener(v -> openJoker());
+        findViewById(R.id.btnHarryPotter1).setOnClickListener(v -> openHarryPotter1());
+        findViewById(R.id.btnPlanetApes).setOnClickListener(v -> openPlanetApes());
+        findViewById(R.id.btnT2).setOnClickListener(v -> openT2());
+        findViewById(R.id.btnPirates1).setOnClickListener(v -> openPirates1());
+        findViewById(R.id.btnToyStory3).setOnClickListener(v -> openToyStory3());
+        findViewById(R.id.btnBarbie).setOnClickListener(v -> openBarbie());
+        findViewById(R.id.btnTopGunMaverick).setOnClickListener(v -> openTopGunMaverick());
 
         // 3) סינון פוסטרים לפי קטגוריה
         if (!selectedGenre.equals("All")) {
@@ -94,7 +129,7 @@ public class MoviesCategoryActivity extends AppCompatActivity {
         }
     }
 
-    // ---------- פונקציות פתיחה לכל סרט ----------
+    // ---------- פונקציות פתיחה לסרטים קיימים ----------
 
     private void openTitanic() {
         Intent i = new Intent(this, MovieContentActivity.class);
@@ -264,6 +299,151 @@ public class MoviesCategoryActivity extends AppCompatActivity {
         i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
                 "https://www.youtube.com/watch?v=FnCdOQsX5kc");
         i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.it_poster);
+        startActivity(i);
+    }
+
+    // ---------- פונקציות פתיחה לסרטים החדשים ----------
+
+    private void openAvatar() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "avatar_2009");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Avatar (2009)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Avatar+2009+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.avatar_poster);
+        startActivity(i);
+    }
+
+    private void openDarkKnight() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "dark_knight_2008");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "The Dark Knight (2008)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=The+Dark+Knight+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.dark_knight_poster);
+        startActivity(i);
+    }
+
+    private void openInception() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "inception_2010");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Inception (2010)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Inception+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.inception_poster);
+        startActivity(i);
+    }
+
+    private void openEndgame() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "avengers_endgame_2019");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Avengers: Endgame (2019)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Avengers+Endgame+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.endgame_poster);
+        startActivity(i);
+    }
+
+    private void openLaLaLand() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "la_la_land_2016");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "La La Land (2016)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=La+La+Land+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.la_la_land_poster);
+        startActivity(i);
+    }
+
+    private void openLotrReturnKing() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "lotr_return_king_2003");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE,
+                "The Lord of the Rings: The Return of the King (2003)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Return+of+the+King+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.lotr_return_king_poster);
+        startActivity(i);
+    }
+
+    private void openJoker() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "joker_2019");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Joker (2019)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Joker+2019+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.joker_poster);
+        startActivity(i);
+    }
+
+    private void openHarryPotter1() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "harry_potter_sorcerer_2001");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE,
+                "Harry Potter and the Sorcerer's Stone (2001)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Harry+Potter+and+the+Sorcerer%27s+Stone+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.harry_potter1_poster);
+        startActivity(i);
+    }
+
+    private void openPlanetApes() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "planet_of_the_apes_1968");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Planet of the Apes (1968)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Planet+of+the+Apes+1968+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.planet_apes_poster);
+        startActivity(i);
+    }
+
+    private void openT2() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "terminator_2_1991");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Terminator 2: Judgment Day (1991)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Terminator+2+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.t2_poster);
+        startActivity(i);
+    }
+
+    private void openPirates1() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "pirates_curse_black_pearl_2003");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE,
+                "Pirates of the Caribbean: The Curse of the Black Pearl (2003)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Pirates+of+the+Caribbean+Curse+of+the+Black+Pearl+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.pirates1_poster);
+        startActivity(i);
+    }
+
+    private void openToyStory3() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "toy_story_3_2010");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Toy Story 3 (2010)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Toy+Story+3+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.toy_story3_poster);
+        startActivity(i);
+    }
+
+    private void openBarbie() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "barbie_2023");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Barbie (2023)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Barbie+2023+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.barbie_poster);
+        startActivity(i);
+    }
+
+    private void openTopGunMaverick() {
+        Intent i = new Intent(this, MovieContentActivity.class);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, "top_gun_maverick_2022");
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, "Top Gun: Maverick (2022)");
+        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL,
+                "https://www.youtube.com/results?search_query=Top+Gun+Maverick+trailer");
+        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, R.drawable.top_gun_maverick_poster);
         startActivity(i);
     }
 }

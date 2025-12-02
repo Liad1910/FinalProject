@@ -2,206 +2,457 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
-    android:fillViewport="true">
+    android:background="#050510">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
+        <!-- כותרת המסך -->
         <TextView
             android:id="@+id/tvTitleMovies"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Movies – All"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
+            android:text="Movies"
+            android:textSize="26sp"
             android:textStyle="bold"
-            android:layout_marginBottom="12dp"/>
+            android:textColor="#FF67F3"
+            android:shadowColor="#A45CFF"
+            android:shadowRadius="16"
+            android:layout_marginBottom="12dp" />
 
-
-        <!-- ⭐ Titanic -->
-        <ImageButton
-            android:id="@+id/btnTitanic"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/titanic_poster"/>
+            android:layout_height="1dp"
+            android:background="#222222"
+            android:layout_marginBottom="12dp" />
 
-        <!-- ⭐ Forrest Gump -->
-        <ImageButton
-            android:id="@+id/btnForrestGump"
+        <!-- שורה 1: Avatar / Dark Knight / Inception -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/forrest_gump_poster"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
 
-        <!-- ⭐ The Matrix -->
-        <ImageButton
-            android:id="@+id/btnMatrix"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/matrix_poster"/>
+            <ImageButton
+                android:id="@+id/btnAvatar"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/avatar_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Avatar" />
 
-        <!-- ⭐ Boozgalos -->
-        <ImageButton
-            android:id="@+id/btnBoozgalos"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/boozgalos_poster"/>
+            <ImageButton
+                android:id="@+id/btnDarkKnight"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/dark_knight_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Dark Knight" />
 
-        <!-- ⭐ Oppenheimer -->
-        <ImageButton
-            android:id="@+id/btnOppenheimer"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/oppenheimer_poster"/>
+            <ImageButton
+                android:id="@+id/btnInception"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/inception_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Inception" />
+        </LinearLayout>
 
-        <!-- ⭐ Fight Club -->
-        <ImageButton
-            android:id="@+id/btnFightClub"
+        <!-- שורה 2: Endgame / Joker / LOTR: Return of the King -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/fight_club_poster"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
 
-        <!-- ⭐ Toy Story -->
-        <ImageButton
-            android:id="@+id/btnToyStory"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/toy_story_poster"/>
+            <ImageButton
+                android:id="@+id/btnEndgame"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/endgame_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Avengers: Endgame" />
 
-        <!-- ⭐ The Meg -->
-        <ImageButton
-            android:id="@+id/btnMeg"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/the_meg_poster"/>
+            <ImageButton
+                android:id="@+id/btnJoker"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/joker_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Joker" />
 
-        <!-- ⭐ Mean Girls -->
-        <ImageButton
-            android:id="@+id/btnMeanGirls"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/mean_girls_poster"/>
+            <ImageButton
+                android:id="@+id/btnLotrReturnKing"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/lotr_return_king_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="LOTR: Return of the King" />
+        </LinearLayout>
 
-        <!-- ⭐ The Wrong Missy -->
-        <ImageButton
-            android:id="@+id/btnMissy"
+        <!-- שורה 3: Titanic / Forrest Gump / La La Land -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/wrong_missy_poster"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
 
-        <!-- ⭐ White Chicks -->
-        <ImageButton
-            android:id="@+id/btnchiks"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/white_chicks_poster"/>
+            <ImageButton
+                android:id="@+id/btnTitanic"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/titanic_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Titanic" />
 
-        <!-- ⭐ Up -->
-        <ImageButton
-            android:id="@+id/btnUp"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/up_poster"/>
+            <ImageButton
+                android:id="@+id/btnForrestGump"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/forrest_gump_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Forrest Gump" />
 
-        <!-- ⭐ Duplicate Toy Story (if you want, keep it or delete) -->
-        <ImageButton
-            android:id="@+id/btnToystory"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/toy_story_poster"/>
+            <ImageButton
+                android:id="@+id/btnLaLaLand"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/la_la_land_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="La La Land" />
+        </LinearLayout>
 
-        <!-- ⭐ To All the Boys -->
-        <ImageButton
-            android:id="@+id/btnToalltheboys"
+        <!-- שורה 4: The Godfather / The Pianist / Schindler's List -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/to_all_the_boys_poster"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
 
-        <!-- ⭐ The Pianist -->
-        <ImageButton
-            android:id="@+id/btnPianist"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/the_pianist_poster"/>
+            <ImageButton
+                android:id="@+id/btnGodfather"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/the_godfather_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Godfather" />
 
-        <!-- ⭐ The Godfather -->
-        <ImageButton
-            android:id="@+id/btnGodfather"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/the_godfather_poster"/>
+            <ImageButton
+                android:id="@+id/btnPianist"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/the_pianist_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Pianist" />
 
-        <!-- ⭐ Schindler's List -->
-        <ImageButton
-            android:id="@+id/btnSchindlers"
-            android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:background="@null"
-            android:src="@drawable/schindlers_list_poster"/>
+            <ImageButton
+                android:id="@+id/btnSchindlers"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/schindlers_list_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Schindler's List" />
+        </LinearLayout>
 
-        <!-- ⭐ IT (חדש!!) -->
-        <ImageButton
-            android:id="@+id/btnT"
+        <!-- שורה 5: Harry Potter 1 / Matrix / Planet of the Apes -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
-            android:background="@null"
-            android:src="@drawable/it_poster"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnHarryPotter1"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/harry_potter1_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Harry Potter 1" />
+
+            <ImageButton
+                android:id="@+id/btnMatrix"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/matrix_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Matrix" />
+
+            <ImageButton
+                android:id="@+id/btnPlanetApes"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/planet_apes_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Planet of the Apes" />
+        </LinearLayout>
+
+        <!-- שורה 6: Terminator 2 / Pirates 1 / Top Gun: Maverick -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnT2"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/t2_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Terminator 2" />
+
+            <ImageButton
+                android:id="@+id/btnPirates1"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/pirates1_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Pirates of the Caribbean 1" />
+
+            <ImageButton
+                android:id="@+id/btnTopGunMaverick"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/top_gun_maverick_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Top Gun: Maverick" />
+        </LinearLayout>
+
+        <!-- שורה 7: Toy Story / Toystory (עוד אחד) / Toy Story 3 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnToyStory"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/toy_story_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Toy Story" />
+
+            <ImageButton
+                android:id="@+id/btnToystory"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/toy_story_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Toy Story (2nd button)" />
+
+            <ImageButton
+                android:id="@+id/btnToyStory3"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/toy_story3_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Toy Story 3" />
+        </LinearLayout>
+
+        <!-- שורה 8: Up / Mean Girls / To All the Boys -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnUp"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/up_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Up" />
+
+            <ImageButton
+                android:id="@+id/btnMeanGirls"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/mean_girls_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Mean Girls" />
+
+            <ImageButton
+                android:id="@+id/btnToalltheboys"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/to_all_the_boys_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="To All the Boys I've Loved Before" />
+        </LinearLayout>
+
+        <!-- שורה 9: Barbie / Boozgalos / Missy -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnBarbie"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/barbie_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Barbie" />
+
+            <ImageButton
+                android:id="@+id/btnBoozgalos"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/boozgalos_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Boozgalos" />
+
+            <ImageButton
+                android:id="@+id/btnMissy"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/wrong_missy_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Wrong Missy" />
+        </LinearLayout>
+
+        <!-- שורה 10: White Chicks / The Meg / IT -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnchiks"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/white_chicks_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="White Chicks" />
+
+            <ImageButton
+                android:id="@+id/btnMeg"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/the_meg_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Meg" />
+
+            <ImageButton
+                android:id="@+id/btnT"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/it_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="IT" />
+        </LinearLayout>
+
+        <!-- שורה 11: Oppenheimer / Fight Club (שניים בלבד, באמצע) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <ImageButton
+                android:id="@+id/btnOppenheimer"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/oppenheimer_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Oppenheimer" />
+
+            <ImageButton
+                android:id="@+id/btnFightClub"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                android:src="@drawable/fight_club_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Fight Club" />
+
+            <!-- ריבוע ריק כדי לשמור על פריסה של 3 עמודות -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_weight="1" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
