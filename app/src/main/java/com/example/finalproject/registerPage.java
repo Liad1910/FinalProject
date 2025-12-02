@@ -48,8 +48,6 @@ public class registerPage extends AppCompatActivity {
         eTPass = findViewById(R.id.eTPass);
         eTUsername = findViewById(R.id.eTUsername);
         eTBirthYear = findViewById(R.id.eTBirthYear);
-        eTMovie = findViewById(R.id.eTMovie);
-        eTSeries = findViewById(R.id.eTSeries);
         spGenre = findViewById(R.id.spGenre);
         tVMsg = findViewById(R.id.tVMsg);
 
@@ -76,14 +74,13 @@ public class registerPage extends AppCompatActivity {
         String pass = eTPass.getText().toString().trim();
         String username = eTUsername.getText().toString().trim();
         String birthYear = eTBirthYear.getText().toString().trim();
-        String movie = eTMovie.getText().toString().trim();
-        String series = eTSeries.getText().toString().trim();
+
         String genre = spGenre.getSelectedItem().toString();
 
         // בדיקות שדות
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) ||
-                TextUtils.isEmpty(username) || TextUtils.isEmpty(birthYear) ||
-                TextUtils.isEmpty(movie) || TextUtils.isEmpty(series)) {
+                TextUtils.isEmpty(username) || TextUtils.isEmpty(birthYear) )
+             {
             tVMsg.setText("Please fill all fields");
             return;
         }
@@ -121,8 +118,6 @@ public class registerPage extends AppCompatActivity {
                     map.put("email", email);
                     map.put("username", username);
                     map.put("birthYear", birthYear);
-                    map.put("favoriteMovie", movie);
-                    map.put("favoriteSeries", series);
                     map.put("favoriteGenre", genre);
 
                     db.collection("users").document(uid)

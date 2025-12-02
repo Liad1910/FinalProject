@@ -70,27 +70,7 @@
             android:padding="10dp"
             android:layout_marginBottom="16dp" />
 
-        <EditText
-            android:id="@+id/eTMovie"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="סרט אהוב"
-            android:backgroundTint="#00E5FF"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#88CFFF"
-            android:padding="10dp"
-            android:layout_marginBottom="16dp" />
 
-        <EditText
-            android:id="@+id/eTSeries"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="סדרה אהובה"
-            android:backgroundTint="#00E5FF"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#88CFFF"
-            android:padding="10dp"
-            android:layout_marginBottom="16dp" />
 
         <!-- Spinner לז'אנר אהוב -->
         <Spinner

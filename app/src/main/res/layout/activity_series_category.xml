@@ -1,37 +1,278 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="#050510">
 
-    <TextView
-        android:id="@+id/tvTitleSeries"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Series – Action"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:layout_margin="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvContentSeries"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:text="Series in this category will appear here."
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:gravity="center"
-        android:layout_margin="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tvTitleSeries"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <!-- כותרת המסך -->
+        <TextView
+            android:id="@+id/tvTitleSeries"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Series"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#FF67F3"
+            android:shadowColor="#A45CFF"
+            android:shadowRadius="16"
+            android:layout_marginBottom="12dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#222222"
+            android:layout_marginBottom="12dp" />
+
+        <!-- שורה 1: GOT / Breaking Bad / Stranger Things / Friends -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnGot"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/got_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Game of Thrones" />
+
+            <ImageButton
+                android:id="@+id/btnBreakingBad"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/breaking_bad_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Breaking Bad" />
+
+            <ImageButton
+                android:id="@+id/btnStrangerThings"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/stranger_things_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Stranger Things" />
+
+            <ImageButton
+                android:id="@+id/btnFriends"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/friends_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Friends" />
+        </LinearLayout>
+
+        <!-- שורה 2: Sopranos / The Crown / HTGAWM / Grey's Anatomy -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnSopranos"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/sopranos_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Sopranos" />
+
+            <ImageButton
+                android:id="@+id/btnTheCrown"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/the_crown_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Crown" />
+
+            <ImageButton
+                android:id="@+id/btnHTGAWM"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/htgawm_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="How to Get Away with Murder" />
+
+            <ImageButton
+                android:id="@+id/btnGreys"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/greys_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Grey's Anatomy" />
+        </LinearLayout>
+
+        <!-- שורה 3: Two and a Half Men / The Office / Walking Dead / House MD -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnTwoAndHalfMen"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/two_and_half_men_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Two and a Half Men" />
+
+            <ImageButton
+                android:id="@+id/btnTheOffice"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/the_office_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Office (US)" />
+
+            <ImageButton
+                android:id="@+id/btnWalkingDead"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/walking_dead_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Walking Dead" />
+
+            <ImageButton
+                android:id="@+id/btnHouseMD"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/house_md_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="House M.D." />
+        </LinearLayout>
+
+        <!-- שורה 4: Fargo / Ozark / Vikings / House of Cards -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+            <ImageButton
+                android:id="@+id/btnFargo"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/fargo_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Fargo" />
+
+            <ImageButton
+                android:id="@+id/btnOzark"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/ozark_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Ozark" />
+
+            <ImageButton
+                android:id="@+id/btnVikings"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/vikings_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Vikings" />
+
+            <ImageButton
+                android:id="@+id/btnHouseOfCards"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/house_of_cards_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="House of Cards" />
+        </LinearLayout>
+
+        <!-- שורה 5: Chernobyl / Black Mirror / Queen's Gambit / Big Mouth -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <ImageButton
+                android:id="@+id/btnChernobyl"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/chernobyl_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Chernobyl" />
+
+            <ImageButton
+                android:id="@+id/btnBlackMirror"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/black_mirror_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Black Mirror" />
+
+            <ImageButton
+                android:id="@+id/btnQueensGambit"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/queens_gambit_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="The Queen's Gambit" />
+
+            <ImageButton
+                android:id="@+id/btnBigMouth"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_weight="1"
+                android:src="@drawable/big_mouth_poster"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:contentDescription="Big Mouth" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
