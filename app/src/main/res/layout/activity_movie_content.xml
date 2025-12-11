@@ -1,153 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:background="#050510">
+    android:orientation="vertical"
+    android:background="#050515">
 
-    <LinearLayout
+    <!-- Toolbar אמיתי למעלה עם תפריט 3 נקודות -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarMovie"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:layout_height="?attr/actionBarSize"
+        android:background="#050515"
+        app:titleTextColor="#FFFFFF"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-        <TextView
-            android:id="@+id/tvMovieTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Movie Title"
-            android:textColor="#FF67F3"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:shadowColor="#A45CFF"
-            android:shadowRadius="18"
-            android:layout_marginBottom="20dp" />
+    <!-- כל התוכן שהיה לך עד עכשיו בתוך ScrollView -->
+    <ScrollView
+        android:id="@+id/rootScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <ImageView
-            android:id="@+id/imgPoster"
-            android:layout_width="280dp"
-            android:layout_height="380dp"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
-            android:layout_marginBottom="24dp" />
-
-        <Button
-            android:id="@+id/btnTrailer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="🎬 צפייה בטריילר"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:backgroundTint="#356BFF"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="14dp" />
-
-        <Button
-            android:id="@+id/btnShare"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="✨ שיתוף"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:backgroundTint="#FF67F3"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="14dp" />
-
-        <Button
-            android:id="@+id/btnFavorites"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="💜 הוסף למועדפים"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:backgroundTint="#A45CFF"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="26dp" />
-
-        <!-- כותרת אזור ביקורות -->
-        <TextView
-            android:id="@+id/tvReviewsTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ביקורות משתמשים"
-            android:textColor="#FF67F3"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- טופס הוספת ביקורת -->
         <LinearLayout
-            android:id="@+id/layoutAddReview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp"
-            android:background="#171726"
-            android:layout_marginBottom="20dp">
+            android:padding="16dp">
 
+            <!-- כותרת הסרט בתוך המסך -->
             <TextView
-                android:id="@+id/tvAddReviewTitle"
+                android:id="@+id/tvMovieTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="הוספת ביקורת"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:layout_gravity="center_horizontal"
+                android:text="Movie Title"
+                android:textColor="#FF67F3"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:paddingBottom="8dp" />
 
-            <RatingBar
-                android:id="@+id/ratingBarReview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:numStars="5"
-                android:stepSize="1.0"
-                android:layout_marginBottom="8dp" />
-
-            <EditText
-                android:id="@+id/etReviewText"
+            <!-- פוסטר הסרט -->
+            <ImageView
+                android:id="@+id/imgPoster"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="כתוב/כתבי מה חשבת על הסרט..."
-                android:textColor="#FFFFFF"
-                android:textColorHint="#888888"
-                android:minLines="2"
-                android:maxLines="5"
-                android:inputType="textMultiLine"
-                android:gravity="top|start"
-                android:background="#1F1F30"
-                android:padding="8dp"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginTop="8dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_launcher_background" />
 
+            <!-- כפתור טריילר -->
             <Button
-                android:id="@+id/btnSendReview"
+                android:id="@+id/btnTrailer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📣 שלח ביקורת"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:backgroundTint="#356BFF"
-                android:textColor="#FFFFFF" />
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#3D5AFE"
+                android:text="צפייה בטריילר 🎬"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+
+            <!-- כפתור שיתוף -->
+            <Button
+                android:id="@+id/btnShare"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#FF67F3"
+                android:text="שיתוף 💌"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+
+            <!-- כפתור מועדפים -->
+            <Button
+                android:id="@+id/btnFavorites"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#A855F7"
+                android:text="הוספה למועדפים 💖"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
+
+            <!-- כותרת ביקורות -->
+            <TextView
+                android:id="@+id/tvReviewsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="ביקורות משתמשים"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- תיבת הוספת ביקורת -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:background="#151528">
+
+                <TextView
+                    android:id="@+id/tvAddReviewTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="הוספת ביקורת"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <RatingBar
+                    android:id="@+id/ratingBarReview"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:numStars="5"
+                    android:stepSize="1.0" />
+
+                <EditText
+                    android:id="@+id/etReviewText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="#0F0F1F"
+                    android:hint="כתבו/כתבי: מה חשבת על הסרט..."
+                    android:padding="8dp"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#AAAAAA"
+                    android:minLines="2" />
+
+                <Button
+                    android:id="@+id/btnSendReview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="#3D5AFE"
+                    android:text="שלח ביקורת 💜"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- טקסט: אין ביקורות -->
+            <TextView
+                android:id="@+id/tvNoReviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="אין ביקורות עדיין. תהיי הראשונה 😉"
+                android:textColor="#CCCCCC"
+                android:textSize="14sp"
+                android:textAlignment="center" />
+
+            <!-- כאן יתווספו הביקורות שהקוד יוצר דינאמית -->
+            <LinearLayout
+                android:id="@+id/layoutReviewsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
 
         </LinearLayout>
+    </ScrollView>
 
-        <!-- טקסט כשאין ביקורות -->
-        <TextView
-            android:id="@+id/tvNoReviews"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="אין עדיין ביקורות לסרט הזה. תהיה/י הראשון לכתוב!"
-            android:textColor="#BBBBBB"
-            android:textSize="14sp"
-            android:layout_marginBottom="10dp" />
-
-        <!-- רשימת ביקורות (מולאת בקוד) -->
-        <LinearLayout
-            android:id="@+id/layoutReviewsList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="20dp" />
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

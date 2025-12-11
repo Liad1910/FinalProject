@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -14,14 +16,15 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +59,14 @@ public class MovieContentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_content);
+
+        // ----- Toolbar -----
+        Toolbar toolbar = findViewById(R.id.toolbarMovie);
+        setSupportActionBar(toolbar);
+        // לא חייבים כותרת מה־Toolbar אם לא רוצים:
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("");
+        }
 
         // ----- קבלת נתונים -----
         movieId = getIntent().getStringExtra(EXTRA_MOVIE_ID);
@@ -133,6 +144,111 @@ public class MovieContentActivity extends AppCompatActivity {
         loadReviews();
     }
 
+    // =====================================================
+    //   תפריט אמיתי (3 נקודות) ב־Toolbar
+    // =====================================================
+    private void performLogout() {
+        FirebaseAuth.getInstance().signOut();
+        Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, loginPage.class));
+        finish();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.nav_drawer_menu, menu);  // nav_menu.xml שלך
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        Intent intent;
+
+        // ---------- Movies ----------
+        if (id == R.id.nav_movies_action) {
+            intent = new Intent(this, MoviesCategoryActivity.class);
+            intent.putExtra("genre", "Action");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_movies_comedy) {
+            intent = new Intent(this, MoviesCategoryActivity.class);
+            intent.putExtra("genre", "Comedy");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_movies_drama) {
+            intent = new Intent(this, MoviesCategoryActivity.class);
+            intent.putExtra("genre", "Drama");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_movies_horror) {
+            intent = new Intent(this, MoviesCategoryActivity.class);
+            intent.putExtra("genre", "Horror");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_movies_romance) {
+            intent = new Intent(this, MoviesCategoryActivity.class);
+            intent.putExtra("genre", "Romance");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_movies_scifi) {
+            intent = new Intent(this, MoviesCategoryActivity.class);
+            intent.putExtra("genre", "Sci-Fi");
+            startActivity(intent);
+            return true;
+        }
+
+        // ---------- Series ----------
+        else if (id == R.id.nav_series_action) {
+            intent = new Intent(this, SeriesCategoryActivity.class);
+            intent.putExtra("genre", "Action");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_series_comedy) {
+            intent = new Intent(this, SeriesCategoryActivity.class);
+            intent.putExtra("genre", "Comedy");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_series_drama) {
+            intent = new Intent(this, SeriesCategoryActivity.class);
+            intent.putExtra("genre", "Drama");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_series_horror) {
+            intent = new Intent(this, SeriesCategoryActivity.class);
+            intent.putExtra("genre", "Horror");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_series_romance) {
+            intent = new Intent(this, SeriesCategoryActivity.class);
+            intent.putExtra("genre", "Romance");
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.nav_series_scifi) {
+            intent = new Intent(this, SeriesCategoryActivity.class);
+            intent.putExtra("genre", "Sci-Fi");
+            startActivity(intent);
+            return true;
+        }
+
+        if (id == R.id.nav_login) {
+            startActivity(new Intent(this, loginPage.class));
+            return true;
+        } else if (id == R.id.nav_register) {
+            startActivity(new Intent(this, registerPage.class));
+            return true;
+        } else if (id == R.id.nav_user_page) {
+            startActivity(new Intent(this, activity_user_page.class));
+            return true;
+        }else if (id == R.id.nav_logout) {
+                performLogout();
+                return true;
+            }
+
+
+            return super.onOptionsItemSelected(item);
+
+    }
 
     // =====================================================
     //   טופס ביקורת
@@ -140,7 +256,6 @@ public class MovieContentActivity extends AppCompatActivity {
 
     private void setupReviewForm() {
         if (currentUser == null) {
-            // משתמש אנונימי → לא ניתן להכניס ביקורת
             ratingBarReview.setIsIndicator(true);
             etReviewText.setEnabled(false);
 
@@ -148,11 +263,9 @@ public class MovieContentActivity extends AppCompatActivity {
                     Toast.makeText(this, "צריך להתחבר כדי לכתוב ביקורת", Toast.LENGTH_SHORT).show()
             );
         } else {
-            // משתמש מחובר
             btnSendReview.setOnClickListener(v -> sendReview());
         }
     }
-
 
     private void sendReview() {
         if (currentUser == null) {
@@ -173,7 +286,6 @@ public class MovieContentActivity extends AppCompatActivity {
             return;
         }
 
-        // ---------- יצירת מפה לשמירה ----------
         Map<String, Object> review = new HashMap<>();
         review.put("movieId", movieId);
         review.put("movieTitle", movieTitle);
@@ -183,23 +295,21 @@ public class MovieContentActivity extends AppCompatActivity {
         review.put("userEmail", currentUser.getEmail());
         review.put("userId", currentUser.getUid());
 
-        // ---------- שמירה בקולקציה המרכזית "reviews" ----------
         db.collection("reviews")
                 .add(review)
                 .addOnSuccessListener(docRef -> {
                     Toast.makeText(this, "הביקורת נשמרה! 💜", Toast.LENGTH_SHORT).show();
                     etReviewText.setText("");
                     ratingBarReview.setRating(0);
-                    loadReviews();   // טוען מחדש
+                    loadReviews();
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "שגיאה בשמירת הביקורת", Toast.LENGTH_SHORT).show()
                 );
     }
 
-
     // =====================================================
-    //   טעינת ביקורות לפי movieId
+    //   טעינת ביקורות
     // =====================================================
 
     private void loadReviews() {
@@ -226,10 +336,8 @@ public class MovieContentActivity extends AppCompatActivity {
                         Toast.makeText(this, "שגיאה בטעינת ביקורות", Toast.LENGTH_SHORT).show());
     }
 
-
-
     // =====================================================
-    //   בניית תיבת ביקורת בקוד (בלי item_review)
+    //   בניית תיבת ביקורת
     // =====================================================
 
     private void addReviewView(DocumentSnapshot doc) {
@@ -241,7 +349,6 @@ public class MovieContentActivity extends AppCompatActivity {
         if (userEmail == null) userEmail = "משתמש";
         if (text == null) text = "";
 
-        // קופסה חיצונית
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
         box.setBackgroundColor(Color.parseColor("#151528"));
@@ -255,42 +362,34 @@ public class MovieContentActivity extends AppCompatActivity {
         params.setMargins(0, 0, 0, dpToPx(10));
         box.setLayoutParams(params);
 
-        // אימייל
         TextView tvUser = new TextView(this);
         tvUser.setText(userEmail);
         tvUser.setTextColor(Color.parseColor("#FF67F3"));
         tvUser.setTextSize(14);
         tvUser.setTypeface(null, android.graphics.Typeface.BOLD);
 
-        // דירוג
         TextView tvRating = new TextView(this);
         if (rating != null)
             tvRating.setText("⭐ " + rating.intValue() + "/5");
         else
             tvRating.setText("");
-
         tvRating.setTextColor(Color.parseColor("#FFC94F"));
 
-        // טקסט ביקורת
         TextView tvText = new TextView(this);
         tvText.setText(text);
         tvText.setTextColor(Color.WHITE);
         tvText.setTextSize(14);
 
-        // הוספה לקופסה
         box.addView(tvUser);
         box.addView(tvRating);
         box.addView(tvText);
 
-        // הוספה למסך
         layoutReviewsList.addView(box);
     }
-
 
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
-
 
     // =====================================================
     //   הוספה למועדפים

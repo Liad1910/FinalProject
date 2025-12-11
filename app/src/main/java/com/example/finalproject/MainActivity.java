@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,7 +26,6 @@ public class MainActivity extends AppCompatActivity
 
     // ----- שדות למסך -----
     private TextView tvHelloMain;
-    private Button btnGoLogin, btnGo, btnLogout, btnUserPage;
 
     private FirebaseFirestore db;
     private FirebaseAuth auth;
@@ -35,7 +33,7 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener authListener;
     private ListenerRegistration userDocListener;
 
-    // ----- שדות לקרוסלת תמונות -----
+    // ----- קרוסלת תמונות -----
     private ImageView ivMainImage;
     private ImageButton btnNext, btnPrev, btnMenu;
 
@@ -45,16 +43,15 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawerLayout;
     private NavigationView navView;
 
-    // תמונות הפוסטרים של הסרטים (חייב להתאים ל-drawable)
+    // תמונות הפוסטרים של הסרטים
     private final int[] images = {
-            R.drawable.up_poster,               // Up
-            R.drawable.white_chicks_poster,     // White Chicks
-            R.drawable.to_all_the_boys_poster,  // To All the Boys I've Loved Before
-            R.drawable.the_pianist_poster,      // The Pianist
-            R.drawable.it_poster                // IT
+            R.drawable.up_poster,
+            R.drawable.white_chicks_poster,
+            R.drawable.to_all_the_boys_poster,
+            R.drawable.the_pianist_poster,
+            R.drawable.it_poster
     };
 
-    // מזהי סרטים (למועדפים)
     private final String[] carouselMovieIds = {
             "up_2009",
             "white_chicks_2004",
@@ -63,7 +60,6 @@ public class MainActivity extends AppCompatActivity
             "it_2017"
     };
 
-    // שמות הסרטים
     private final String[] carouselMovieTitles = {
             "Up (2009)",
             "White Chicks (2004)",
@@ -72,62 +68,43 @@ public class MainActivity extends AppCompatActivity
             "IT (2017)"
     };
 
-    // קישורי טריילר (אפשר להחליף לטריילר אחר אם תרצי)
     private final String[] carouselTrailerUrls = {
             "https://www.youtube.com/results?search_query=Up+trailer",
             "https://www.youtube.com/results?search_query=White+Chicks+trailer",
-            "https://www.youtube.com/results?search_query=To+All+the+Boys+I%27ve+Loved+Before+trailer",
+            "https://www.youtube.com/results?search_query=To+All+the+Boys+I've+Loved+Before+trailer",
             "https://www.youtube.com/results?search_query=The+Pianist+trailer",
-            "https://www.youtube.com/watch?v=FnCdOQsX5kc" // IT official trailer
+            "https://www.youtube.com/watch?v=FnCdOQsX5kc"
     };
 
-    // ----- onCreate -----
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Drawer + NavigationView
+        // Drawer
         drawerLayout = findViewById(R.id.drawer_layout);
-        navView      = findViewById(R.id.nav_view);
+        navView = findViewById(R.id.nav_view);
         navView.setNavigationItemSelectedListener(this);
 
-        // מציאת רכיבים
+        // רכיבים
         tvHelloMain = findViewById(R.id.tvHelloMain);
-        btnGoLogin  = findViewById(R.id.btnGoLogin);
-        btnGo       = findViewById(R.id.btnGo);
-        btnLogout   = findViewById(R.id.btnLogout);
-        btnUserPage = findViewById(R.id.btnUserPage);
-
         ivMainImage = findViewById(R.id.ivMainImage);
-        btnNext     = findViewById(R.id.btnNext);
-        btnPrev     = findViewById(R.id.btnPrev);
-        btnMenu     = findViewById(R.id.btnMenu);
+        btnNext = findViewById(R.id.btnNext);
+        btnPrev = findViewById(R.id.btnPrev);
+        btnMenu = findViewById(R.id.btnMenu);
 
-        db   = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // ----- ניווטים בסיסיים -----
-        btnGoLogin.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, loginPage.class)));
-
-        btnGo.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, registerPage.class)));
-
-        btnLogout.setOnClickListener(this::logout);
-
-        btnUserPage.setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, activity_user_page.class)));
-
-        // כפתור 3 קווים – פתיחת התפריט הצדדי
+        // כפתור התפריט הצדדי
         btnMenu.setOnClickListener(v ->
-                drawerLayout.openDrawer(GravityCompat.START));
+                drawerLayout.openDrawer(GravityCompat.START)
+        );
 
-        // ----- טיפול בתמונות קרוסלה -----
+        // קרוסלה
         ivMainImage.setImageResource(images[currentIndex]);
 
-        // לחיצה על התמונה המרכזית – פותחת MovieContentActivity עם הסרט המתאים
         ivMainImage.setOnClickListener(v -> openCurrentCarouselMovie());
 
         btnNext.setOnClickListener(v -> {
@@ -140,7 +117,7 @@ public class MainActivity extends AppCompatActivity
             ivMainImage.setImageResource(images[currentIndex]);
         });
 
-        // ----- מאזין התחברות לפיירבייס -----
+        // מאזין שינוי התחברות
         authListener = fa -> {
             FirebaseUser user = fa.getCurrentUser();
             if (user == null) {
@@ -153,49 +130,46 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    // פותח את הסרט לפי ה-index הנוכחי בקרוסלה
+    // פותח סרט מהקרוסלה
     private void openCurrentCarouselMovie() {
         Intent i = new Intent(MainActivity.this, MovieContentActivity.class);
-        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID,    carouselMovieIds[currentIndex]);
+        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, carouselMovieIds[currentIndex]);
         i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, carouselMovieTitles[currentIndex]);
         i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL, carouselTrailerUrls[currentIndex]);
         i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, images[currentIndex]);
         startActivity(i);
     }
 
-    // ----- טיפול בלחיצות בתפריט הצד -----
+    // ----- טיפול בתפריט הצד -----
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
         // Movies
-        if (id == R.id.nav_movies_action) {
-            openMovies("Action");
-        } else if (id == R.id.nav_movies_comedy) {
-            openMovies("Comedy");
-        } else if (id == R.id.nav_movies_drama) {
-            openMovies("Drama");
-        } else if (id == R.id.nav_movies_horror) {
-            openMovies("Horror");
-        } else if (id == R.id.nav_movies_romance) {
-            openMovies("Romance");
-        } else if (id == R.id.nav_movies_scifi) {
-            openMovies("Sci-Fi");
-        }
+        if (id == R.id.nav_movies_action) openMovies("Action");
+        else if (id == R.id.nav_movies_comedy) openMovies("Comedy");
+        else if (id == R.id.nav_movies_drama) openMovies("Drama");
+        else if (id == R.id.nav_movies_horror) openMovies("Horror");
+        else if (id == R.id.nav_movies_romance) openMovies("Romance");
+        else if (id == R.id.nav_movies_scifi) openMovies("Sci-Fi");
 
-        // Series
-        else if (id == R.id.nav_series_action) {
-            openSeries("Action");
-        } else if (id == R.id.nav_series_comedy) {
-            openSeries("Comedy");
-        } else if (id == R.id.nav_series_drama) {
-            openSeries("Drama");
-        } else if (id == R.id.nav_series_horror) {
-            openSeries("Horror");
-        } else if (id == R.id.nav_series_romance) {
-            openSeries("Romance");
-        } else if (id == R.id.nav_series_scifi) {
-            openSeries("Sci-Fi");
+            // Series
+        else if (id == R.id.nav_series_action) openSeries("Action");
+        else if (id == R.id.nav_series_comedy) openSeries("Comedy");
+        else if (id == R.id.nav_series_drama) openSeries("Drama");
+        else if (id == R.id.nav_series_horror) openSeries("Horror");
+        else if (id == R.id.nav_series_romance) openSeries("Romance");
+        else if (id == R.id.nav_series_scifi) openSeries("Sci-Fi");
+
+            // User actions
+        else if (id == R.id.nav_login) {
+            startActivity(new Intent(this, loginPage.class));
+        } else if (id == R.id.nav_register) {
+            startActivity(new Intent(this, registerPage.class));
+        } else if (id == R.id.nav_user_page) {
+            startActivity(new Intent(this, activity_user_page.class));
+        } else if (id == R.id.nav_logout) {
+            logout(null);
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -233,23 +207,23 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        if (authListener != null) {
-            auth.removeAuthStateListener(authListener);
-        }
+        if (authListener != null) auth.removeAuthStateListener(authListener);
         detachUserDocListener();
     }
 
-    // ----- עבודה עם Firestore בשביל השם -----
+    // ----- Firestore -----
     private void attachUserDocListener(String uid, FirebaseUser fallbackUser) {
         detachUserDocListener();
         DocumentReference ref = db.collection("users").document(uid);
         userDocListener = ref.addSnapshotListener((snap, e) -> {
             String nameFromFs = (snap != null && snap.exists()) ? snap.getString("username") : null;
+
             String display = firstNonEmpty(
                     nameFromFs,
                     safe(fallbackUser.getDisplayName()),
                     safe(fallbackUser.getEmail())
             );
+
             tvHelloMain.setText(display != null ? "שלום " + display : "שלום אנונימי");
         });
     }
@@ -264,20 +238,25 @@ public class MainActivity extends AppCompatActivity
     // ----- מצבי UI -----
     private void showAnonymousUI() {
         tvHelloMain.setText("שלום אנונימי");
-        btnLogout.setVisibility(View.GONE);     // מסתירים התנתקות
-        btnUserPage.setVisibility(View.GONE);   // מסתירים דף משתמש
-        btnGoLogin.setVisibility(View.VISIBLE); // מראים לוגין
-        btnGo.setVisibility(View.VISIBLE);      // מראים הרשמה
+
+        if (navView != null) {
+            navView.getMenu().findItem(R.id.nav_login).setVisible(true);
+            navView.getMenu().findItem(R.id.nav_register).setVisible(true);
+            navView.getMenu().findItem(R.id.nav_user_page).setVisible(false);
+            navView.getMenu().findItem(R.id.nav_logout).setVisible(false);
+        }
     }
 
     private void showLoggedInUI() {
-        btnLogout.setVisibility(View.VISIBLE);   // מראים התנתקות
-        btnUserPage.setVisibility(View.VISIBLE); // מראים דף משתמש
-        btnGoLogin.setVisibility(View.GONE);     // מסתירים לוגין
-        btnGo.setVisibility(View.GONE);          // מסתירים הרשמה
+        if (navView != null) {
+            navView.getMenu().findItem(R.id.nav_login).setVisible(false);
+            navView.getMenu().findItem(R.id.nav_register).setVisible(false);
+            navView.getMenu().findItem(R.id.nav_user_page).setVisible(true);
+            navView.getMenu().findItem(R.id.nav_logout).setVisible(true);
+        }
     }
 
-    // ----- פונקציות עזר -----
+    // ----- עזר -----
     private static String safe(String s) {
         return (s != null && !s.trim().isEmpty()) ? s.trim() : null;
     }

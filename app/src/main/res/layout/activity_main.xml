@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <!-- התוכן הראשי שלך כמו שהיה קודם -->
+    <!-- התוכן הראשי -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
@@ -15,14 +15,15 @@
         android:background="#000000"
         android:fitsSystemWindows="true">
 
-        <!-- תפריט עליון -->
+        <!-- תפריט עליון – רק כפתור 3 קווים -->
         <LinearLayout
             android:id="@+id/topMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
+            android:gravity="start|center_vertical"
             android:background="#111111"
+            android:padding="4dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -38,45 +39,6 @@
                 android:contentDescription="Menu"
                 android:layout_margin="8dp" />
 
-            <Button
-                android:id="@+id/btnGo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="עמוד הרשמה"
-                android:backgroundTint="#8733DE"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:layout_margin="8dp"/>
-
-            <Button
-                android:id="@+id/btnGoLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="עמוד לוגין"
-                android:backgroundTint="#00FFFF"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:layout_margin="8dp"/>
-
-            <Button
-                android:id="@+id/btnUserPage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="דף משתמש"
-                android:backgroundTint="#FFA500"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:layout_margin="8dp"/>
-
-            <Button
-                android:id="@+id/btnLogout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="התנתקות"
-                android:backgroundTint="#FF00FF"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:layout_margin="8dp"/>
         </LinearLayout>
 
         <!-- כותרת / שלום -->
@@ -91,9 +53,9 @@
             android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/topMenu"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- תמונה מרכזית גדולה -->
+        <!-- תמונה מרכזית גדולה (קרוסלה) -->
         <ImageView
             android:id="@+id/ivMainImage"
             android:layout_width="0dp"
@@ -110,7 +72,7 @@
             android:scaleType="centerCrop"
             android:adjustViewBounds="true"
             android:src="@drawable/up_poster"
-            android:elevation="10dp"/>
+            android:elevation="10dp" />
 
         <!-- חץ אחורה -->
         <ImageButton
@@ -120,10 +82,10 @@
             android:background="@android:color/transparent"
             android:src="@android:drawable/ic_media_previous"
             android:tint="#FFFFFF"
+            android:padding="8dp"
             app:layout_constraintTop_toTopOf="@id/ivMainImage"
             app:layout_constraintBottom_toBottomOf="@id/ivMainImage"
-            app:layout_constraintStart_toStartOf="parent"
-            android:padding="8dp"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <!-- חץ קדימה -->
         <ImageButton
@@ -133,14 +95,14 @@
             android:background="@android:color/transparent"
             android:src="@android:drawable/ic_media_next"
             android:tint="#FFFFFF"
+            android:padding="8dp"
             app:layout_constraintTop_toTopOf="@id/ivMainImage"
             app:layout_constraintBottom_toBottomOf="@id/ivMainImage"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:padding="8dp"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- תפריט צד (3 קווים) -->
+    <!-- תפריט צד -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
@@ -148,6 +110,5 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:menu="@menu/nav_drawer_menu" />
-
 
 </androidx.drawerlayout.widget.DrawerLayout>

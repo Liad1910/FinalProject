@@ -53,4 +53,21 @@
         </menu>
     </item>
 
+    <!-- User / Account -->
+    <item
+        android:id="@+id/nav_login"
+        android:title="התחברות" />
+
+    <item
+        android:id="@+id/nav_register"
+        android:title="הרשמה" />
+
+    <item
+        android:id="@+id/nav_user_page"
+        android:title="הפרופיל שלי" />
+
+    <item
+        android:id="@+id/nav_logout"
+        android:title="התנתקות" />
+
 </menu>
