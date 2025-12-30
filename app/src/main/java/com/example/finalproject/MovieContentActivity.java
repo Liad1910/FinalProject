@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class MovieContentActivity extends AppCompatActivity {
     public static final String EXTRA_TRAILER_URL = "EXTRA_TRAILER_URL";
     public static final String EXTRA_POSTER_RES_ID = "EXTRA_POSTER_RES_ID";
 
-    // ✅ חדש (עמוד שנוצר מ-Firestore)
+    // ✅ חדש (עמוד שנוצר מ-Firestore) - מתאים גם לסרטים וגם לסדרות
     public static final String EXTRA_TITLE_ID = "EXTRA_TITLE_ID";
 
     private String movieId;
@@ -96,15 +97,18 @@ public class MovieContentActivity extends AppCompatActivity {
         layoutReviewsList = findViewById(R.id.layoutReviewsList);
         tvNoReviews = findViewById(R.id.tvNoReviews);
 
+        // ✅ הכפתורים תמיד עובדים (גם לפני שהנתונים נטענים)
+        setupButtons(btnTrailer, btnShare, btnFavorites);
+
+        // ----- טופס ביקורת -----
+        setupReviewForm();
+
         // =====================================================
         // ✅ מצב חדש: נכנסו דרך עמוד שנוצר מה-Firestore
         // =====================================================
         titleId = getIntent().getStringExtra(EXTRA_TITLE_ID);
         if (titleId != null && !titleId.trim().isEmpty()) {
-            setupReviewForm(); // אפשר כבר להפעיל
             loadTitleFromFirestore(titleId, tvTitle, imgPoster);
-            // loadReviews יקרה בתוך loadTitleFromFirestore אחרי שנקבע movieId
-            setupButtons(btnTrailer, btnShare, btnFavorites);
             return;
         }
 
@@ -118,11 +122,6 @@ public class MovieContentActivity extends AppCompatActivity {
 
         tvTitle.setText(movieTitle != null ? movieTitle : "Movie");
         if (posterResId != 0) imgPoster.setImageResource(posterResId);
-
-        setupButtons(btnTrailer, btnShare, btnFavorites);
-
-        // ----- טופס ביקורת -----
-        setupReviewForm();
 
         // ----- טעינת ביקורות -----
         loadReviews();
@@ -148,8 +147,8 @@ public class MovieContentActivity extends AppCompatActivity {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
 
-            String subject = movieTitle != null ? movieTitle : "סרט/סדרה שווה";
-            String text = subject + (trailerUrl != null ? "\nטריילר: " + trailerUrl : "");
+            String subject = (movieTitle != null && !movieTitle.isEmpty()) ? movieTitle : "סרט/סדרה שווה";
+            String text = subject + (trailerUrl != null && !trailerUrl.isEmpty() ? "\nטריילר: " + trailerUrl : "");
 
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
             shareIntent.putExtra(Intent.EXTRA_TEXT, text);
@@ -161,6 +160,10 @@ public class MovieContentActivity extends AppCompatActivity {
         btnFavorites.setOnClickListener(v -> {
             if (userDocRef == null) {
                 Toast.makeText(this, "צריך להתחבר כדי לשמור מועדפים", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (movieId == null || movieId.trim().isEmpty()) {
+                Toast.makeText(this, "עוד רגע... הנתונים נטענים", Toast.LENGTH_SHORT).show();
                 return;
             }
             saveToFavorites();
@@ -303,6 +306,10 @@ public class MovieContentActivity extends AppCompatActivity {
             Toast.makeText(this, "צריך להתחבר כדי לכתוב ביקורת", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (movieId == null || movieId.trim().isEmpty()) {
+            Toast.makeText(this, "עוד רגע... הנתונים נטענים", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         float rating = ratingBarReview.getRating();
         String text = etReviewText.getText().toString().trim();
@@ -313,7 +320,7 @@ public class MovieContentActivity extends AppCompatActivity {
         }
 
         if (text.isEmpty()) {
-            Toast.makeText(this, "תכתבי לפחות כמה מילים על הסרט :)", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "תכתבי לפחות כמה מילים על הסרט/סדרה :)", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -350,6 +357,7 @@ public class MovieContentActivity extends AppCompatActivity {
 
         db.collection("reviews")
                 .whereEqualTo("movieId", movieId)
+                .orderBy("timestamp", Query.Direction.DESCENDING) // ✅ מסודר מהחדש לישן
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
 
@@ -464,11 +472,11 @@ public class MovieContentActivity extends AppCompatActivity {
 
                     String title = doc.getString("title");
                     Long yearL = doc.getLong("year");
-                    String type = doc.getString("type");
+                    String type = doc.getString("type"); // movie / series
                     String posterResName = doc.getString("posterResName");
                     trailerUrl = doc.getString("trailerUrl"); // יכול להיות null
 
-                    if (title == null) title = "Movie";
+                    if (title == null) title = "Title";
 
                     String fullTitle = title;
                     if (yearL != null && yearL != 0) fullTitle = title + " (" + yearL + ")";

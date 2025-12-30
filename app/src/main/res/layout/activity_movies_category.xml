@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#050510">
@@ -68,7 +68,7 @@
                 android:contentDescription="Inception" />
         </LinearLayout>
 
-        <!-- שורה 2: Endgame / Joker / LOTR: Return of the King -->
+        <!-- שורה 2 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
                 android:contentDescription="LOTR: Return of the King" />
         </LinearLayout>
 
-        <!-- שורה 3: Titanic / Forrest Gump / La La Land -->
+        <!-- שורה 3 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -146,7 +146,7 @@
                 android:contentDescription="La La Land" />
         </LinearLayout>
 
-        <!-- שורה 4: The Godfather / The Pianist / Schindler's List -->
+        <!-- שורה 4 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -185,7 +185,7 @@
                 android:contentDescription="Schindler's List" />
         </LinearLayout>
 
-        <!-- שורה 5: Harry Potter 1 / Matrix / Planet of the Apes -->
+        <!-- שורה 5 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -224,7 +224,7 @@
                 android:contentDescription="Planet of the Apes" />
         </LinearLayout>
 
-        <!-- שורה 6: Terminator 2 / Pirates 1 / Top Gun: Maverick -->
+        <!-- שורה 6 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -263,7 +263,7 @@
                 android:contentDescription="Top Gun: Maverick" />
         </LinearLayout>
 
-        <!-- שורה 7: Toy Story / Toystory (עוד אחד) / Toy Story 3 -->
+        <!-- שורה 7 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -302,7 +302,7 @@
                 android:contentDescription="Toy Story 3" />
         </LinearLayout>
 
-        <!-- שורה 8: Up / Mean Girls / To All the Boys -->
+        <!-- שורה 8 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -341,7 +341,7 @@
                 android:contentDescription="To All the Boys I've Loved Before" />
         </LinearLayout>
 
-        <!-- שורה 9: Barbie / Boozgalos / Missy -->
+        <!-- שורה 9 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -380,7 +380,7 @@
                 android:contentDescription="The Wrong Missy" />
         </LinearLayout>
 
-        <!-- שורה 10: White Chicks / The Meg / IT -->
+        <!-- שורה 10 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -419,7 +419,7 @@
                 android:contentDescription="IT" />
         </LinearLayout>
 
-        <!-- שורה 11: Oppenheimer / Fight Club (שניים בלבד, באמצע) -->
+        <!-- שורה 11 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -447,12 +447,34 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="Fight Club" />
 
-            <!-- ריבוע ריק כדי לשמור על פריסה של 3 עמודות -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="200dp"
                 android:layout_weight="1" />
         </LinearLayout>
 
+        <!-- ✅ NEW: כותרת + גריד סרטים שנוצרו מהאפליקציה -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New from users"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvUserMovies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvUserTitles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"/>
+
+
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
