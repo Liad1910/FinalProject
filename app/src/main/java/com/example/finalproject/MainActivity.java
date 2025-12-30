@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -78,6 +79,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // ✅ Splash Screen – חייב להיות לפני super
+        SplashScreen.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -97,7 +102,7 @@ public class MainActivity extends AppCompatActivity
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // כפתור התפריט הצדדי
+        // כפתור תפריט
         btnMenu.setOnClickListener(v ->
                 drawerLayout.openDrawer(GravityCompat.START)
         );
@@ -117,7 +122,7 @@ public class MainActivity extends AppCompatActivity
             ivMainImage.setImageResource(images[currentIndex]);
         });
 
-        // מאזין שינוי התחברות
+        // מאזין התחברות
         authListener = fa -> {
             FirebaseUser user = fa.getCurrentUser();
             if (user == null) {
@@ -130,9 +135,9 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    // פותח סרט מהקרוסלה
+    // ----- פתיחת סרט מהקרוסלה -----
     private void openCurrentCarouselMovie() {
-        Intent i = new Intent(MainActivity.this, MovieContentActivity.class);
+        Intent i = new Intent(this, MovieContentActivity.class);
         i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, carouselMovieIds[currentIndex]);
         i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, carouselMovieTitles[currentIndex]);
         i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL, carouselTrailerUrls[currentIndex]);
@@ -140,12 +145,11 @@ public class MainActivity extends AppCompatActivity
         startActivity(i);
     }
 
-    // ----- טיפול בתפריט הצד -----
+    // ----- תפריט צד -----
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        // Movies
         if (id == R.id.nav_movies_action) openMovies("Action");
         else if (id == R.id.nav_movies_comedy) openMovies("Comedy");
         else if (id == R.id.nav_movies_drama) openMovies("Drama");
@@ -153,7 +157,6 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_movies_romance) openMovies("Romance");
         else if (id == R.id.nav_movies_scifi) openMovies("Sci-Fi");
 
-            // Series
         else if (id == R.id.nav_series_action) openSeries("Action");
         else if (id == R.id.nav_series_comedy) openSeries("Comedy");
         else if (id == R.id.nav_series_drama) openSeries("Drama");
@@ -161,16 +164,14 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_series_romance) openSeries("Romance");
         else if (id == R.id.nav_series_scifi) openSeries("Sci-Fi");
 
-            // User actions
-        else if (id == R.id.nav_login) {
-            startActivity(new Intent(this, loginPage.class));
-        } else if (id == R.id.nav_register) {
-            startActivity(new Intent(this, registerPage.class));
-        } else if (id == R.id.nav_user_page) {
-            startActivity(new Intent(this, activity_user_page.class));
-        } else if (id == R.id.nav_logout) {
-            logout(null);
+        else if (id == R.id.nav_login) startActivity(new Intent(this, loginPage.class));
+        else if (id == R.id.nav_register) startActivity(new Intent(this, registerPage.class));
+        else if (id == R.id.nav_user_page) startActivity(new Intent(this, activity_user_page.class));
+        else if (id == R.id.nav_create_title) {
+            startActivity(new Intent(this, CreateTitleActivity.class));
         }
+
+        else if (id == R.id.nav_logout) logout(null);
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -238,22 +239,17 @@ public class MainActivity extends AppCompatActivity
     // ----- מצבי UI -----
     private void showAnonymousUI() {
         tvHelloMain.setText("שלום אנונימי");
-
-        if (navView != null) {
-            navView.getMenu().findItem(R.id.nav_login).setVisible(true);
-            navView.getMenu().findItem(R.id.nav_register).setVisible(true);
-            navView.getMenu().findItem(R.id.nav_user_page).setVisible(false);
-            navView.getMenu().findItem(R.id.nav_logout).setVisible(false);
-        }
+        navView.getMenu().findItem(R.id.nav_login).setVisible(true);
+        navView.getMenu().findItem(R.id.nav_register).setVisible(true);
+        navView.getMenu().findItem(R.id.nav_user_page).setVisible(false);
+        navView.getMenu().findItem(R.id.nav_logout).setVisible(false);
     }
 
     private void showLoggedInUI() {
-        if (navView != null) {
-            navView.getMenu().findItem(R.id.nav_login).setVisible(false);
-            navView.getMenu().findItem(R.id.nav_register).setVisible(false);
-            navView.getMenu().findItem(R.id.nav_user_page).setVisible(true);
-            navView.getMenu().findItem(R.id.nav_logout).setVisible(true);
-        }
+        navView.getMenu().findItem(R.id.nav_login).setVisible(false);
+        navView.getMenu().findItem(R.id.nav_register).setVisible(false);
+        navView.getMenu().findItem(R.id.nav_user_page).setVisible(true);
+        navView.getMenu().findItem(R.id.nav_logout).setVisible(true);
     }
 
     // ----- עזר -----
@@ -276,3 +272,4 @@ public class MainActivity extends AppCompatActivity
         detachUserDocListener();
     }
 }
+

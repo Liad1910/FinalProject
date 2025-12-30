@@ -31,15 +31,21 @@ import java.util.Map;
 
 public class MovieContentActivity extends AppCompatActivity {
 
+    // ✅ ישן (קרוסלה וכו')
     public static final String EXTRA_MOVIE_ID = "EXTRA_MOVIE_ID";
     public static final String EXTRA_MOVIE_TITLE = "EXTRA_MOVIE_TITLE";
     public static final String EXTRA_TRAILER_URL = "EXTRA_TRAILER_URL";
     public static final String EXTRA_POSTER_RES_ID = "EXTRA_POSTER_RES_ID";
 
+    // ✅ חדש (עמוד שנוצר מ-Firestore)
+    public static final String EXTRA_TITLE_ID = "EXTRA_TITLE_ID";
+
     private String movieId;
     private String movieTitle;
     private String trailerUrl;
     private int posterResId;
+
+    private String titleId; // Firestore doc id של titles
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -63,16 +69,9 @@ public class MovieContentActivity extends AppCompatActivity {
         // ----- Toolbar -----
         Toolbar toolbar = findViewById(R.id.toolbarMovie);
         setSupportActionBar(toolbar);
-        // לא חייבים כותרת מה־Toolbar אם לא רוצים:
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("");
         }
-
-        // ----- קבלת נתונים -----
-        movieId = getIntent().getStringExtra(EXTRA_MOVIE_ID);
-        movieTitle = getIntent().getStringExtra(EXTRA_MOVIE_TITLE);
-        trailerUrl = getIntent().getStringExtra(EXTRA_TRAILER_URL);
-        posterResId = getIntent().getIntExtra(EXTRA_POSTER_RES_ID, 0);
 
         // ----- Firebase -----
         mAuth = FirebaseAuth.getInstance();
@@ -97,12 +96,42 @@ public class MovieContentActivity extends AppCompatActivity {
         layoutReviewsList = findViewById(R.id.layoutReviewsList);
         tvNoReviews = findViewById(R.id.tvNoReviews);
 
-        // ----- הצגת מידע -----
-        tvTitle.setText(movieTitle != null ? movieTitle : "Movie");
-
-        if (posterResId != 0) {
-            imgPoster.setImageResource(posterResId);
+        // =====================================================
+        // ✅ מצב חדש: נכנסו דרך עמוד שנוצר מה-Firestore
+        // =====================================================
+        titleId = getIntent().getStringExtra(EXTRA_TITLE_ID);
+        if (titleId != null && !titleId.trim().isEmpty()) {
+            setupReviewForm(); // אפשר כבר להפעיל
+            loadTitleFromFirestore(titleId, tvTitle, imgPoster);
+            // loadReviews יקרה בתוך loadTitleFromFirestore אחרי שנקבע movieId
+            setupButtons(btnTrailer, btnShare, btnFavorites);
+            return;
         }
+
+        // =====================================================
+        // מצב ישן: נכנסו דרך קרוסלה/קטגוריות עם extras רגילים
+        // =====================================================
+        movieId = getIntent().getStringExtra(EXTRA_MOVIE_ID);
+        movieTitle = getIntent().getStringExtra(EXTRA_MOVIE_TITLE);
+        trailerUrl = getIntent().getStringExtra(EXTRA_TRAILER_URL);
+        posterResId = getIntent().getIntExtra(EXTRA_POSTER_RES_ID, 0);
+
+        tvTitle.setText(movieTitle != null ? movieTitle : "Movie");
+        if (posterResId != 0) imgPoster.setImageResource(posterResId);
+
+        setupButtons(btnTrailer, btnShare, btnFavorites);
+
+        // ----- טופס ביקורת -----
+        setupReviewForm();
+
+        // ----- טעינת ביקורות -----
+        loadReviews();
+    }
+
+    // =====================================================
+    // כפתורים (טריילר / שיתוף / מועדפים)
+    // =====================================================
+    private void setupButtons(Button btnTrailer, Button btnShare, Button btnFavorites) {
 
         // ----- כפתור טריילר -----
         btnTrailer.setOnClickListener(v -> {
@@ -110,7 +139,7 @@ public class MovieContentActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl));
                 startActivity(intent);
             } else {
-                Toast.makeText(this, "אין טריילר לסרט", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "אין טריילר לעמוד הזה", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -119,7 +148,7 @@ public class MovieContentActivity extends AppCompatActivity {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
 
-            String subject = movieTitle != null ? movieTitle : "סרט שווה";
+            String subject = movieTitle != null ? movieTitle : "סרט/סדרה שווה";
             String text = subject + (trailerUrl != null ? "\nטריילר: " + trailerUrl : "");
 
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
@@ -136,16 +165,10 @@ public class MovieContentActivity extends AppCompatActivity {
             }
             saveToFavorites();
         });
-
-        // ----- טופס ביקורת -----
-        setupReviewForm();
-
-        // ----- טעינת ביקורות -----
-        loadReviews();
     }
 
     // =====================================================
-    //   תפריט אמיתי (3 נקודות) ב־Toolbar
+    // תפריט 3 נקודות
     // =====================================================
     private void performLogout() {
         FirebaseAuth.getInstance().signOut();
@@ -156,7 +179,7 @@ public class MovieContentActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.nav_drawer_menu, menu);  // nav_menu.xml שלך
+        getMenuInflater().inflate(R.menu.nav_drawer_menu, menu);
         return true;
     }
 
@@ -165,7 +188,7 @@ public class MovieContentActivity extends AppCompatActivity {
         int id = item.getItemId();
         Intent intent;
 
-        // ---------- Movies ----------
+        // Movies
         if (id == R.id.nav_movies_action) {
             intent = new Intent(this, MoviesCategoryActivity.class);
             intent.putExtra("genre", "Action");
@@ -198,7 +221,7 @@ public class MovieContentActivity extends AppCompatActivity {
             return true;
         }
 
-        // ---------- Series ----------
+        // Series
         else if (id == R.id.nav_series_action) {
             intent = new Intent(this, SeriesCategoryActivity.class);
             intent.putExtra("genre", "Action");
@@ -240,21 +263,24 @@ public class MovieContentActivity extends AppCompatActivity {
         } else if (id == R.id.nav_user_page) {
             startActivity(new Intent(this, activity_user_page.class));
             return true;
-        }else if (id == R.id.nav_logout) {
-                performLogout();
-                return true;
-            }
+        } else if (id == R.id.nav_logout) {
+            performLogout();
+            return true;
+        }
 
-
-            return super.onOptionsItemSelected(item);
-
+        return super.onOptionsItemSelected(item);
     }
 
     // =====================================================
-    //   טופס ביקורת
+    // טופס ביקורת
     // =====================================================
-
     private void setupReviewForm() {
+
+        ratingBarReview.setIsIndicator(false);
+        ratingBarReview.setEnabled(true);
+        ratingBarReview.setClickable(true);
+        ratingBarReview.setFocusable(true);
+
         if (currentUser == null) {
             ratingBarReview.setIsIndicator(true);
             etReviewText.setEnabled(false);
@@ -263,6 +289,11 @@ public class MovieContentActivity extends AppCompatActivity {
                     Toast.makeText(this, "צריך להתחבר כדי לכתוב ביקורת", Toast.LENGTH_SHORT).show()
             );
         } else {
+            ratingBarReview.setIsIndicator(false);
+            ratingBarReview.setEnabled(true);
+            ratingBarReview.setClickable(true);
+
+            etReviewText.setEnabled(true);
             btnSendReview.setOnClickListener(v -> sendReview());
         }
     }
@@ -287,7 +318,7 @@ public class MovieContentActivity extends AppCompatActivity {
         }
 
         Map<String, Object> review = new HashMap<>();
-        review.put("movieId", movieId);
+        review.put("movieId", movieId);          // ✅ כאן movieId יהיה גם titleId לעמודים חדשים
         review.put("movieTitle", movieTitle);
         review.put("rating", rating);
         review.put("text", text);
@@ -309,10 +340,14 @@ public class MovieContentActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    //   טעינת ביקורות
+    // טעינת ביקורות
     // =====================================================
-
     private void loadReviews() {
+        if (movieId == null || movieId.trim().isEmpty()) {
+            tvNoReviews.setVisibility(View.VISIBLE);
+            return;
+        }
+
         db.collection("reviews")
                 .whereEqualTo("movieId", movieId)
                 .get()
@@ -337,9 +372,8 @@ public class MovieContentActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    //   בניית תיבת ביקורת
+    // בניית תיבת ביקורת
     // =====================================================
-
     private void addReviewView(DocumentSnapshot doc) {
 
         String userEmail = doc.getString("userEmail");
@@ -369,10 +403,8 @@ public class MovieContentActivity extends AppCompatActivity {
         tvUser.setTypeface(null, android.graphics.Typeface.BOLD);
 
         TextView tvRating = new TextView(this);
-        if (rating != null)
-            tvRating.setText("⭐ " + rating.intValue() + "/5");
-        else
-            tvRating.setText("");
+        if (rating != null) tvRating.setText("⭐ " + rating.intValue() + "/5");
+        else tvRating.setText("");
         tvRating.setTextColor(Color.parseColor("#FFC94F"));
 
         TextView tvText = new TextView(this);
@@ -392,10 +424,11 @@ public class MovieContentActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    //   הוספה למועדפים
+    // שמירה למועדפים
     // =====================================================
-
     private void saveToFavorites() {
+        if (userDocRef == null) return;
+
         Map<String, Object> movieData = new HashMap<>();
         movieData.put("movieId", movieId);
         movieData.put("title", movieTitle);
@@ -410,5 +443,56 @@ public class MovieContentActivity extends AppCompatActivity {
                         Toast.makeText(this, "נוסף למועדפים ✔", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    // =====================================================
+    // ✅ חדש: טעינת עמוד מ-Firestore (titles)
+    // =====================================================
+    private void loadTitleFromFirestore(String id, TextView tvTitle, ImageView imgPoster) {
+
+        db.collection("titles").document(id).get()
+                .addOnSuccessListener(doc -> {
+
+                    if (!doc.exists()) {
+                        Toast.makeText(this, "העמוד לא נמצא", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+
+                    // ✅ ממשיכים להשתמש במנגנון הקיים של ביקורות
+                    movieId = id;
+
+                    String title = doc.getString("title");
+                    Long yearL = doc.getLong("year");
+                    String type = doc.getString("type");
+                    String posterResName = doc.getString("posterResName");
+                    trailerUrl = doc.getString("trailerUrl"); // יכול להיות null
+
+                    if (title == null) title = "Movie";
+
+                    String fullTitle = title;
+                    if (yearL != null && yearL != 0) fullTitle = title + " (" + yearL + ")";
+                    movieTitle = fullTitle;
+
+                    tvTitle.setText(fullTitle);
+
+                    int resId = 0;
+                    if (posterResName != null) {
+                        resId = getResources().getIdentifier(posterResName, "drawable", getPackageName());
+                    }
+                    if (resId == 0) {
+                        resId = (type != null && type.equals("series"))
+                                ? R.drawable.poster_default_series
+                                : R.drawable.poster_default_movie;
+                    }
+
+                    posterResId = resId;
+                    imgPoster.setImageResource(resId);
+
+                    loadReviews();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "שגיאה בטעינת העמוד: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
     }
 }

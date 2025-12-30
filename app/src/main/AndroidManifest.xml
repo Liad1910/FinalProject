@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- הרשאת אינטרנט לפיירבייס ולטריילרים -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -14,52 +13,38 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalProject">
-
+        <activity
+            android:name=".CreateTitleActivity"
+            android:exported="false" />
         <!-- ⭐ מסך התוכן של סרט – MUST!! -->
         <activity
             android:name=".MovieContentActivity"
-            android:exported="false" />
-
-        <!-- מסך קטגוריות סרטים -->
+            android:exported="false" /> <!-- מסך קטגוריות סרטים -->
         <activity
             android:name=".MoviesCategoryActivity"
-            android:exported="false" />
-
-        <!-- מסך קטגוריות סדרות -->
+            android:exported="false" /> <!-- מסך קטגוריות סדרות -->
         <activity
             android:name=".SeriesCategoryActivity"
-            android:exported="false" />
-
-        <!-- דף משתמש -->
+            android:exported="false" /> <!-- דף משתמש -->
         <activity
             android:name=".activity_user_page"
-            android:exported="false" />
-
-        <!-- כבר לא צריך – את משתמשת במסך כללי לסרטים -->
-        <!-- <activity android:name=".ItMovieActivity" android:exported="false" /> -->
-
-        <!-- לוגין -->
+            android:exported="false" /> <!-- לוגין -->
         <activity
             android:name=".loginPage"
-            android:exported="true" />
-
-        <!-- רישום -->
+            android:exported="true" /> <!-- רישום -->
         <activity
             android:name=".registerPage"
-            android:exported="true" />
-
-        <!-- מסך הבית -->
+            android:exported="true" /> <!-- מסך הבית -->
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-
+            android:exported="true"
+            android:theme="@style/Theme.Watchly.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
     </application>
 
 </manifest>

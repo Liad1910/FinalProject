@@ -32,18 +32,20 @@ android {
 
 dependencies {
 
-   
     implementation platform('com.google.firebase:firebase-bom:33.5.1')
-
-
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
-
 
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
+
+    // ✅ חשוב כדי שכל ה-attrs של SplashScreen יעבדו כמו שצריך
+    implementation "androidx.core:core-ktx:1.13.1"
+
+    // ✅ SplashScreen
+    implementation "androidx.core:core-splashscreen:1.0.1"
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

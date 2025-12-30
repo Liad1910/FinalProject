@@ -67,6 +67,11 @@
         android:title="הפרופיל שלי" />
 
     <item
+        android:id="@+id/nav_create_title"
+        android:title="Create Movie/Series" />
+
+
+    <item
         android:id="@+id/nav_logout"
         android:title="התנתקות" />
 
