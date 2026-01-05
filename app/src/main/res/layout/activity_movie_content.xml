@@ -44,11 +44,10 @@
             <ImageView
                 android:id="@+id/imgPoster"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_launcher_background" />
+                android:layout_height="200dp"
+                android:src="@drawable/poster_default_movie"
+                android:scaleType="centerCrop" />
+
 
             <!-- כפתור טריילר -->
             <Button

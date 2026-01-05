@@ -20,4 +20,3 @@ public interface TmdbApi {
             @Query("first_air_date_year") Integer year
     );
 }
-

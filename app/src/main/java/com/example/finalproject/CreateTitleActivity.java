@@ -3,6 +3,7 @@ package com.example.finalproject;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,7 +30,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CreateTitleActivity extends AppCompatActivity {
 
-    private static final String TMDB_API_KEY = "PUT_YOUR_TMDB_KEY_HERE";
+    // 🔑 שימי כאן מפתח אמיתי, בלי ...
+    private static final String TMDB_API_KEY = "ce829465ca9e4f15441987a1f3624293";
     private static final String TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
     private static final String TMDB_BASE_URL = "https://api.themoviedb.org/3/";
 
@@ -40,7 +42,6 @@ public class CreateTitleActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private FirebaseUser user;
-
     private TmdbApi tmdbApi;
 
     @Override
@@ -77,123 +78,104 @@ public class CreateTitleActivity extends AppCompatActivity {
     }
 
     private void createOrOpen() {
-        final String title = etTitle.getText().toString().trim();
-        final String yearStr = etYear.getText().toString().trim();
+        String title = etTitle.getText().toString().trim();
+        String yearStr = etYear.getText().toString().trim();
 
         if (TextUtils.isEmpty(title)) {
             Toast.makeText(this, "תכתבי שם של סרט/סדרה", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        final String type = rbSeries.isChecked() ? "series" : "movie";
+        String type = rbSeries.isChecked() ? "series" : "movie";
 
-        final Integer yearFinal;
-        if (!TextUtils.isEmpty(yearStr)) {
-            try {
-                yearFinal = Integer.parseInt(yearStr);
-            } catch (Exception e) {
+        Integer year = null;
+        if (!yearStr.isEmpty()) {
+            try { year = Integer.parseInt(yearStr); }
+            catch (Exception e) {
                 Toast.makeText(this, "שנה לא תקינה", Toast.LENGTH_SHORT).show();
                 return;
             }
-        } else {
-            yearFinal = null;
         }
 
-        final String genre = spGenre.getSelectedItem().toString();
-        final String titleId = buildTitleId(type, title, yearFinal);
+        String genre = spGenre.getSelectedItem().toString();
+        String titleId = buildTitleId(type, title, year);
 
+        Integer finalYear = year;
         db.collection("titles").document(titleId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         openTitle(titleId);
                     } else {
-                        createTitleDocWithTmdb(titleId, type, title, yearFinal, genre);
+                        createWithTmdb(titleId, type, title, finalYear, genre);
                     }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "שגיאה: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                );
+                });
     }
 
-    private void createTitleDocWithTmdb(String titleId, String type, String title, Integer year, String genre) {
+    private void createWithTmdb(String titleId, String type, String title, Integer year, String genre) {
 
-        // דיפולטים (למקרה שאין פוסטר)
-        String posterResName = type.equals("series")
-                ? "poster_default_series"
-                : "poster_default_movie";
-
-        // בסיס הדאטה
         Map<String, Object> data = new HashMap<>();
         data.put("type", type);
         data.put("title", title);
         if (year != null) data.put("year", year);
         data.put("genres", Arrays.asList(genre));
-        data.put("posterResName", posterResName);
+        data.put("posterResName",
+                type.equals("series") ? "poster_default_series" : "poster_default_movie");
         data.put("createdAt", System.currentTimeMillis());
         if (user != null) data.put("createdBy", user.getUid());
 
-        // אם אין מפתח TMDB – נשמור בלי פוסטרUrl
-        if (TMDB_API_KEY == null || TMDB_API_KEY.contains("PUT_YOUR")) {
-            db.collection("titles").document(titleId).set(data)
-                    .addOnSuccessListener(a -> {
-                        Toast.makeText(this, "העמוד נוצר ✅ (בלי TMDB)", Toast.LENGTH_SHORT).show();
-                        openTitle(titleId);
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "שגיאה ביצירה: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                    );
+        // בלי מפתח → שמירה רגילה
+        if (TMDB_API_KEY.contains("PASTE")) {
+            saveAndOpen(titleId, data, "בלי TMDB");
             return;
         }
 
-        // חיפוש ב-TMDB
-        Call<TmdbSearchResponse> call;
-        if ("series".equals(type)) {
-            call = tmdbApi.searchTv(TMDB_API_KEY, title, year);
-        } else {
-            call = tmdbApi.searchMovie(TMDB_API_KEY, title, year);
-        }
+        Call<TmdbSearchResponse> call =
+                type.equals("series")
+                        ? tmdbApi.searchTv(TMDB_API_KEY, title, year)
+                        : tmdbApi.searchMovie(TMDB_API_KEY, title, year);
 
         call.enqueue(new Callback<TmdbSearchResponse>() {
             @Override
             public void onResponse(Call<TmdbSearchResponse> call, Response<TmdbSearchResponse> response) {
 
-                if (response.isSuccessful() && response.body() != null
-                        && response.body().results != null && !response.body().results.isEmpty()) {
+                Log.d("TMDB", "code=" + response.code());
+
+                if (response.isSuccessful()
+                        && response.body() != null
+                        && response.body().results != null
+                        && !response.body().results.isEmpty()) {
 
                     TmdbResult first = response.body().results.get(0);
 
-                    if (first.posterPath != null && !first.posterPath.trim().isEmpty()) {
-                        String posterUrl = TMDB_IMG_BASE + first.posterPath;
-
-                        data.put("posterUrl", posterUrl);
+                    if (first.posterPath != null) {
+                        data.put("posterUrl", TMDB_IMG_BASE + first.posterPath);
                         data.put("tmdbId", first.id);
                         data.put("posterSource", "tmdb");
+                        Log.d("TMDB", "poster found ✔");
+                    } else {
+                        Log.d("TMDB", "no poster_path");
                     }
+                } else {
+                    Log.d("TMDB", "no results");
                 }
 
-                db.collection("titles").document(titleId).set(data)
-                        .addOnSuccessListener(a -> {
-                            Toast.makeText(CreateTitleActivity.this, "העמוד נוצר ✅", Toast.LENGTH_SHORT).show();
-                            openTitle(titleId);
-                        })
-                        .addOnFailureListener(e ->
-                                Toast.makeText(CreateTitleActivity.this, "שגיאה ביצירה: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                        );
+                saveAndOpen(titleId, data, "עם TMDB");
             }
 
             @Override
             public void onFailure(Call<TmdbSearchResponse> call, Throwable t) {
-                // גם אם TMDB נכשל – נשמור בלי posterUrl
-                db.collection("titles").document(titleId).set(data)
-                        .addOnSuccessListener(a -> {
-                            Toast.makeText(CreateTitleActivity.this, "נוצר ✅ (TMDB נכשל)", Toast.LENGTH_SHORT).show();
-                            openTitle(titleId);
-                        })
-                        .addOnFailureListener(e ->
-                                Toast.makeText(CreateTitleActivity.this, "שגיאה ביצירה: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                        );
+                Log.e("TMDB", "failure", t);
+                saveAndOpen(titleId, data, "TMDB נכשל");
             }
         });
+    }
+
+    private void saveAndOpen(String titleId, Map<String, Object> data, String msg) {
+        db.collection("titles").document(titleId).set(data)
+                .addOnSuccessListener(a -> {
+                    Toast.makeText(this, "נוצר ✅ (" + msg + ")", Toast.LENGTH_SHORT).show();
+                    openTitle(titleId);
+                });
     }
 
     private void openTitle(String titleId) {
@@ -209,7 +191,6 @@ public class CreateTitleActivity extends AppCompatActivity {
                 .trim()
                 .replaceAll("\\s+", "_");
 
-        String y = (year == null) ? "0" : String.valueOf(year);
-        return type + "_" + clean + "_" + y;
+        return type + "_" + clean + "_" + (year == null ? "0" : year);
     }
 }

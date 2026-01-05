@@ -41,24 +41,18 @@ dependencies {
     implementation libs.activity
     implementation libs.constraintlayout
 
-    // ✅ חשוב כדי שכל ה-attrs של SplashScreen יעבדו כמו שצריך
-    implementation "androidx.core:core-ktx:1.13.1"
-
-    // ✅ SplashScreen
     implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation "androidx.core:core-ktx:1.13.1" // אפשר להשאיר
+
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+
+    // Retrofit + Gson
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
-
-
-        // Glide (טעינת תמונות מ-URL)
-        implementation 'com.github.bumptech.glide:glide:4.16.0'
-        annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
-
-        // Retrofit + Gson (קריאות API)
-        implementation 'com.squareup.retrofit2:retrofit:2.11.0'
-        implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
-    
-
 }
