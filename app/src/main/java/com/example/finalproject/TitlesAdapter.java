@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import com.bumptech.glide.Glide;
+
 
 public class TitlesAdapter extends RecyclerView.Adapter<TitlesAdapter.VH> {
 
@@ -34,29 +36,36 @@ public class TitlesAdapter extends RecyclerView.Adapter<TitlesAdapter.VH> {
     public void onBindViewHolder(@NonNull VH h, int position) {
         TitleCard item = items.get(position);
 
-        // פוסטר מתוך drawable לפי posterResName
-        int resId = 0;
-        if (item.posterResName != null) {
-            resId = context.getResources().getIdentifier(
-                    item.posterResName, "drawable", context.getPackageName()
-            );
+        // ✅ אם יש posterUrl -> נטען מהאינטרנט
+        if (item.posterUrl != null && !item.posterUrl.trim().isEmpty()) {
+            Glide.with(context)
+                    .load(item.posterUrl)
+                    .into(h.imgPoster);
+        } else {
+            // פוסטר מתוך drawable לפי posterResName
+            int resId = 0;
+            if (item.posterResName != null) {
+                resId = context.getResources().getIdentifier(
+                        item.posterResName, "drawable", context.getPackageName()
+                );
+            }
+
+            if (resId == 0) {
+                String fallback = ("series".equals(item.type)) ? "poster_default_series" : "poster_default_movie";
+                resId = context.getResources().getIdentifier(fallback, "drawable", context.getPackageName());
+            }
+
+            if (resId != 0) h.imgPoster.setImageResource(resId);
         }
 
-        if (resId == 0) {
-            // fallback לפי סוג
-            String fallback = ("series".equals(item.type)) ? "poster_default_series" : "poster_default_movie";
-            resId = context.getResources().getIdentifier(fallback, "drawable", context.getPackageName());
-        }
-
-        if (resId != 0) h.imgPoster.setImageResource(resId);
-
-        // ✅ לחיצה -> פתיחת עמוד לפי titleId ב-Firestore
+        // ✅ לחיצה -> פתיחת העמוד לפי titleId ב-Firestore
         h.itemView.setOnClickListener(v -> {
             Intent i = new Intent(context, MovieContentActivity.class);
             i.putExtra(MovieContentActivity.EXTRA_TITLE_ID, item.id);
             context.startActivity(i);
         });
     }
+
 
     @Override
     public int getItemCount() { return items.size(); }

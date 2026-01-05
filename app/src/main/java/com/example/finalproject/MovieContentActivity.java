@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -61,6 +62,9 @@ public class MovieContentActivity extends AppCompatActivity {
     // UI רשימת ביקורות
     private LinearLayout layoutReviewsList;
     private TextView tvNoReviews;
+
+    private String posterUrl; // ✅ חדש - URL מה-TMDB (אם יש)
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +125,12 @@ public class MovieContentActivity extends AppCompatActivity {
         posterResId = getIntent().getIntExtra(EXTRA_POSTER_RES_ID, 0);
 
         tvTitle.setText(movieTitle != null ? movieTitle : "Movie");
-        if (posterResId != 0) imgPoster.setImageResource(posterResId);
+
+        if (posterResId != 0) {
+            imgPoster.setImageResource(posterResId);
+        } else {
+            imgPoster.setImageResource(R.drawable.poster_default_movie);
+        }
 
         // ----- טעינת ביקורות -----
         loadReviews();
@@ -148,7 +157,9 @@ public class MovieContentActivity extends AppCompatActivity {
             shareIntent.setType("text/plain");
 
             String subject = (movieTitle != null && !movieTitle.isEmpty()) ? movieTitle : "סרט/סדרה שווה";
-            String text = subject + (trailerUrl != null && !trailerUrl.isEmpty() ? "\nטריילר: " + trailerUrl : "");
+            String text = subject + (trailerUrl != null && !trailerUrl.isEmpty()
+                    ? "\nטריילר: " + trailerUrl
+                    : "");
 
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
             shareIntent.putExtra(Intent.EXTRA_TEXT, text);
@@ -293,9 +304,6 @@ public class MovieContentActivity extends AppCompatActivity {
             );
         } else {
             ratingBarReview.setIsIndicator(false);
-            ratingBarReview.setEnabled(true);
-            ratingBarReview.setClickable(true);
-
             etReviewText.setEnabled(true);
             btnSendReview.setOnClickListener(v -> sendReview());
         }
@@ -325,7 +333,7 @@ public class MovieContentActivity extends AppCompatActivity {
         }
 
         Map<String, Object> review = new HashMap<>();
-        review.put("movieId", movieId);          // ✅ כאן movieId יהיה גם titleId לעמודים חדשים
+        review.put("movieId", movieId);
         review.put("movieTitle", movieTitle);
         review.put("rating", rating);
         review.put("text", text);
@@ -357,7 +365,7 @@ public class MovieContentActivity extends AppCompatActivity {
 
         db.collection("reviews")
                 .whereEqualTo("movieId", movieId)
-                .orderBy("timestamp", Query.Direction.DESCENDING) // ✅ מסודר מהחדש לישן
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
 
@@ -412,7 +420,6 @@ public class MovieContentActivity extends AppCompatActivity {
 
         TextView tvRating = new TextView(this);
         if (rating != null) tvRating.setText("⭐ " + rating.intValue() + "/5");
-        else tvRating.setText("");
         tvRating.setTextColor(Color.parseColor("#FFC94F"));
 
         TextView tvText = new TextView(this);
@@ -441,7 +448,15 @@ public class MovieContentActivity extends AppCompatActivity {
         movieData.put("movieId", movieId);
         movieData.put("title", movieTitle);
         movieData.put("trailerUrl", trailerUrl);
+
+        // ✅ חדש: אם יש תמונה מהאינטרנט (TMDB) נשמור אותה
+        if (posterUrl != null && !posterUrl.trim().isEmpty()) {
+            movieData.put("posterUrl", posterUrl);
+        }
+
+        // ✅ ישן: תמונת drawable (יעבוד תמיד גם אם אין URL)
         movieData.put("posterResId", posterResId);
+
         movieData.put("addedAt", System.currentTimeMillis());
 
         userDocRef.collection("favorites")
@@ -453,8 +468,9 @@ public class MovieContentActivity extends AppCompatActivity {
                         Toast.makeText(this, "שגיאה: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
+
     // =====================================================
-    // ✅ חדש: טעינת עמוד מ-Firestore (titles)
+    // ✅ טעינת עמוד מ-Firestore (titles)
     // =====================================================
     private void loadTitleFromFirestore(String id, TextView tvTitle, ImageView imgPoster) {
 
@@ -467,35 +483,57 @@ public class MovieContentActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // ✅ ממשיכים להשתמש במנגנון הקיים של ביקורות
+                    // ✅ מזהה לעמוד (משמש גם לביקורות + מועדפים)
                     movieId = id;
 
                     String title = doc.getString("title");
                     Long yearL = doc.getLong("year");
                     String type = doc.getString("type"); // movie / series
                     String posterResName = doc.getString("posterResName");
-                    trailerUrl = doc.getString("trailerUrl"); // יכול להיות null
+                    posterUrl = doc.getString("posterUrl"); // ✅ חדש
+                    trailerUrl = doc.getString("trailerUrl");
 
                     if (title == null) title = "Title";
 
                     String fullTitle = title;
                     if (yearL != null && yearL != 0) fullTitle = title + " (" + yearL + ")";
                     movieTitle = fullTitle;
-
                     tvTitle.setText(fullTitle);
 
-                    int resId = 0;
-                    if (posterResName != null) {
-                        resId = getResources().getIdentifier(posterResName, "drawable", getPackageName());
-                    }
-                    if (resId == 0) {
-                        resId = (type != null && type.equals("series"))
+                    // ✅ אם יש posterUrl -> נטען מהאינטרנט
+                    if (posterUrl != null && !posterUrl.trim().isEmpty()) {
+                        Glide.with(this)
+                                .load(posterUrl)
+                                .placeholder(type != null && type.equals("series")
+                                        ? R.drawable.poster_default_series
+                                        : R.drawable.poster_default_movie)
+                                .error(type != null && type.equals("series")
+                                        ? R.drawable.poster_default_series
+                                        : R.drawable.poster_default_movie)
+                                .into(imgPoster);
+
+                        // עדיין נשמור posterResId בשביל מועדפים / fallback
+                        posterResId = (type != null && type.equals("series"))
                                 ? R.drawable.poster_default_series
                                 : R.drawable.poster_default_movie;
-                    }
 
-                    posterResId = resId;
-                    imgPoster.setImageResource(resId);
+                    } else {
+                        // ✅ אין URL -> נופלים ל-drawable
+                        int resId = 0;
+
+                        if (posterResName != null && !posterResName.trim().isEmpty()) {
+                            resId = getResources().getIdentifier(posterResName, "drawable", getPackageName());
+                        }
+
+                        if (resId == 0) {
+                            resId = (type != null && type.equals("series"))
+                                    ? R.drawable.poster_default_series
+                                    : R.drawable.poster_default_movie;
+                        }
+
+                        posterResId = resId;
+                        imgPoster.setImageResource(resId);
+                    }
 
                     loadReviews();
                 })
@@ -503,4 +541,5 @@ public class MovieContentActivity extends AppCompatActivity {
                         Toast.makeText(this, "שגיאה בטעינת העמוד: " + e.getMessage(), Toast.LENGTH_LONG).show()
                 );
     }
+
 }

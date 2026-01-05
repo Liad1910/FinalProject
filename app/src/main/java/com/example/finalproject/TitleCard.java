@@ -6,5 +6,5 @@ public class TitleCard {
     public String type;            // movie / series
     public String posterResName;
 
-    public TitleCard() {}
+    public String posterUrl;
 }

@@ -1,5 +1,7 @@
 package com.example.finalproject;
 
+import static com.example.finalproject.FBRef.refAuth;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,7 +34,7 @@ public class loginPage extends AppCompatActivity {  // ✅ CHANGED
         setContentView(R.layout.activity_login_page);  // ✅ CHANGED (אם היה setPageContent - לא צריך)
 
         FirebaseApp.initializeApp(this);
-        auth = FirebaseAuth.getInstance();
+        auth = refAuth;
 
         eTEmail = findViewById(R.id.eTEmail);
         eTPass = findViewById(R.id.eTPass);
