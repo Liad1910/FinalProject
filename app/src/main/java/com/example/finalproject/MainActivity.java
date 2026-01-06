@@ -15,6 +15,7 @@ import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -97,15 +98,17 @@ public class MainActivity extends AppCompatActivity
         ivMainImage = findViewById(R.id.ivMainImage);
         btnNext = findViewById(R.id.btnNext);
         btnPrev = findViewById(R.id.btnPrev);
-        btnMenu = findViewById(R.id.btnMenu);
+
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // כפתור תפריט
-        btnMenu.setOnClickListener(v ->
+        MaterialToolbar toolbar = findViewById(R.id.topAppBar);
+
+        toolbar.setNavigationOnClickListener(v ->
                 drawerLayout.openDrawer(GravityCompat.START)
         );
+
 
         // קרוסלה
         ivMainImage.setImageResource(images[currentIndex]);
@@ -144,6 +147,8 @@ public class MainActivity extends AppCompatActivity
         i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, images[currentIndex]);
         startActivity(i);
     }
+
+
 
     // ----- תפריט צד -----
     @Override

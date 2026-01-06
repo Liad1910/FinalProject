@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="#050515">
 
     <LinearLayout
         android:id="@+id/main"
@@ -11,62 +12,137 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <!-- Header -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Create Movie / Series"
-            android:textSize="22sp"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:paddingBottom="16dp"/>
+            android:textColor="#FF67F3"
+            android:paddingBottom="14dp" />
 
-        <EditText
-            android:id="@+id/etTitleName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="שם סרט / סדרה" />
-
-        <EditText
-            android:id="@+id/etTitleYear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="שנה (רשות)"
-            android:inputType="number"
-            android:layout_marginTop="10dp"/>
-
+        <!-- Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp">
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#151528">
 
-            <RadioButton
-                android:id="@+id/rbMovie"
+            <!-- Name -->
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="Movie" />
+                android:text="שם"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold" />
 
-            <RadioButton
-                android:id="@+id/rbSeries"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Series" />
-
-            <Spinner
-                android:id="@+id/spGenre"
+            <EditText
+                android:id="@+id/etTitleName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:entries="@array/genres_array"/>
+                android:hint="שם סרט / סדרה"
+                android:padding="12dp"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#9AA0AA"
+                android:background="#0F0F1F" />
 
+            <!-- Year -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="שנה (רשות)"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:layout_marginTop="14dp" />
+
+            <EditText
+                android:id="@+id/etTitleYear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="לדוגמה: 2020"
+                android:inputType="number"
+                android:padding="12dp"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#9AA0AA"
+                android:background="#0F0F1F" />
+
+            <!-- Type & Genre -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="סוג וז׳אנר"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:layout_marginTop="14dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <RadioButton
+                    android:id="@+id/rbMovie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Movie"
+                    android:textColor="#FFFFFF"
+                    android:buttonTint="#FF67F3" />
+
+                <RadioButton
+                    android:id="@+id/rbSeries"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Series"
+                    android:textColor="#FFFFFF"
+                    android:buttonTint="#3D5AFE" />
+
+                <Spinner
+                    android:id="@+id/spGenre"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:background="#0F0F1F"
+                    android:entries="@array/genres_array" />
+            </LinearLayout>
+
+            <!-- Selected Genre (ברור!) -->
+            <TextView
+                android:id="@+id/tvSelectedGenre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="12dp"
+                android:background="#0F0F1F"
+                android:text="Genre: לא נבחר"
+                android:textColor="#3D5AFE"
+                android:textStyle="bold" />
+
+            <!-- Button -->
+            <Button
+                android:id="@+id/btnCreateTitle"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="18dp"
+                android:text="Create / Open"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#FF67F3" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnCreateTitle"
+        <!-- Tip -->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create / Open"
-            android:layout_marginTop="18dp"/>
+            android:text="Tip: אפשר להשאיר שנה ריקה 🙂"
+            android:textColor="#9AA0AA"
+            android:textAlignment="center"
+            android:layout_marginTop="14dp" />
     </LinearLayout>
-
 </ScrollView>

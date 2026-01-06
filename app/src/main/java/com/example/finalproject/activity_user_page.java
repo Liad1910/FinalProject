@@ -7,8 +7,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,9 +18,11 @@ public class activity_user_page extends BaseActivity {
 
     private static final String TAG = "UserPageActivity";
 
+    // Views
     private TextView tvEmail, tvMsgUser, tvFavorites;
     private EditText etUsername, etBirthYear, etMovie, etSeries, etGenre;
 
+    // Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private DocumentReference userDocRef;
@@ -30,10 +30,11 @@ public class activity_user_page extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_user_page);
 
-        // Firebase
+        // ✅ טוען את הדף בתוך BaseActivity (כולל תפריט)
+        setPageContent(R.layout.activity_user_page);
+
+        // Firebase init
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -41,7 +42,7 @@ public class activity_user_page extends BaseActivity {
         // Views
         tvEmail = findViewById(R.id.tvEmail);
         tvMsgUser = findViewById(R.id.tvMsgUser);
-        tvFavorites = findViewById(R.id.tvFavorites);   // ⭐ חדש
+        tvFavorites = findViewById(R.id.tvFavorites);
 
         etUsername = findViewById(R.id.etUsername);
         etBirthYear = findViewById(R.id.etBirthYear);
@@ -54,6 +55,9 @@ public class activity_user_page extends BaseActivity {
         loadUserData();
     }
 
+    // =====================================================
+    // טעינת נתוני משתמש
+    // =====================================================
     private void loadUserData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -65,52 +69,49 @@ public class activity_user_page extends BaseActivity {
         String uid = currentUser.getUid();
         tvEmail.setText(currentUser.getEmail());
 
-        // אותה קולקציה כמו בהרשמה: "users" אות קטנה
         userDocRef = db.collection("users").document(uid);
 
         tvMsgUser.setText("Loading user data...");
 
         userDocRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document != null && document.exists()) {
-
-                    String username = document.getString("username");
-                    String birthYear = document.getString("birthYear");
-                    String movie = document.getString("favoriteMovie");
-                    String series = document.getString("favoriteSeries");
-                    String genre = document.getString("favoriteGenre");
-
-                    if (username != null) etUsername.setText(username);
-                    if (birthYear != null) etBirthYear.setText(birthYear);
-                    if (movie != null) etMovie.setText(movie);
-                    if (series != null) etSeries.setText(series);
-                    if (genre != null) etGenre.setText(genre);
-
-                    tvMsgUser.setText(""); // הכל טוב
-
-                    // ⭐ אחרי שהמשתמש נטען – נטען גם מועדפים
-                    loadFavorites();
-
-                } else {
-                    tvMsgUser.setTextColor(0xFFFF0000);
-                    tvMsgUser.setText("No data found yet. You can fill and save.");
-                    Log.d(TAG, "No such document for user " + uid);
-
-                    // גם אם אין מסמך עדיין, אפשר לנסות לטעון מועדפים
-                    loadFavorites();
-                }
-            } else {
-                Exception e = task.getException();
-                Log.e(TAG, "Error getting document", e);
-                tvMsgUser.setTextColor(0xFFFF0000);
-                tvMsgUser.setText("Error loading user data: " +
-                        (e != null ? e.getMessage() : ""));
+            if (!task.isSuccessful()) {
+                Log.e(TAG, "Error getting document", task.getException());
+                tvMsgUser.setTextColor(0xFFFF6B6B);
+                tvMsgUser.setText("Error loading user data");
+                loadFavorites();
+                return;
             }
+
+            DocumentSnapshot document = task.getResult();
+            if (document != null && document.exists()) {
+
+                String username = document.getString("username");
+                String birthYear = document.getString("birthYear");
+                String movie = document.getString("favoriteMovie");
+                String series = document.getString("favoriteSeries");
+                String genre = document.getString("favoriteGenre");
+
+                if (username != null) etUsername.setText(username);
+                if (birthYear != null) etBirthYear.setText(birthYear);
+                if (movie != null) etMovie.setText(movie);
+                if (series != null) etSeries.setText(series);
+                if (genre != null) etGenre.setText(genre);
+
+                tvMsgUser.setText("");
+            } else {
+                tvMsgUser.setTextColor(0xFFFF6B6B);
+                tvMsgUser.setText("No data found yet. You can fill and save.");
+                Log.d(TAG, "No user document for uid=" + uid);
+            }
+
+            // ⭐ טוען מועדפים בכל מקרה
+            loadFavorites();
         });
     }
 
-    // ⭐ פונקציה חדשה – טעינת מועדפים
+    // =====================================================
+    // טעינת מועדפים
+    // =====================================================
     private void loadFavorites() {
         if (userDocRef == null) {
             tvFavorites.setText("(אין משתמש)");
@@ -134,11 +135,9 @@ public class activity_user_page extends BaseActivity {
                         }
                     }
 
-                    if (sb.length() == 0) {
-                        tvFavorites.setText("(אין מועדפים עדיין)");
-                    } else {
-                        tvFavorites.setText(sb.toString());
-                    }
+                    tvFavorites.setText(
+                            sb.length() == 0 ? "(אין מועדפים עדיין)" : sb.toString()
+                    );
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error loading favorites", e);
@@ -146,13 +145,31 @@ public class activity_user_page extends BaseActivity {
                 });
     }
 
+    // =====================================================
+    // שמירת נתוני משתמש
+    // =====================================================
     private void saveUserData() {
         if (userDocRef == null) {
             Toast.makeText(this, "User document not ready", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // כאן שיהיה מה שכבר כתבת (שמירת username, birthYear, וכו')
-        // לא נגעתי בזה כדי לא לשבור דברים :)
+        String username = etUsername.getText().toString().trim();
+        String birthYear = etBirthYear.getText().toString().trim();
+        String movie = etMovie.getText().toString().trim();
+        String series = etSeries.getText().toString().trim();
+        String genre = etGenre.getText().toString().trim();
+
+        userDocRef.update(
+                "username", username,
+                "birthYear", birthYear,
+                "favoriteMovie", movie,
+                "favoriteSeries", series,
+                "favoriteGenre", genre
+        ).addOnSuccessListener(a ->
+                Toast.makeText(this, "הפרטים נשמרו 💜", Toast.LENGTH_SHORT).show()
+        ).addOnFailureListener(e ->
+                Toast.makeText(this, "שגיאה בשמירה", Toast.LENGTH_SHORT).show()
+        );
     }
 }
