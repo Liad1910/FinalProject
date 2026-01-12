@@ -75,4 +75,8 @@
         android:id="@+id/nav_logout"
         android:title="התנתקות" />
 
+    <item
+        android:id="@+id/nav_ai"
+        android:title="🤖 Movie AI" />
+
 </menu>

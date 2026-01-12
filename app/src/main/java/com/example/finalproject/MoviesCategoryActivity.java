@@ -30,6 +30,11 @@ public class MoviesCategoryActivity extends AppCompatActivity {
     private final ArrayList<TitleCard> userTitles = new ArrayList<>();
     private FirebaseFirestore db;
 
+    // AI
+    private boolean aiMode = false;
+    private String aiGenre = null;
+    private String aiMood = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,15 +42,40 @@ public class MoviesCategoryActivity extends AppCompatActivity {
 
         tvTitleMovies = findViewById(R.id.tvTitleMovies);
 
+        // =========================
+        // ✅ AI Extras
+        // =========================
+        aiMode = getIntent().getBooleanExtra("AI_MODE", false);
+        aiGenre = getIntent().getStringExtra("AI_GENRE"); // "comedy" / "action"...
+        aiMood  = getIntent().getStringExtra("AI_MOOD");  // optional
+
+        // =========================
+        // ✅ Genre selection logic
+        // =========================
+        // מצב רגיל (מהתפריט/כפתור)
         selectedGenre = getIntent().getStringExtra("genre");
+
+        // אם נכנסנו מ-AI, נדרוס את selectedGenre לפי ה-AI
+        if (aiMode && aiGenre != null && !aiGenre.trim().isEmpty()) {
+            selectedGenre = mapAiGenreToLegacyGenre(aiGenre); // הופך "comedy" -> "Comedy"
+        }
+
         if (selectedGenre == null) selectedGenre = "All";
 
-        tvTitleMovies.setText("Movies – " + selectedGenre);
+        // =========================
+        // ✅ Title
+        // =========================
+        if (aiMode) {
+            // כותרת יפה למצב AI
+            tvTitleMovies.setText("AI Picks – " + selectedGenre);
+        } else {
+            tvTitleMovies.setText("Movies – " + selectedGenre);
+        }
 
         // 1) ישנים: כפתורים מה-XML
         setupLegacyMoviesButtonsAndFilter();
 
-        // 2) חדשים: RecyclerView
+        // 2) חדשים: RecyclerView של משתמשים
         rvUserTitles = findViewById(R.id.rvUserTitles);
         if (rvUserTitles != null) {
             rvUserTitles.setLayoutManager(new GridLayoutManager(this, 3));
@@ -55,7 +85,39 @@ public class MoviesCategoryActivity extends AppCompatActivity {
             rvUserTitles.setAdapter(adapter);
 
             db = FirebaseFirestore.getInstance();
-            loadUserMovies();
+            loadUserMovies(); // יסנן לפי selectedGenre
+        }
+
+        // אם בעתיד את מוסיפה TMDB פה תפעילי fetchTmdbByGenre(mapLabelToTmdbGenreId(aiGenre))
+        // כרגע המסך כולל: (1) כפתורים ישנים + (2) סרטים של משתמשים מה-Firestore
+    }
+
+    // =====================================================
+    // ✅ ממיר ז'אנר של AI ("comedy") לז'אנר שאת משתמשת בו במסך ("Comedy")
+    // =====================================================
+    private String mapAiGenreToLegacyGenre(String ai) {
+        String g = ai.trim().toLowerCase();
+
+        switch (g) {
+            case "action": return "Action";
+            case "comedy": return "Comedy";
+            case "drama": return "Drama";
+            case "romance": return "Romance";
+            case "horror": return "Horror";
+            case "thriller": return "Thriller";
+            case "sci_fi":
+            case "sci-fi":
+            case "scifi":
+                return "Sci-Fi";
+            case "fantasy": return "Fantasy";
+            case "animation": return "Animation";
+            case "crime": return "Crime";
+            case "mystery": return "Mystery";
+            case "family": return "Family";
+            case "adventure": return "Adventure";
+            case "documentary": return "Documentary";
+            default:
+                return "All";
         }
     }
 
@@ -286,7 +348,7 @@ public class MoviesCategoryActivity extends AppCompatActivity {
                         R.drawable.top_gun_maverick_poster));
 
         // =========================
-        // ✅ סינון לפי selectedGenre
+        // ✅ סינון לפי selectedGenre (עובד גם ל-AI)
         // =========================
         if (!"All".equals(selectedGenre)) {
             for (Map.Entry<Integer, List<String>> entry : movieGenres.entrySet()) {
@@ -300,13 +362,14 @@ public class MoviesCategoryActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    // טעינת סרטים חדשים מה-Firestore (שנוצרו ע"י משתמש)
+    // ✅ טעינת סרטים חדשים מה-Firestore (שנוצרו ע"י משתמש)
     // =====================================================
     private void loadUserMovies() {
 
         Query q = db.collection("titles")
                 .whereEqualTo("type", "movie");
 
+        // אצלך genres זה מערך שמכיל ערכים כמו "Comedy"/"Drama" וכו'
         if (!"All".equals(selectedGenre)) {
             q = q.whereArrayContains("genres", selectedGenre);
         }
@@ -326,13 +389,37 @@ public class MoviesCategoryActivity extends AppCompatActivity {
                 t.type = d.getString("type");
                 t.posterResName = d.getString("posterResName");
 
-// ✅ חדש
+                // ✅ חדש
                 t.posterUrl = d.getString("posterUrl");
 
                 userTitles.add(t);
             }
 
-                adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();
         });
+    }
+
+    // =====================================================
+    // (נשאר אצלך) TMDB mapping אם תרצי בעתיד
+    // =====================================================
+    private String mapLabelToTmdbGenreId(String label) {
+        if (label == null) return null;
+        switch (label) {
+            case "action": return "28";
+            case "comedy": return "35";
+            case "drama": return "18";
+            case "thriller": return "53";
+            case "horror": return "27";
+            case "romance": return "10749";
+            case "sci_fi": return "878";
+            case "fantasy": return "14";
+            case "animation": return "16";
+            case "crime": return "80";
+            case "mystery": return "9648";
+            case "family": return "10751";
+            case "adventure": return "12";
+            case "documentary": return "99";
+            default: return null;
+        }
     }
 }

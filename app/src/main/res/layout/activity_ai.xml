@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Movie AI 🤖"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:padding="14dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvChat"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="12dp" />
+
+    <!-- אזור הצעות (3 כפתורים) -->
+    <LinearLayout
+        android:id="@+id/layoutSuggestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvSuggestionsTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="הנה 3 הצעות 🎬"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <Button
+            android:id="@+id/btnSug1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Suggestion 1" />
+
+        <Button
+            android:id="@+id/btnSug2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Suggestion 2"
+            android:layout_marginTop="6dp" />
+
+        <Button
+            android:id="@+id/btnSug3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Suggestion 3"
+            android:layout_marginTop="6dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/btnLiked"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="אהבתי ✅" />
+
+            <Button
+                android:id="@+id/btnDisliked"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="לא אהבתי ❌" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- שורת הקלט -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <EditText
+            android:id="@+id/etMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="כתבי פה..."
+            android:padding="10dp" />
+
+        <Button
+            android:id="@+id/btnSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+</LinearLayout>

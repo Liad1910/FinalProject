@@ -176,6 +176,11 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, CreateTitleActivity.class));
         }
 
+
+        else if (id == R.id.nav_ai) {
+            startActivity(new Intent(this, AiActivity.class));
+        }
+
         else if (id == R.id.nav_logout) logout(null);
 
         drawerLayout.closeDrawer(GravityCompat.START);

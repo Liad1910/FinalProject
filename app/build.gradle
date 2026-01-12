@@ -14,13 +14,24 @@ android {
         versionCode 1
         versionName "1.0"
 
+        // 🔐 Hugging Face API Key
+        def hfKey = project.properties["HF_API_KEY"] ?: ""
+        buildConfigField "String", "HF_API_KEY", "\"${hfKey}\""
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // ✅ חובה בשביל BuildConfig
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'
+            ), 'proguard-rules.pro'
         }
     }
 
@@ -42,15 +53,23 @@ dependencies {
     implementation libs.constraintlayout
 
     implementation "androidx.core:core-splashscreen:1.0.1"
-    implementation "androidx.core:core-ktx:1.13.1" // אפשר להשאיר
+    implementation "androidx.core:core-ktx:1.13.1"
 
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 
-    // Retrofit + Gson
+    // Retrofit (לא חובה ל-AI, אבל לא מפריע)
     implementation 'com.squareup.retrofit2:retrofit:2.11.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+
+    // TensorFlow Lite (לגיבוי מקומי)
+    implementation 'org.tensorflow:tensorflow-lite:2.14.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.4.4'
+    implementation 'org.tensorflow:tensorflow-lite-task-text:0.4.4'
+
+    // ✅ HTTP ל-Hugging Face
+    implementation "com.squareup.okhttp3:okhttp:4.12.0"
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
