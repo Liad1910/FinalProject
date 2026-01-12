@@ -15,8 +15,12 @@ android {
         versionName "1.0"
 
         // 🔐 Hugging Face API Key
-        def hfKey = project.properties["HF_API_KEY"] ?: ""
+        def props = new Properties()
+        props.load(rootProject.file("local.properties").newDataInputStream())
+        def hfKey = props.getProperty("HF_API_KEY", "")
+
         buildConfigField "String", "HF_API_KEY", "\"${hfKey}\""
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

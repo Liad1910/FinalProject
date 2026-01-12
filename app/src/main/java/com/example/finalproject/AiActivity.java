@@ -2,6 +2,7 @@ package com.example.finalproject;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +39,8 @@ public class AiActivity extends AppCompatActivity {
 
     // bot state
     private int round = 0;
-    private String lastGenre = null; // comedy/action/...
-    private String lastMood = null;  // funny/chill/...
+    private String lastGenre = null;
+    private String lastMood = null;
     private List<AiMovie> currentSuggestions = new ArrayList<>();
 
     private enum State { ASK_GENRE, SHOWING_RECS, REFINE, DONE }
@@ -63,15 +64,12 @@ public class AiActivity extends AppCompatActivity {
         btnLiked = findViewById(R.id.btnLiked);
         btnDisliked = findViewById(R.id.btnDisliked);
 
-        // recycler
         adapter = new ChatAdapter(messages);
         rvChat.setLayoutManager(new LinearLayoutManager(this));
         rvChat.setAdapter(adapter);
 
-        // bot opening
         addBot("היי! מה נשמע 😊 איזה ז׳אנר של סרט תרצי לראות היום? (קומדיה/אקשן/רומנטי/אימה וכו׳)");
 
-        // send handler
         btnSend.setOnClickListener(v -> {
             String text = etMessage.getText().toString().trim();
             if (text.isEmpty()) return;
@@ -81,7 +79,6 @@ public class AiActivity extends AppCompatActivity {
             handleUserText(text);
         });
 
-        // suggestions buttons
         btnSug1.setOnClickListener(v -> openSuggestion(0));
         btnSug2.setOnClickListener(v -> openSuggestion(1));
         btnSug3.setOnClickListener(v -> openSuggestion(2));
@@ -97,7 +94,6 @@ public class AiActivity extends AppCompatActivity {
         });
     }
 
-    // ====== BOT LOGIC ======
     private void handleUserText(String userText) {
         String t = userText == null ? "" : userText.toLowerCase(Locale.ROOT).trim();
 
@@ -107,7 +103,7 @@ public class AiActivity extends AppCompatActivity {
         }
 
         // ✅ קודם DISLIKED (כי "לא אהבתי" מכיל "אהבתי")
-        if (containsAny(t, "לא אהבתי", "לא", "לא משהו", "nah", "nope", "didn't like")) {
+        if (containsAny(t, "לא אהבתי", "לא משהו", "nah", "nope", "didn't like")) {
             state = State.REFINE;
             hideSuggestions();
             addBot("סבבה 🙂 מה לשנות? יותר מצחיק / יותר מותח / בלי אימה / משהו רגוע?");
@@ -122,7 +118,7 @@ public class AiActivity extends AppCompatActivity {
             return;
         }
 
-        // ====== כאן ה-AI האמיתי ======
+        // ====== HF AI ======
         if (state == State.ASK_GENRE || state == State.REFINE) {
 
             addBot("שנייה אני חושבת 🤖 ...");
@@ -133,19 +129,33 @@ public class AiActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
 
                         addBot("ה-AI זיהה: " + label + " (" + String.format(Locale.ROOT, "%.2f", score) + ")");
-
                         round++;
 
-                        if ("POSITIVE".equalsIgnoreCase(label)) {
+                        // סנטימנט -> ז'אנר (דמו)
+                        String lower = userText.toLowerCase(Locale.ROOT);
+
+                        if (containsAny(lower,
+                                "deep", "think", "serious", "emotional", "meaningful", "dark", "intense")) {
+
+                            lastGenre = "drama";
+                            lastMood = "serious";
+
+                        } else if ("POSITIVE".equalsIgnoreCase(label)) {
+
                             lastGenre = "comedy";
                             lastMood = "funny";
+
                         } else if ("NEGATIVE".equalsIgnoreCase(label)) {
+
                             lastGenre = "drama";
                             lastMood = "emotional";
+
                         } else {
-                            lastGenre = "comedy";
-                            lastMood = "feel_good";
+                            // NEUTRAL בלי מילים עמוקות → feel good
+                            lastGenre = "romance";
+                            lastMood = "calm";
                         }
+
 
                         addBot("קלטתי 😉 הולכים על " + lastGenre + " (" + lastMood + "). הנה 3 הצעות!");
                         currentSuggestions = getMoviesForGenre(lastGenre, round);
@@ -158,7 +168,9 @@ public class AiActivity extends AppCompatActivity {
                 @Override
                 public void onError(String error) {
                     runOnUiThread(() -> {
-                        addBot("נפל ה-AI 😅 (" + error + ") אז אני ממשיכה עם גיבוי מקומי");
+                        Log.e("HF_AI", "HF ERROR CALLBACK = " + error);
+
+                        addBot("ה-AI לא זמין כרגע 😅 אז אני ממשיכה עם גיבוי מקומי");
 
                         LocalTextClassifier.Result r = LocalTextClassifier.classify(userText);
                         lastGenre = r.genre;
@@ -174,11 +186,9 @@ public class AiActivity extends AppCompatActivity {
                 }
             });
 
-
             return;
         }
 
-        // default in SHOWING_RECS: nudge feedback
         addBot("רוצה לבחור משהו? לחצי על אחד הסרטים, או כתבי 'אהבתי' / 'לא אהבתי'.");
     }
 
@@ -230,7 +240,6 @@ public class AiActivity extends AppCompatActivity {
         }
     }
 
-    // נותן 3 הצעות, וכל round מחליף את השלישייה
     private List<AiMovie> getMoviesForGenre(String genre, int round) {
 
         List<AiMovie> pool;
@@ -336,7 +345,6 @@ public class AiActivity extends AppCompatActivity {
         return Arrays.asList(a, b, c);
     }
 
-    // ===== Chat helpers =====
     private void addBot(String text) {
         messages.add(new ChatMessage(text, true));
         adapter.notifyItemInserted(messages.size() - 1);
@@ -358,7 +366,6 @@ public class AiActivity extends AppCompatActivity {
         return false;
     }
 
-    // ===== Models + Adapter =====
     public static class ChatMessage {
         public final String text;
         public final boolean fromBot;
