@@ -178,3 +178,6 @@ public class BaseActivity extends AppCompatActivity
         }
     }
 }
+
+//TMDB_API_KEY=ce829465ca9e4f15441987a1f3624293
+//HF_API_KEY= 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

@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -16,10 +17,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class AiActivity extends AppCompatActivity {
 
@@ -41,15 +55,34 @@ public class AiActivity extends AppCompatActivity {
     private int round = 0;
     private String lastGenre = null;
     private String lastMood = null;
-    private List<AiMovie> currentSuggestions = new ArrayList<>();
+
+    // ✅ NEW: real recs (Firestore/TMDB)
+    private final ArrayList<MovieRec> currentRecs = new ArrayList<>();
 
     private enum State { ASK_GENRE, SHOWING_RECS, REFINE, DONE }
     private State state = State.ASK_GENRE;
+
+    // ===== Firestore config (EDIT IF NEEDED) =====
+    private static final String COLLECTION = "titles";
+    private static final String FIELD_TYPE = "type";        // if you don't have it -> remove filter in query
+    private static final String FIELD_TITLE = "title";
+    private static final String FIELD_GENRES = "genres";
+    private static final String FIELD_POSTER = "posterUrl";
+    private static final String FIELD_TMDB_ID = "tmdbId";
+
+    // ===== TMDB config =====
+    private static final String TMDB_BASE = "https://api.themoviedb.org/3";
+    private static final String TMDB_IMG = "https://image.tmdb.org/t/p/w500";
+    private final OkHttpClient tmdbClient = new OkHttpClient();
+
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ai);
+
+        db = FirebaseFirestore.getInstance();
 
         // views
         rvChat = findViewById(R.id.rvChat);
@@ -68,7 +101,7 @@ public class AiActivity extends AppCompatActivity {
         rvChat.setLayoutManager(new LinearLayoutManager(this));
         rvChat.setAdapter(adapter);
 
-        addBot("היי! מה נשמע 😊 איזה ז׳אנר של סרט תרצי לראות היום? (קומדיה/אקשן/רומנטי/אימה וכו׳)");
+        addBot("היי! מה נשמע 😊 כתבי מה בא לך לראות (למשל: \"משהו מצחיק\" / \"אקשן\" / \"רומנטי\" / \"מפחיד\")");
 
         btnSend.setOnClickListener(v -> {
             String text = etMessage.getText().toString().trim();
@@ -98,11 +131,11 @@ public class AiActivity extends AppCompatActivity {
         String t = userText == null ? "" : userText.toLowerCase(Locale.ROOT).trim();
 
         if (state == State.DONE) {
-            addBot("סגרנו 😊 אם תרצי עוד המלצות פשוט תכתבי ז׳אנר חדש.");
+            addBot("סגרנו 😊 אם תרצי עוד המלצות פשוט תכתבי משהו חדש.");
             return;
         }
 
-        // ✅ קודם DISLIKED (כי "לא אהבתי" מכיל "אהבתי")
+        // ✅ קודם DISLIKED
         if (containsAny(t, "לא אהבתי", "לא משהו", "nah", "nope", "didn't like")) {
             state = State.REFINE;
             hideSuggestions();
@@ -110,7 +143,7 @@ public class AiActivity extends AppCompatActivity {
             return;
         }
 
-        // ✅ אחרי זה LIKED (ולוודא שלא מתחיל ב"לא")
+        // ✅ אחרי זה LIKED
         if (!t.startsWith("לא") && containsAny(t, "אהבתי", "כן", "סגור", "מעולה", "perfect", "i like", "liked", "yes")) {
             state = State.DONE;
             hideSuggestions();
@@ -118,48 +151,43 @@ public class AiActivity extends AppCompatActivity {
             return;
         }
 
-        // ====== HF AI ======
+        // ====== AI detect genre ======
         if (state == State.ASK_GENRE || state == State.REFINE) {
-
             addBot("שנייה אני חושבת 🤖 ...");
+
+            // ✅ כאן יש לך 2 אופציות:
+            // A) לשים את ה-ZERO-SHOT שעשית ב-HfClient.detectGenreZeroShot(...)
+            // B) להשאיר כרגע את classifyText + Local fallback.
+            //
+            // אני משאירה לך כאן את B כדי שזה ירוץ מיד,
+            // ואת יכולה להחליף ל-ZERO-SHOT בשורה אחת.
 
             HfClient.classifyText(userText, new HfClient.HfCallback() {
                 @Override
                 public void onSuccess(String label, double score) {
                     runOnUiThread(() -> {
-
                         addBot("ה-AI זיהה: " + label + " (" + String.format(Locale.ROOT, "%.2f", score) + ")");
                         round++;
 
-                        // סנטימנט -> ז'אנר (דמו)
+                        // ✅ TEMP mapping (עד שתעברי ל-ZeroShot)
                         String lower = userText.toLowerCase(Locale.ROOT);
 
-                        if (containsAny(lower,
-                                "deep", "think", "serious", "emotional", "meaningful", "dark", "intense")) {
-
+                        if (containsAny(lower, "deep", "think", "serious", "emotional", "meaningful", "dark", "intense")) {
                             lastGenre = "drama";
                             lastMood = "serious";
-
                         } else if ("POSITIVE".equalsIgnoreCase(label)) {
-
                             lastGenre = "comedy";
                             lastMood = "funny";
-
                         } else if ("NEGATIVE".equalsIgnoreCase(label)) {
-
                             lastGenre = "drama";
                             lastMood = "emotional";
-
                         } else {
-                            // NEUTRAL בלי מילים עמוקות → feel good
                             lastGenre = "romance";
                             lastMood = "calm";
                         }
 
-
-                        addBot("קלטתי 😉 הולכים על " + lastGenre + " (" + lastMood + "). הנה 3 הצעות!");
-                        currentSuggestions = getMoviesForGenre(lastGenre, round);
-                        showSuggestions(currentSuggestions);
+                        addBot("קלטתי 😉 הולכים על " + lastGenre + ". מביאה 3 המלצות אמיתיות…");
+                        fetchSmartRecommendations(lastGenre);
 
                         state = State.SHOWING_RECS;
                     });
@@ -169,7 +197,6 @@ public class AiActivity extends AppCompatActivity {
                 public void onError(String error) {
                     runOnUiThread(() -> {
                         Log.e("HF_AI", "HF ERROR CALLBACK = " + error);
-
                         addBot("ה-AI לא זמין כרגע 😅 אז אני ממשיכה עם גיבוי מקומי");
 
                         LocalTextClassifier.Result r = LocalTextClassifier.classify(userText);
@@ -177,9 +204,8 @@ public class AiActivity extends AppCompatActivity {
                         lastMood = r.mood;
                         round++;
 
-                        addBot("קלטתי 😉 הולכים על " + lastGenre + " (" + lastMood + "). הנה 3 הצעות!");
-                        currentSuggestions = getMoviesForGenre(lastGenre, round);
-                        showSuggestions(currentSuggestions);
+                        addBot("קלטתי 😉 הולכים על " + lastGenre + ". מביאה 3 המלצות אמיתיות…");
+                        fetchSmartRecommendations(lastGenre);
 
                         state = State.SHOWING_RECS;
                     });
@@ -192,17 +218,251 @@ public class AiActivity extends AppCompatActivity {
         addBot("רוצה לבחור משהו? לחצי על אחד הסרטים, או כתבי 'אהבתי' / 'לא אהבתי'.");
     }
 
-    // ====== Suggestions UI ======
-    private void showSuggestions(List<AiMovie> list) {
-        if (list == null || list.size() < 3) return;
+    // =========================================================
+    // ✅ STEP 3: Firestore first, then TMDB fallback    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
+    // =========================================================
 
-        tvSuggestionsTitle.setText("הנה 3 הצעות 🎬");
-        btnSug1.setText("🎥 " + list.get(0).title);
-        btnSug2.setText("🎥 " + list.get(1).title);
-        btnSug3.setText("🎥 " + list.get(2).title);
+    private interface ListCb { void onDone(ArrayList<MovieRec> list); }
+    private interface ErrCb { void onErr(String err); }
+
+    private void fetchSmartRecommendations(String genreLabel) {
+        hideSuggestions();
+        currentRecs.clear();
+
+        fetchFromFirestoreByGenre(genreLabel, fsList -> {
+            if (fsList.size() >= 3) {
+                currentRecs.addAll(fsList.subList(0, 3));
+                runOnUiThread(() -> showRecommendations(currentRecs));
+                return;
+            }
+
+            int need = 3 - fsList.size();
+            fetchFromTmdbByGenre(genreLabel, need, tmdbList -> {
+                ArrayList<MovieRec> merged = new ArrayList<>(fsList);
+
+                for (MovieRec r : tmdbList) {
+                    if (!containsRec(merged, r)) merged.add(r);
+                    if (merged.size() == 3) break;
+                }
+
+                currentRecs.clear();
+                currentRecs.addAll(merged);
+                runOnUiThread(() -> showRecommendations(currentRecs));
+
+            }, err -> runOnUiThread(() -> {
+                addBot("TMDB לא עבד 😅 (" + err + ") מציגה את מה שיש מהאפליקציה.");
+                currentRecs.clear();
+                currentRecs.addAll(fsList);
+                showRecommendations(currentRecs);
+            }));
+
+        }, err -> {
+            runOnUiThread(() -> addBot("Firestore נפל 😅 (" + err + ") מנסה TMDB…"));
+            fetchFromTmdbByGenre(genreLabel, 3, tmdbList -> {
+                currentRecs.clear();
+                currentRecs.addAll(tmdbList);
+                runOnUiThread(() -> showRecommendations(currentRecs));
+            }, err2 -> runOnUiThread(() -> addBot("גם TMDB לא עבד 😭 " + err2)));
+        });
+    }
+
+    private boolean containsRec(List<MovieRec> list, MovieRec rec) {
+        for (MovieRec x : list) {
+            if (x.tmdbId != null && rec.tmdbId != null && x.tmdbId.equals(rec.tmdbId)) return true;
+            if (x.title != null && rec.title != null && x.title.equalsIgnoreCase(rec.title)) return true;
+        }
+        return false;
+    }
+
+    // ---------- Firestore ----------
+    private void fetchFromFirestoreByGenre(String genreLabel, ListCb ok, ErrCb bad) {
+        String g1 = normalizeGenreLower(genreLabel); // comedy
+        String g2 = capitalizeFirst(g1);             // Comedy
+
+        ArrayList<MovieRec> out = new ArrayList<>();
+
+        queryFirestoreByGenreValue(g1, res1 -> {
+            out.addAll(res1);
+            if (out.size() >= 3) {
+                ok.onDone(trimTo3(out));
+                return;
+            }
+
+            if (g2.equals(g1)) {
+                ok.onDone(trimTo3(out));
+                return;
+            }
+
+            queryFirestoreByGenreValue(g2, res2 -> {
+                for (MovieRec r : res2) {
+                    if (!containsRec(out, r)) out.add(r);
+                    if (out.size() == 3) break;
+                }
+                ok.onDone(trimTo3(out));
+            }, bad);
+
+        }, bad);
+    }
+
+    private void queryFirestoreByGenreValue(String genreValue, ListCb ok, ErrCb bad) {
+        Query q = db.collection(COLLECTION)
+                .whereArrayContains(FIELD_GENRES, genreValue)
+                .limit(3);
+
+        // אם אין אצלך type -> תמחקי את השורה הזאת
+        q = q.whereEqualTo(FIELD_TYPE, "movie");
+
+        q.get()
+                .addOnSuccessListener(snap -> {
+                    ArrayList<MovieRec> list = new ArrayList<>();
+                    for (DocumentSnapshot d : snap.getDocuments()) {
+                        String title = d.getString(FIELD_TITLE);
+                        String poster = d.getString(FIELD_POSTER);
+
+                        Long tmdbId = null;
+                        Object rawId = d.get(FIELD_TMDB_ID);
+                        if (rawId instanceof Number) tmdbId = ((Number) rawId).longValue();
+
+                        if (title != null && !title.trim().isEmpty()) {
+                            list.add(new MovieRec(title, poster, tmdbId, "firestore"));
+                        }
+                    }
+                    ok.onDone(list);
+                })
+                .addOnFailureListener(e -> bad.onErr(e.getMessage()));
+    }
+
+    private ArrayList<MovieRec> trimTo3(ArrayList<MovieRec> in) {
+        if (in.size() <= 3) return in;
+        return new ArrayList<>(in.subList(0, 3));
+    }
+
+    private String normalizeGenreLower(String s) {
+        if (s == null) return "";
+        s = s.trim().toLowerCase(Locale.ROOT);
+        if (s.equals("sci fi") || s.equals("sci_fi") || s.equals("science-fiction")) return "sci-fi";
+        return s;
+    }
+
+    private String capitalizeFirst(String s) {
+        if (s == null || s.isEmpty()) return s;
+        return s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1);
+    }
+
+    // ---------- TMDB ----------
+    private void fetchFromTmdbByGenre(String genreLabel, int limit, ListCb ok, ErrCb bad) {
+        String apiKey = BuildConfig.TMDB_API_KEY;
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            bad.onErr("TMDB_API_KEY ריק");
+            return;
+        }
+
+        int genreId = tmdbGenreIdFor(genreLabel);
+        if (genreId == 0) {
+            bad.onErr("Unknown genre: " + genreLabel);
+            return;
+        }
+
+        String url = TMDB_BASE + "/discover/movie"
+                + "?api_key=" + apiKey
+                + "&with_genres=" + genreId
+                + "&language=en-US"
+                + "&sort_by=popularity.desc"
+                + "&page=1";
+
+        Request req = new Request.Builder().url(url).get().build();
+
+        tmdbClient.newCall(req).enqueue(new Callback() {
+            @Override public void onFailure(@NonNull Call call, @NonNull java.io.IOException e) {
+                bad.onErr("Network fail: " + e.getMessage());
+            }
+
+            @Override public void onResponse(@NonNull Call call, @NonNull Response res) throws java.io.IOException {
+                String raw = res.body() != null ? res.body().string() : "";
+                if (!res.isSuccessful()) {
+                    bad.onErr("HTTP " + res.code() + ": " + safePreview(raw));
+                    return;
+                }
+
+                try {
+                    JSONObject obj = new JSONObject(raw);
+                    JSONArray results = obj.getJSONArray("results");
+
+                    ArrayList<MovieRec> out = new ArrayList<>();
+                    for (int i = 0; i < results.length() && out.size() < limit; i++) {
+                        JSONObject m = results.getJSONObject(i);
+                        String title = m.optString("title", "");
+                        long id = m.optLong("id", 0);
+                        String posterPath = m.optString("poster_path", null);
+                        String posterUrl = (posterPath != null && !posterPath.equals("null") && !posterPath.isEmpty())
+                                ? (TMDB_IMG + posterPath)
+                                : null;
+
+                        if (title != null && !title.trim().isEmpty() && id != 0) {
+                            out.add(new MovieRec(title, posterUrl, id, "tmdb"));
+                        }
+                    }
+
+                    ok.onDone(out);
+
+                } catch (Exception e) {
+                    bad.onErr("Parse error: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private String safePreview(String s) {
+        if (s == null) return "";
+        s = s.replace("\n", " ").trim();
+        return s.length() <= 160 ? s : s.substring(0, 160) + "…";
+    }
+
+    private static int tmdbGenreIdFor(String label) {
+        if (label == null) return 0;
+        switch (label.toLowerCase(Locale.ROOT)) {
+            case "action": return 28;
+            case "comedy": return 35;
+            case "drama": return 18;
+            case "horror": return 27;
+            case "romance": return 10749;
+            case "thriller": return 53;
+            case "sci-fi":
+            case "scifi":
+            case "science fiction": return 878;
+            default: return 0;
+        }
+    }
+
+    // =========================================================
+    // ✅ Suggestions UI (buttons)
+    // =========================================================
+    private void showRecommendations(List<MovieRec> recs) {
+        if (recs == null || recs.isEmpty()) {
+            addBot("לא מצאתי המלצות כרגע 😅 נסי משפט אחר.");
+            hideSuggestions();
+            return;
+        }
 
         layoutSuggestions.setVisibility(View.VISIBLE);
+        tvSuggestionsTitle.setText("הנה 3 הצעות 🎬");
+
+        bindButton(btnSug1, recs.size() > 0 ? recs.get(0) : null);
+        bindButton(btnSug2, recs.size() > 1 ? recs.get(1) : null);
+        bindButton(btnSug3, recs.size() > 2 ? recs.get(2) : null);
+
         scrollToBottom();
+    }
+
+    private void bindButton(Button b, MovieRec rec) {
+        if (rec == null) {
+            b.setVisibility(View.GONE);
+            return;
+        }
+        b.setVisibility(View.VISIBLE);
+
+        String src = rec.source != null ? (" (" + rec.source + ")") : "";
+        b.setText("🎥 " + rec.title + src);
     }
 
     private void hideSuggestions() {
@@ -210,141 +470,34 @@ public class AiActivity extends AppCompatActivity {
     }
 
     private void openSuggestion(int index) {
-        if (currentSuggestions == null || index < 0 || index >= currentSuggestions.size()) return;
+        if (index < 0 || index >= currentRecs.size()) return;
 
-        AiMovie m = currentSuggestions.get(index);
+        MovieRec m = currentRecs.get(index);
 
         addUser("בחרתי: " + m.title);
-        addBot("פותחת לך את עמוד הסרט 🎬 ואם אהבת — תלחצי 'אהבתי'.");
+        addBot("פותחת לך טריילר/חיפוש 🎬 ואם אהבת — תלחצי 'אהבתי'.");
 
-        Intent i = new Intent(AiActivity.this, MovieContentActivity.class);
-        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, m.id);
-        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, m.title);
-        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL, m.trailerUrl);
-        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, m.posterResId);
-        startActivity(i);
+        // ✅ הכי פשוט: יוטיוב חיפוש טריילר
+        openTrailerSearch(m.title);
+
+        // אם תרצי לפתוח מסך פרטים שלך:
+        // Intent i = new Intent(AiActivity.this, MovieContentActivity.class);
+        // i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, m.title);
+        // i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL, "...");
+        // startActivity(i);
     }
 
-    // ====== Movies pool ======
-    private static class AiMovie {
-        String id;
-        String title;
-        String trailerUrl;
-        int posterResId;
-
-        AiMovie(String id, String title, String trailerUrl, int posterResId) {
-            this.id = id;
-            this.title = title;
-            this.trailerUrl = trailerUrl;
-            this.posterResId = posterResId;
-        }
+    private void openTrailerSearch(String title) {
+        try {
+            Uri uri = Uri.parse("https://www.youtube.com/results?search_query="
+                    + URLEncoder.encode(title + " trailer", "UTF-8"));
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        } catch (Exception ignored) {}
     }
 
-    private List<AiMovie> getMoviesForGenre(String genre, int round) {
-
-        List<AiMovie> pool;
-
-        switch (genre) {
-            case "comedy":
-                pool = Arrays.asList(
-                        new AiMovie("mean_girls_2004", "Mean Girls",
-                                "https://www.youtube.com/results?search_query=Mean+Girls+trailer",
-                                R.drawable.mean_girls_poster),
-                        new AiMovie("wrong_missy_2020", "The Wrong Missy",
-                                "https://www.youtube.com/results?search_query=The+Wrong+Missy+trailer",
-                                R.drawable.wrong_missy_poster),
-                        new AiMovie("white_chicks_2004", "White Chicks",
-                                "https://www.youtube.com/results?search_query=White+Chicks+trailer",
-                                R.drawable.white_chicks_poster),
-                        new AiMovie("barbie_2023", "Barbie",
-                                "https://www.youtube.com/results?search_query=Barbie+2023+trailer",
-                                R.drawable.barbie_poster),
-                        new AiMovie("up_2009", "Up",
-                                "https://www.youtube.com/results?search_query=Up+trailer",
-                                R.drawable.up_poster),
-                        new AiMovie("pirates_2003", "Pirates of the Caribbean",
-                                "https://www.youtube.com/results?search_query=Pirates+of+the+Caribbean+trailer",
-                                R.drawable.pirates1_poster)
-                );
-                break;
-
-            case "action":
-                pool = Arrays.asList(
-                        new AiMovie("dark_knight_2008", "The Dark Knight",
-                                "https://www.youtube.com/results?search_query=The+Dark+Knight+trailer",
-                                R.drawable.dark_knight_poster),
-                        new AiMovie("inception_2010", "Inception",
-                                "https://www.youtube.com/results?search_query=Inception+trailer",
-                                R.drawable.inception_poster),
-                        new AiMovie("endgame_2019", "Avengers: Endgame",
-                                "https://www.youtube.com/results?search_query=Avengers+Endgame+trailer",
-                                R.drawable.endgame_poster),
-                        new AiMovie("avatar_2009", "Avatar",
-                                "https://www.youtube.com/results?search_query=Avatar+2009+trailer",
-                                R.drawable.avatar_poster),
-                        new AiMovie("top_gun_2022", "Top Gun: Maverick",
-                                "https://www.youtube.com/results?search_query=Top+Gun+Maverick+trailer",
-                                R.drawable.top_gun_maverick_poster),
-                        new AiMovie("matrix_1999", "The Matrix",
-                                "https://www.youtube.com/results?search_query=The+Matrix+trailer",
-                                R.drawable.matrix_poster)
-                );
-                break;
-
-            case "romance":
-                pool = Arrays.asList(
-                        new AiMovie("titanic_1997", "Titanic",
-                                "https://www.youtube.com/results?search_query=Titanic+trailer",
-                                R.drawable.titanic_poster),
-                        new AiMovie("lala_land_2016", "La La Land",
-                                "https://www.youtube.com/results?search_query=La+La+Land+trailer",
-                                R.drawable.la_la_land_poster),
-                        new AiMovie("to_all_the_boys_2018", "To All the Boys I've Loved Before",
-                                "https://www.youtube.com/results?search_query=To+All+the+Boys+trailer",
-                                R.drawable.to_all_the_boys_poster)
-                );
-                break;
-
-            case "horror":
-                pool = Arrays.asList(
-                        new AiMovie("it_2017", "IT",
-                                "https://www.youtube.com/watch?v=FnCdOQsX5kc",
-                                R.drawable.it_poster),
-                        new AiMovie("the_meg_2018", "The Meg",
-                                "https://www.youtube.com/results?search_query=The+Meg+trailer",
-                                R.drawable.the_meg_poster),
-                        new AiMovie("horror_pick", "Horror Pick",
-                                "https://www.youtube.com/results?search_query=horror+movie+trailer",
-                                R.drawable.it_poster)
-                );
-                break;
-
-            default:
-                pool = Arrays.asList(
-                        new AiMovie("forrest_gump_1994", "Forrest Gump",
-                                "https://www.youtube.com/results?search_query=Forrest+Gump+trailer",
-                                R.drawable.forrest_gump_poster),
-                        new AiMovie("titanic_1997", "Titanic",
-                                "https://www.youtube.com/results?search_query=Titanic+trailer",
-                                R.drawable.titanic_poster),
-                        new AiMovie("inception_2010", "Inception",
-                                "https://www.youtube.com/results?search_query=Inception+trailer",
-                                R.drawable.inception_poster)
-                );
-                break;
-        }
-
-        int n = pool.size();
-        if (n <= 3) return pool;
-
-        int start = (round * 3) % n;
-        AiMovie a = pool.get(start % n);
-        AiMovie b = pool.get((start + 1) % n);
-        AiMovie c = pool.get((start + 2) % n);
-
-        return Arrays.asList(a, b, c);
-    }
-
+    // =========================================================
+    // Chat helpers
+    // =========================================================
     private void addBot(String text) {
         messages.add(new ChatMessage(text, true));
         adapter.notifyItemInserted(messages.size() - 1);
@@ -366,12 +519,30 @@ public class AiActivity extends AppCompatActivity {
         return false;
     }
 
+    // =========================================================
+    // Models + Adapter
+    // =========================================================
     public static class ChatMessage {
         public final String text;
         public final boolean fromBot;
         public ChatMessage(String text, boolean fromBot) {
             this.text = text;
             this.fromBot = fromBot;
+        }
+    }
+
+    // ✅ Real recommendation model
+    public static class MovieRec {
+        public String title;
+        public String posterUrl;  // optional
+        public Long tmdbId;       // optional
+        public String source;     // "firestore" / "tmdb"
+
+        public MovieRec(String title, String posterUrl, Long tmdbId, String source) {
+            this.title = title;
+            this.posterUrl = posterUrl;
+            this.tmdbId = tmdbId;
+            this.source = source;
         }
     }
 

@@ -17,13 +17,16 @@ android {
         // 🔐 Hugging Face API Key
         def props = new Properties()
         props.load(rootProject.file("local.properties").newDataInputStream())
+
         def hfKey = props.getProperty("HF_API_KEY", "")
+        def tmdbKey = props.getProperty("TMDB_API_KEY", "")
 
         buildConfigField "String", "HF_API_KEY", "\"${hfKey}\""
-
+        buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKey}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
 
     // ✅ חובה בשביל BuildConfig
     buildFeatures {
