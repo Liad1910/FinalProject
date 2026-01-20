@@ -1,12 +1,17 @@
 package com.example.finalproject;
 
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -26,6 +31,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    BroadcastReceiver broadcastReceiver;
     // ----- שדות למסך -----
     private TextView tvHelloMain;
 
@@ -80,6 +86,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        broadcastReceiver= new Network();
+        registerNetworkBrodcastReciver();
+
 
         // ✅ Splash Screen – חייב להיות לפני super
         SplashScreen.installSplashScreen(this);
@@ -174,6 +184,10 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_user_page) startActivity(new Intent(this, activity_user_page.class));
         else if (id == R.id.nav_create_title) {
             startActivity(new Intent(this, CreateTitleActivity.class));
+        }
+       else if (id == R.id.nav_nearby_cinema) {
+            Toast.makeText(this, "פותחת עמוד קולנוע 🎬", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
         }
 
 
@@ -280,6 +294,12 @@ public class MainActivity extends AppCompatActivity
         auth.signOut();
         showAnonymousUI();
         detachUserDocListener();
+    }
+
+    protected void  registerNetworkBrodcastReciver (){
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
+            registerReceiver(broadcastReceiver,new IntentFilter((ConnectivityManager.CONNECTIVITY_ACTION)));
+        }
     }
 }
 

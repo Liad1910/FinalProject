@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="קולנוע קרוב אלייך 🎬"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="העמוד הזה לא משתמש בשום שירות בתשלום."
+        android:alpha="0.8"
+        android:paddingBottom="18dp"/>
+
+    <Button
+        android:id="@+id/btnNearbyCinemas"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="🎬 קולנועים קרובים"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/btnNowPlaying"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="🍿 סרטים שמוקרנים עכשיו"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/btnNavigate"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="🚗 ניווט לקולנוע"
+        android:layout_marginBottom="12dp"/>
+
+</LinearLayout>

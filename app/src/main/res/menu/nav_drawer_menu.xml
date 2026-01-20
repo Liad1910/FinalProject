@@ -53,6 +53,11 @@
         </menu>
     </item>
 
+    <!-- Cinema -->
+    <item
+        android:id="@+id/nav_nearby_cinema"
+        android:title="🎬 קולנוע קרוב אלייך" />
+
     <!-- User / Account -->
     <item
         android:id="@+id/nav_login"
@@ -69,7 +74,6 @@
     <item
         android:id="@+id/nav_create_title"
         android:title="Create Movie/Series" />
-
 
     <item
         android:id="@+id/nav_logout"
