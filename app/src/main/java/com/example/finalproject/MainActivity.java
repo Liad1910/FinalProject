@@ -295,7 +295,7 @@ public class MainActivity extends AppCompatActivity
         showAnonymousUI();
         detachUserDocListener();
     }
-
+s
     protected void  registerNetworkBrodcastReciver (){
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
             registerReceiver(broadcastReceiver,new IntentFilter((ConnectivityManager.CONNECTIVITY_ACTION)));
