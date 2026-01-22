@@ -26,8 +26,11 @@ import org.json.JSONObject;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -56,8 +59,11 @@ public class AiActivity extends AppCompatActivity {
     private String lastGenre = null;
     private String lastMood = null;
 
-    // ✅ NEW: real recs (Firestore/TMDB)
+    // recommendations
     private final ArrayList<MovieRec> currentRecs = new ArrayList<>();
+
+    // ✅ avoid repeats
+    private final Set<String> seenRecKeys = new HashSet<>();
 
     private enum State { ASK_GENRE, SHOWING_RECS, REFINE, DONE }
     private State state = State.ASK_GENRE;
@@ -75,7 +81,15 @@ public class AiActivity extends AppCompatActivity {
     private static final String TMDB_IMG = "https://image.tmdb.org/t/p/w500";
     private final OkHttpClient tmdbClient = new OkHttpClient();
 
+    // ✅ Force English-only from TMDB
+    private static final String ONLY_ORIGINAL_LANGUAGE = "en";
+    private static final int TMDB_MAX_PAGES_TRY = 5; // retry pages 1..5
+
     private FirebaseFirestore db;
+
+    // callbacks
+    private interface ListCb { void onDone(ArrayList<MovieRec> list); }
+    private interface ErrCb { void onErr(String err); }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,15 +149,15 @@ public class AiActivity extends AppCompatActivity {
             return;
         }
 
-        // ✅ קודם DISLIKED
-        if (containsAny(t, "לא אהבתי", "לא משהו", "nah", "nope", "didn't like")) {
+        // ✅ first DISLIKED
+        if (containsAny(t, "לא אהבתי", "לא משהו", "nah", "nope", "didn't like", "dont like", "don't like")) {
             state = State.REFINE;
             hideSuggestions();
-            addBot("סבבה 🙂 מה לשנות? יותר מצחיק / יותר מותח / בלי אימה / משהו רגוע?");
+            addBot("סבבה 🙂 מה לשנות? יותר מצחיק / יותר מותח / בלי אימה / משהו רגוע? או 'יותר מפחיד'.");
             return;
         }
 
-        // ✅ אחרי זה LIKED
+        // ✅ then LIKED
         if (!t.startsWith("לא") && containsAny(t, "אהבתי", "כן", "סגור", "מעולה", "perfect", "i like", "liked", "yes")) {
             state = State.DONE;
             hideSuggestions();
@@ -151,17 +165,39 @@ public class AiActivity extends AppCompatActivity {
             return;
         }
 
-        // ====== AI detect genre ======
+        // ====== ASK / REFINE ======
         if (state == State.ASK_GENRE || state == State.REFINE) {
             addBot("שנייה אני חושבת 🤖 ...");
 
-            // ✅ כאן יש לך 2 אופציות:
-            // A) לשים את ה-ZERO-SHOT שעשית ב-HfClient.detectGenreZeroShot(...)
-            // B) להשאיר כרגע את classifyText + Local fallback.
-            //
-            // אני משאירה לך כאן את B כדי שזה ירוץ מיד,
-            // ואת יכולה להחליף ל-ZERO-SHOT בשורה אחת.
+            // ✅ explicit refine for scarier => NEW english horror
+            if (containsAny(t, "יותר מפחיד", "more scary", "scarier", "יותר אימה", "more horror")) {
+                lastGenre = "horror";
+                lastMood = "scary";
+                round++;
 
+                addBot("הבנתי 😈 יותר מפחיד. מביאה 3 חדשות (באנגלית) שלא היו…");
+                fetchSmartRecommendations(lastGenre);
+
+                state = State.SHOWING_RECS;
+                return;
+            }
+
+            // ✅ keyword detect (Hebrew + English)
+            String kwGenre = detectGenreFromKeywords(t);
+            if (kwGenre != null) {
+                lastGenre = kwGenre;
+                lastMood = kwGenre.equals("horror") ? "scary" : "auto";
+                round++;
+
+                addBot("קלטתי 😉 הולכים על " + lastGenre + ". מביאה 3 המלצות אמיתיות (באנגלית)…");
+                fetchSmartRecommendations(lastGenre);
+
+                state = State.SHOWING_RECS;
+                return;
+            }
+
+            // ===== HF fallback (sentiment) =====
+            // (שימי לב: זה לא זיהוי ז׳אנר אמיתי, אבל נשאר כגיבוי)
             HfClient.classifyText(userText, new HfClient.HfCallback() {
                 @Override
                 public void onSuccess(String label, double score) {
@@ -169,10 +205,10 @@ public class AiActivity extends AppCompatActivity {
                         addBot("ה-AI זיהה: " + label + " (" + String.format(Locale.ROOT, "%.2f", score) + ")");
                         round++;
 
-                        // ✅ TEMP mapping (עד שתעברי ל-ZeroShot)
-                        String lower = userText.toLowerCase(Locale.ROOT);
+                        String lower2 = userText.toLowerCase(Locale.ROOT);
 
-                        if (containsAny(lower, "deep", "think", "serious", "emotional", "meaningful", "dark", "intense")) {
+                        if (containsAny(lower2, "deep", "think", "serious", "emotional", "meaningful", "dark", "intense",
+                                "עמוק", "כבד", "מרגש", "דרמה")) {
                             lastGenre = "drama";
                             lastMood = "serious";
                         } else if ("POSITIVE".equalsIgnoreCase(label)) {
@@ -186,7 +222,7 @@ public class AiActivity extends AppCompatActivity {
                             lastMood = "calm";
                         }
 
-                        addBot("קלטתי 😉 הולכים על " + lastGenre + ". מביאה 3 המלצות אמיתיות…");
+                        addBot("קלטתי 😉 הולכים על " + lastGenre + ". מביאה 3 המלצות (באנגלית)…");
                         fetchSmartRecommendations(lastGenre);
 
                         state = State.SHOWING_RECS;
@@ -204,7 +240,7 @@ public class AiActivity extends AppCompatActivity {
                         lastMood = r.mood;
                         round++;
 
-                        addBot("קלטתי 😉 הולכים על " + lastGenre + ". מביאה 3 המלצות אמיתיות…");
+                        addBot("קלטתי 😉 הולכים על " + lastGenre + ". מביאה 3 המלצות (באנגלית)…");
                         fetchSmartRecommendations(lastGenre);
 
                         state = State.SHOWING_RECS;
@@ -219,20 +255,75 @@ public class AiActivity extends AppCompatActivity {
     }
 
     // =========================================================
-    // ✅ STEP 3: Firestore first, then TMDB fallback    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
+    // ✅ Genre detect (Hebrew + English)
     // =========================================================
+    private String detectGenreFromKeywords(String tLower) {
+        if (tLower == null) return null;
+        tLower = tLower.toLowerCase(Locale.ROOT);
 
-    private interface ListCb { void onDone(ArrayList<MovieRec> list); }
-    private interface ErrCb { void onErr(String err); }
+        // Horror
+        if (containsAny(tLower,
+                "מפחיד", "אימה", "זוועה", "סלאשר", "רוחות", "שדים", "דיבוק",
+                "scary", "horror", "terrifying", "creepy", "ghost", "haunted", "demon", "slasher")) {
+            return "horror";
+        }
 
+        // Action
+        if (containsAny(tLower,
+                "אקשן", "פעולה", "אדרנלין", "קרבות", "פיצוצים",
+                "action", "fight", "explosions", "adrenaline")) {
+            return "action";
+        }
+
+        // Thriller
+        if (containsAny(tLower,
+                "מותח", "מתח", "תעלומה", "חקירה",
+                "thriller", "suspense", "mystery", "detective", "investigation")) {
+            return "thriller";
+        }
+
+        // Comedy
+        if (containsAny(tLower,
+                "מצחיק", "קומדיה", "קליל", "צחוק",
+                "funny", "comedy", "hilarious", "laugh")) {
+            return "comedy";
+        }
+
+        // Romance
+        if (containsAny(tLower,
+                "רומנטי", "אהבה", "זוגיות",
+                "romance", "romantic", "love story")) {
+            return "romance";
+        }
+
+        // Drama
+        if (containsAny(tLower,
+                "דרמה", "מרגש", "כבד", "עמוק",
+                "drama", "emotional", "serious", "deep")) {
+            return "drama";
+        }
+
+        // Sci-Fi
+        if (containsAny(tLower,
+                "מדע בדיוני", "חלל", "עתידני",
+                "sci fi", "sci-fi", "science fiction", "space", "futuristic")) {
+            return "sci-fi";
+        }
+
+        return null;
+    }
+
+    // =========================================================
+    // ✅ Smart Recommendations: Firestore first, then TMDB fallback
+    // =========================================================
     private void fetchSmartRecommendations(String genreLabel) {
         hideSuggestions();
         currentRecs.clear();
 
         fetchFromFirestoreByGenre(genreLabel, fsList -> {
             if (fsList.size() >= 3) {
-                currentRecs.addAll(fsList.subList(0, 3));
-                runOnUiThread(() -> showRecommendations(currentRecs));
+                ArrayList<MovieRec> top = new ArrayList<>(fsList.subList(0, 3));
+                runOnUiThread(() -> showRecommendations(top));
                 return;
             }
 
@@ -245,24 +336,18 @@ public class AiActivity extends AppCompatActivity {
                     if (merged.size() == 3) break;
                 }
 
-                currentRecs.clear();
-                currentRecs.addAll(merged);
-                runOnUiThread(() -> showRecommendations(currentRecs));
+                // ✅ IMPORTANT: even if < 3, show what we have (don’t show nothing)
+                runOnUiThread(() -> showRecommendations(merged));
 
             }, err -> runOnUiThread(() -> {
                 addBot("TMDB לא עבד 😅 (" + err + ") מציגה את מה שיש מהאפליקציה.");
-                currentRecs.clear();
-                currentRecs.addAll(fsList);
-                showRecommendations(currentRecs);
+                showRecommendations(fsList);
             }));
 
         }, err -> {
             runOnUiThread(() -> addBot("Firestore נפל 😅 (" + err + ") מנסה TMDB…"));
-            fetchFromTmdbByGenre(genreLabel, 3, tmdbList -> {
-                currentRecs.clear();
-                currentRecs.addAll(tmdbList);
-                runOnUiThread(() -> showRecommendations(currentRecs));
-            }, err2 -> runOnUiThread(() -> addBot("גם TMDB לא עבד 😭 " + err2)));
+            fetchFromTmdbByGenre(genreLabel, 3, tmdbList -> runOnUiThread(() -> showRecommendations(tmdbList)),
+                    err2 -> runOnUiThread(() -> addBot("גם TMDB לא עבד 😭 " + err2)));
         });
     }
 
@@ -274,40 +359,50 @@ public class AiActivity extends AppCompatActivity {
         return false;
     }
 
-    // ---------- Firestore ----------
-    private void fetchFromFirestoreByGenre(String genreLabel, ListCb ok, ErrCb bad) {
-        String g1 = normalizeGenreLower(genreLabel); // comedy
-        String g2 = capitalizeFirst(g1);             // Comedy
+    // =========================================================
+    // ✅ Avoid duplicates (seen)
+    // =========================================================
+    private String recKey(MovieRec r) {
+        if (r == null) return "";
+        if (r.tmdbId != null) return "tmdb:" + r.tmdbId;
+        return "title:" + (r.title == null ? "" : r.title.toLowerCase(Locale.ROOT).trim());
+    }
 
-        ArrayList<MovieRec> out = new ArrayList<>();
+    // =========================================================
+    // ✅ Firestore: try lower + Capitalized and merge
+    // =========================================================
+    private void fetchFromFirestoreByGenre(String genreLabel, ListCb ok, ErrCb bad) {
+        String g1 = normalizeGenreLower(genreLabel); // horror
+        String g2 = capitalizeFirst(g1);             // Horror
+
+        ArrayList<MovieRec> merged = new ArrayList<>();
 
         queryFirestoreByGenreValue(g1, res1 -> {
-            out.addAll(res1);
-            if (out.size() >= 3) {
-                ok.onDone(trimTo3(out));
+            merged.addAll(res1);
+
+            if (merged.size() >= 3) {
+                ok.onDone(trimTo3(merged));
                 return;
             }
 
-            if (g2.equals(g1)) {
-                ok.onDone(trimTo3(out));
-                return;
+            if (!g2.equals(g1)) {
+                queryFirestoreByGenreValue(g2, res2 -> {
+                    for (MovieRec r : res2) {
+                        if (!containsRec(merged, r)) merged.add(r);
+                        if (merged.size() >= 3) break;
+                    }
+                    ok.onDone(trimTo3(merged));
+                }, bad);
+            } else {
+                ok.onDone(trimTo3(merged));
             }
-
-            queryFirestoreByGenreValue(g2, res2 -> {
-                for (MovieRec r : res2) {
-                    if (!containsRec(out, r)) out.add(r);
-                    if (out.size() == 3) break;
-                }
-                ok.onDone(trimTo3(out));
-            }, bad);
-
         }, bad);
     }
 
     private void queryFirestoreByGenreValue(String genreValue, ListCb ok, ErrCb bad) {
         Query q = db.collection(COLLECTION)
                 .whereArrayContains(FIELD_GENRES, genreValue)
-                .limit(3);
+                .limit(30);
 
         // אם אין אצלך type -> תמחקי את השורה הזאת
         q = q.whereEqualTo(FIELD_TYPE, "movie");
@@ -327,12 +422,27 @@ public class AiActivity extends AppCompatActivity {
                             list.add(new MovieRec(title, poster, tmdbId, "firestore"));
                         }
                     }
-                    ok.onDone(list);
+
+                    Collections.shuffle(list);
+
+                    // try 3 unseen first
+                    ArrayList<MovieRec> filtered = new ArrayList<>();
+                    for (MovieRec r : list) {
+                        if (!seenRecKeys.contains(recKey(r))) {
+                            filtered.add(r);
+                            if (filtered.size() == 3) break;
+                        }
+                    }
+
+                    // if no unseen exist, return first 3 so UI won’t be empty
+                    if (filtered.isEmpty()) ok.onDone(trimTo3(list));
+                    else ok.onDone(filtered);
                 })
                 .addOnFailureListener(e -> bad.onErr(e.getMessage()));
     }
 
     private ArrayList<MovieRec> trimTo3(ArrayList<MovieRec> in) {
+        if (in == null) return new ArrayList<>();
         if (in.size() <= 3) return in;
         return new ArrayList<>(in.subList(0, 3));
     }
@@ -349,7 +459,9 @@ public class AiActivity extends AppCompatActivity {
         return s.substring(0, 1).toUpperCase(Locale.ROOT) + s.substring(1);
     }
 
-    // ---------- TMDB ----------
+    // =========================================================
+    // ✅ TMDB: English-only + retry pages until enough results
+    // =========================================================
     private void fetchFromTmdbByGenre(String genreLabel, int limit, ListCb ok, ErrCb bad) {
         String apiKey = BuildConfig.TMDB_API_KEY;
         if (apiKey == null || apiKey.trim().isEmpty()) {
@@ -363,12 +475,41 @@ public class AiActivity extends AppCompatActivity {
             return;
         }
 
+        // Start from a random page but keep retrying forward
+        int startPage = 1 + (int)(Math.random() * TMDB_MAX_PAGES_TRY);
+        fetchTmdbPagesEnglishOnly(apiKey, genreId, limit, startPage, startPage + TMDB_MAX_PAGES_TRY - 1,
+                new ArrayList<>(), ok, bad);
+    }
+
+    private void fetchTmdbPagesEnglishOnly(
+            String apiKey,
+            int genreId,
+            int limit,
+            int page,
+            int maxPage,
+            ArrayList<MovieRec> acc,
+            ListCb ok,
+            ErrCb bad
+    ) {
+        if (acc.size() >= limit) {
+            ok.onDone(new ArrayList<>(acc.subList(0, limit)));
+            return;
+        }
+
+        if (page > maxPage) {
+            // return what we have (even 0/1/2) — caller will still show something if merged
+            ok.onDone(acc);
+            return;
+        }
+
         String url = TMDB_BASE + "/discover/movie"
                 + "?api_key=" + apiKey
                 + "&with_genres=" + genreId
+                + "&with_original_language=" + ONLY_ORIGINAL_LANGUAGE   // ✅ only English originals
                 + "&language=en-US"
+                + "&include_adult=false"
                 + "&sort_by=popularity.desc"
-                + "&page=1";
+                + "&page=" + page;
 
         Request req = new Request.Builder().url(url).get().build();
 
@@ -388,22 +529,33 @@ public class AiActivity extends AppCompatActivity {
                     JSONObject obj = new JSONObject(raw);
                     JSONArray results = obj.getJSONArray("results");
 
-                    ArrayList<MovieRec> out = new ArrayList<>();
-                    for (int i = 0; i < results.length() && out.size() < limit; i++) {
+                    for (int i = 0; i < results.length() && acc.size() < limit; i++) {
                         JSONObject m = results.getJSONObject(i);
+
+                        // extra safety filter
+                        String origLang = m.optString("original_language", "");
+                        if (!ONLY_ORIGINAL_LANGUAGE.equalsIgnoreCase(origLang)) continue;
+
                         String title = m.optString("title", "");
                         long id = m.optLong("id", 0);
+
                         String posterPath = m.optString("poster_path", null);
                         String posterUrl = (posterPath != null && !posterPath.equals("null") && !posterPath.isEmpty())
                                 ? (TMDB_IMG + posterPath)
                                 : null;
 
-                        if (title != null && !title.trim().isEmpty() && id != 0) {
-                            out.add(new MovieRec(title, posterUrl, id, "tmdb"));
+                        if (title == null || title.trim().isEmpty() || id == 0) continue;
+
+                        MovieRec rec = new MovieRec(title, posterUrl, id, "tmdb");
+
+                        // avoid seen + avoid duplicates in acc
+                        if (!seenRecKeys.contains(recKey(rec)) && !containsRec(acc, rec)) {
+                            acc.add(rec);
                         }
                     }
 
-                    ok.onDone(out);
+                    // need more? go next page
+                    fetchTmdbPagesEnglishOnly(apiKey, genreId, limit, page + 1, maxPage, acc, ok, bad);
 
                 } catch (Exception e) {
                     bad.onErr("Parse error: " + e.getMessage());
@@ -435,17 +587,28 @@ public class AiActivity extends AppCompatActivity {
     }
 
     // =========================================================
-    // ✅ Suggestions UI (buttons)
+    // ✅ Suggestions UI
     // =========================================================
     private void showRecommendations(List<MovieRec> recs) {
         if (recs == null || recs.isEmpty()) {
-            addBot("לא מצאתי המלצות כרגע 😅 נסי משפט אחר.");
+            addBot("לא מצאתי המלצות כרגע 😅 נסי ניסוח אחר (למשל: 'scary horror' / 'psychological thriller').");
             hideSuggestions();
             return;
         }
 
+        // keep current
+        currentRecs.clear();
+        currentRecs.addAll(recs);
+
+        // mark as seen
+        for (MovieRec r : recs) {
+            seenRecKeys.add(recKey(r));
+        }
+
         layoutSuggestions.setVisibility(View.VISIBLE);
-        tvSuggestionsTitle.setText("הנה 3 הצעות 🎬");
+
+        // title shows how many actually found
+        tvSuggestionsTitle.setText("הנה " + recs.size() + " הצעות (באנגלית) 🎬");
 
         bindButton(btnSug1, recs.size() > 0 ? recs.get(0) : null);
         bindButton(btnSug2, recs.size() > 1 ? recs.get(1) : null);
@@ -460,7 +623,6 @@ public class AiActivity extends AppCompatActivity {
             return;
         }
         b.setVisibility(View.VISIBLE);
-
         String src = rec.source != null ? (" (" + rec.source + ")") : "";
         b.setText("🎥 " + rec.title + src);
     }
@@ -477,14 +639,7 @@ public class AiActivity extends AppCompatActivity {
         addUser("בחרתי: " + m.title);
         addBot("פותחת לך טריילר/חיפוש 🎬 ואם אהבת — תלחצי 'אהבתי'.");
 
-        // ✅ הכי פשוט: יוטיוב חיפוש טריילר
         openTrailerSearch(m.title);
-
-        // אם תרצי לפתוח מסך פרטים שלך:
-        // Intent i = new Intent(AiActivity.this, MovieContentActivity.class);
-        // i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, m.title);
-        // i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL, "...");
-        // startActivity(i);
     }
 
     private void openTrailerSearch(String title) {
@@ -515,7 +670,10 @@ public class AiActivity extends AppCompatActivity {
     }
 
     private boolean containsAny(String text, String... arr) {
-        for (String a : arr) if (text.contains(a)) return true;
+        if (text == null) return false;
+        for (String a : arr) {
+            if (a != null && !a.isEmpty() && text.contains(a)) return true;
+        }
         return false;
     }
 
@@ -531,7 +689,6 @@ public class AiActivity extends AppCompatActivity {
         }
     }
 
-    // ✅ Real recommendation model
     public static class MovieRec {
         public String title;
         public String posterUrl;  // optional

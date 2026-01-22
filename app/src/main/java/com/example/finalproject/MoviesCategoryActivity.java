@@ -1,39 +1,50 @@
 package com.example.finalproject;
 
-import android.content.Intent;
+import android.app.AlertDialog;
 import android.os.Bundle;
-import android.view.View;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 public class MoviesCategoryActivity extends AppCompatActivity {
 
-    private TextView tvTitleMovies;
-    private String selectedGenre;
+    private TextView tvTitleMovies, tvResultsCount;
+    private TextInputEditText etSearch;
+    private MaterialButton btnClearSearch, btnGenre, btnSort;
 
-    // New from users
-    private RecyclerView rvUserTitles;
-    private TitlesAdapter adapter;
-    private final ArrayList<TitleCard> userTitles = new ArrayList<>();
+    private RecyclerView rvAllMovies;
+    private MoviesGridAdapter adapter;
+
+    private final ArrayList<MovieItem> allMovies = new ArrayList<>();
+    private final ArrayList<MovieItem> filteredMovies = new ArrayList<>();
+
     private FirebaseFirestore db;
+
+    private String selectedGenre = "All";
+    private String searchQuery = "";
+
+    private enum SortMode { TITLE_AZ, TITLE_ZA }
+    private SortMode sortMode = SortMode.TITLE_AZ;
 
     // AI
     private boolean aiMode = false;
     private String aiGenre = null;
-    private String aiMood = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,385 +52,249 @@ public class MoviesCategoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movies_category);
 
         tvTitleMovies = findViewById(R.id.tvTitleMovies);
+        tvResultsCount = findViewById(R.id.tvResultsCount);
 
-        // =========================
-        // ✅ AI Extras
-        // =========================
+        etSearch = findViewById(R.id.etSearch);
+        btnClearSearch = findViewById(R.id.btnClearSearch);
+        btnGenre = findViewById(R.id.btnGenre);
+        btnSort = findViewById(R.id.btnSort);
+
+        rvAllMovies = findViewById(R.id.rvAllMovies);
+        rvAllMovies.setLayoutManager(new GridLayoutManager(this, 3));
+        rvAllMovies.setNestedScrollingEnabled(false);
+
+        adapter = new MoviesGridAdapter(this, filteredMovies);
+        rvAllMovies.setAdapter(adapter);
+
+        db = FirebaseFirestore.getInstance();
+
+        // ===== AI Extras =====
         aiMode = getIntent().getBooleanExtra("AI_MODE", false);
-        aiGenre = getIntent().getStringExtra("AI_GENRE"); // "comedy" / "action"...
-        aiMood  = getIntent().getStringExtra("AI_MOOD");  // optional
+        aiGenre = getIntent().getStringExtra("AI_GENRE");
 
-        // =========================
-        // ✅ Genre selection logic
-        // =========================
-        // מצב רגיל (מהתפריט/כפתור)
-        selectedGenre = getIntent().getStringExtra("genre");
+        // ===== Genre selection (from intent) =====
+        String g = getIntent().getStringExtra("genre");
+        if (g != null && !g.trim().isEmpty()) selectedGenre = g;
 
-        // אם נכנסנו מ-AI, נדרוס את selectedGenre לפי ה-AI
         if (aiMode && aiGenre != null && !aiGenre.trim().isEmpty()) {
-            selectedGenre = mapAiGenreToLegacyGenre(aiGenre); // הופך "comedy" -> "Comedy"
+            selectedGenre = mapAiGenreToLegacyGenre(aiGenre);
         }
 
-        if (selectedGenre == null) selectedGenre = "All";
+        tvTitleMovies.setText(aiMode ? "AI Picks – " + selectedGenre : "Movies – " + selectedGenre);
+        btnGenre.setText("ז'אנר: " + ("All".equals(selectedGenre) ? "הכל" : selectedGenre));
 
-        // =========================
-        // ✅ Title
-        // =========================
-        if (aiMode) {
-            // כותרת יפה למצב AI
-            tvTitleMovies.setText("AI Picks – " + selectedGenre);
-        } else {
-            tvTitleMovies.setText("Movies – " + selectedGenre);
-        }
+        // Load legacy + Firestore
+        buildLegacyMovies();
+        loadUserMoviesFromFirestore();
 
-        // 1) ישנים: כפתורים מה-XML
-        setupLegacyMoviesButtonsAndFilter();
+        // Search
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchQuery = (s != null) ? s.toString().trim() : "";
+                applyFilters();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
 
-        // 2) חדשים: RecyclerView של משתמשים
-        rvUserTitles = findViewById(R.id.rvUserTitles);
-        if (rvUserTitles != null) {
-            rvUserTitles.setLayoutManager(new GridLayoutManager(this, 3));
-            rvUserTitles.setNestedScrollingEnabled(false);
+        btnClearSearch.setOnClickListener(v -> {
+            etSearch.setText("");
+            searchQuery = "";
+            applyFilters();
+        });
 
-            adapter = new TitlesAdapter(this, userTitles);
-            rvUserTitles.setAdapter(adapter);
+        // Genre dialog
+        btnGenre.setOnClickListener(v -> showGenreDialog());
 
-            db = FirebaseFirestore.getInstance();
-            loadUserMovies(); // יסנן לפי selectedGenre
-        }
+        // Sort toggle
+        btnSort.setOnClickListener(v -> {
+            sortMode = (sortMode == SortMode.TITLE_AZ) ? SortMode.TITLE_ZA : SortMode.TITLE_AZ;
+            btnSort.setText(sortMode == SortMode.TITLE_AZ ? "מיון: A→Z" : "מיון: Z→A");
+            applyFilters();
+        });
 
-        // אם בעתיד את מוסיפה TMDB פה תפעילי fetchTmdbByGenre(mapLabelToTmdbGenreId(aiGenre))
-        // כרגע המסך כולל: (1) כפתורים ישנים + (2) סרטים של משתמשים מה-Firestore
+        btnSort.setText("מיון: A→Z");
     }
 
     // =====================================================
-    // ✅ ממיר ז'אנר של AI ("comedy") לז'אנר שאת משתמשת בו במסך ("Comedy")
+    // Legacy movies as data (instead of 200 ImageButtons)
+    // =====================================================
+    private void buildLegacyMovies() {
+        allMovies.clear();
+
+        addLegacy("titanic_1997", "Titanic (1997)",
+                Arrays.asList("Romance", "Drama"),
+                "https://www.youtube.com/results?search_query=Titanic+trailer",
+                R.drawable.titanic_poster);
+
+        addLegacy("forrest_gump_1994", "Forrest Gump (1994)",
+                Arrays.asList("Drama", "Comedy"),
+                "https://www.youtube.com/results?search_query=Forrest+Gump+trailer",
+                R.drawable.forrest_gump_poster);
+
+        addLegacy("matrix_1999", "The Matrix (1999)",
+                Arrays.asList("Action", "Sci-Fi"),
+                "https://www.youtube.com/results?search_query=The+Matrix+trailer",
+                R.drawable.matrix_poster);
+
+        addLegacy("oppenheimer_2023", "Oppenheimer (2023)",
+                Arrays.asList("Drama"),
+                "https://www.youtube.com/results?search_query=Oppenheimer+trailer",
+                R.drawable.oppenheimer_poster);
+
+        addLegacy("white_chicks_2004", "White Chicks (2004)",
+                Arrays.asList("Comedy"),
+                "https://www.youtube.com/results?search_query=White+Chicks+trailer",
+                R.drawable.white_chicks_poster);
+
+        addLegacy("up_2009", "Up (2009)",
+                Arrays.asList("Comedy"),
+                "https://www.youtube.com/results?search_query=Up+trailer",
+                R.drawable.up_poster);
+
+        addLegacy("to_all_the_boys_2018", "To All the Boys I've Loved Before (2018)",
+                Arrays.asList("Romance"),
+                "https://www.youtube.com/results?search_query=To+All+the+Boys+trailer",
+                R.drawable.to_all_the_boys_poster);
+
+        addLegacy("the_pianist_2002", "The Pianist (2002)",
+                Arrays.asList("Drama"),
+                "https://www.youtube.com/results?search_query=The+Pianist+trailer",
+                R.drawable.the_pianist_poster);
+
+        addLegacy("it_2017", "IT (2017)",
+                Arrays.asList("Horror"),
+                "https://www.youtube.com/watch?v=FnCdOQsX5kc",
+                R.drawable.it_poster);
+
+        // הוסיפי כאן עוד מהאוסף שלך בצורה דומה (זה הרבה יותר נקי מ-ImageButtons)
+        applyFilters();
+    }
+
+    private void addLegacy(String id, String title, List<String> genres, String trailerUrl, int posterResId) {
+        MovieItem m = new MovieItem();
+        m.id = id;
+        m.title = title;
+        m.genres = genres;
+        m.trailerUrl = trailerUrl;
+        m.posterResId = posterResId;
+        m.isUserTitle = false;
+        allMovies.add(m);
+    }
+
+    // =====================================================
+    // Firestore user movies
+    // =====================================================
+    private void loadUserMoviesFromFirestore() {
+
+        Query q = db.collection("titles")
+                .whereEqualTo("type", "movie")
+                .orderBy("title", Query.Direction.ASCENDING);
+
+        q.addSnapshotListener((snap, e) -> {
+            if (e != null || snap == null) return;
+
+            // remove previous user items
+            allMovies.removeIf(m -> m.isUserTitle);
+
+            for (DocumentSnapshot d : snap.getDocuments()) {
+                MovieItem m = new MovieItem();
+                m.id = d.getId();
+                m.title = d.getString("title");
+                m.posterUrl = d.getString("posterUrl");
+                m.trailerUrl = d.getString("trailerUrl");
+                m.isUserTitle = true;
+
+                // genres array
+                List<String> g = (List<String>) d.get("genres");
+                m.genres = (g != null) ? g : Arrays.asList("All");
+
+                allMovies.add(m);
+            }
+
+            applyFilters();
+        });
+    }
+
+    // =====================================================
+    // Filtering + Sorting
+    // =====================================================
+    private void applyFilters() {
+        filteredMovies.clear();
+
+        for (MovieItem m : allMovies) {
+            // genre filter
+            if (!"All".equals(selectedGenre)) {
+                if (m.genres == null || !m.genres.contains(selectedGenre)) continue;
+            }
+
+            // search filter
+            if (searchQuery != null && !searchQuery.isEmpty()) {
+                String t = (m.title != null) ? m.title.toLowerCase() : "";
+                if (!t.contains(searchQuery.toLowerCase())) continue;
+            }
+
+            filteredMovies.add(m);
+        }
+
+        // sort
+        Comparator<MovieItem> cmp = (a, b) -> {
+            String ta = (a.title != null) ? a.title : "";
+            String tb = (b.title != null) ? b.title : "";
+            return ta.compareToIgnoreCase(tb);
+        };
+
+        Collections.sort(filteredMovies, cmp);
+        if (sortMode == SortMode.TITLE_ZA) Collections.reverse(filteredMovies);
+
+        adapter.notifyDataSetChanged();
+
+        tvResultsCount.setText("נמצאו " + filteredMovies.size() + " סרטים");
+    }
+
+    // =====================================================
+    // Genre dialog
+    // =====================================================
+    private void showGenreDialog() {
+        final String[] genres = new String[]{
+                "All", "Action", "Comedy", "Drama", "Romance", "Horror", "Sci-Fi"
+        };
+
+        int preselect = 0;
+        for (int i = 0; i < genres.length; i++) {
+            if (genres[i].equals(selectedGenre)) { preselect = i; break; }
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("בחרי ז'אנר")
+                .setSingleChoiceItems(genres, preselect, (d, which) -> {
+                    selectedGenre = genres[which];
+                })
+                .setPositiveButton("אישור", (d, w) -> {
+                    btnGenre.setText("ז'אנר: " + ("All".equals(selectedGenre) ? "הכל" : selectedGenre));
+                    tvTitleMovies.setText(aiMode ? "AI Picks – " + selectedGenre : "Movies – " + selectedGenre);
+                    applyFilters();
+                })
+                .setNegativeButton("ביטול", null)
+                .show();
+    }
+
+    // =====================================================
+    // AI genre mapping
     // =====================================================
     private String mapAiGenreToLegacyGenre(String ai) {
         String g = ai.trim().toLowerCase();
-
         switch (g) {
             case "action": return "Action";
             case "comedy": return "Comedy";
             case "drama": return "Drama";
             case "romance": return "Romance";
             case "horror": return "Horror";
-            case "thriller": return "Thriller";
             case "sci_fi":
             case "sci-fi":
             case "scifi":
                 return "Sci-Fi";
-            case "fantasy": return "Fantasy";
-            case "animation": return "Animation";
-            case "crime": return "Crime";
-            case "mystery": return "Mystery";
-            case "family": return "Family";
-            case "adventure": return "Adventure";
-            case "documentary": return "Documentary";
-            default:
-                return "All";
-        }
-    }
-
-    // =====================================================
-    // פונקציה גנרית לפתיחת סרט ישן
-    // =====================================================
-    private void openLegacyMovie(String id, String title, String trailerUrl, int posterResId) {
-        Intent i = new Intent(this, MovieContentActivity.class);
-        i.putExtra(MovieContentActivity.EXTRA_MOVIE_ID, id);
-        i.putExtra(MovieContentActivity.EXTRA_MOVIE_TITLE, title);
-        i.putExtra(MovieContentActivity.EXTRA_TRAILER_URL, trailerUrl);
-        i.putExtra(MovieContentActivity.EXTRA_POSTER_RES_ID, posterResId);
-        startActivity(i);
-    }
-
-    private void safeClick(int id, Runnable r) {
-        View v = findViewById(id);
-        if (v != null) v.setOnClickListener(x -> r.run());
-    }
-
-    // =====================================================
-    // 1) כפתורים ישנים: סינון + קליקים
-    // =====================================================
-    private void setupLegacyMoviesButtonsAndFilter() {
-
-        Map<Integer, List<String>> movieGenres = new HashMap<>();
-
-        // --- ישנים ---
-        movieGenres.put(R.id.btnTitanic,      Arrays.asList("Romance", "Drama"));
-        movieGenres.put(R.id.btnForrestGump,  Arrays.asList("Drama", "Comedy"));
-        movieGenres.put(R.id.btnMatrix,       Arrays.asList("Action", "Sci-Fi"));
-        movieGenres.put(R.id.btnBoozgalos,    Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnOppenheimer,  Arrays.asList("Drama"));
-        movieGenres.put(R.id.btnFightClub,    Arrays.asList("Action", "Drama"));
-        movieGenres.put(R.id.btnToyStory,     Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnMeg,          Arrays.asList("Horror", "Action"));
-        movieGenres.put(R.id.btnMeanGirls,    Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnMissy,        Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnchiks,        Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnUp,           Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnToystory,     Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnToalltheboys, Arrays.asList("Romance"));
-        movieGenres.put(R.id.btnPianist,      Arrays.asList("Drama"));
-        movieGenres.put(R.id.btnGodfather,    Arrays.asList("Drama"));
-        movieGenres.put(R.id.btnSchindlers,   Arrays.asList("Drama"));
-        movieGenres.put(R.id.btnT,            Arrays.asList("Horror"));
-
-        // --- חדשים (כפתורים ב-XML) ---
-        movieGenres.put(R.id.btnAvatar,            Arrays.asList("Action", "Sci-Fi"));
-        movieGenres.put(R.id.btnDarkKnight,        Arrays.asList("Action"));
-        movieGenres.put(R.id.btnInception,         Arrays.asList("Action", "Sci-Fi"));
-        movieGenres.put(R.id.btnEndgame,           Arrays.asList("Action"));
-        movieGenres.put(R.id.btnLaLaLand,          Arrays.asList("Romance"));
-        movieGenres.put(R.id.btnLotrReturnKing,    Arrays.asList("Action", "Drama"));
-        movieGenres.put(R.id.btnJoker,             Arrays.asList("Drama"));
-        movieGenres.put(R.id.btnHarryPotter1,      Arrays.asList("Action", "Fantasy"));
-        movieGenres.put(R.id.btnPlanetApes,        Arrays.asList("Sci-Fi"));
-        movieGenres.put(R.id.btnT2,                Arrays.asList("Action", "Sci-Fi"));
-        movieGenres.put(R.id.btnPirates1,          Arrays.asList("Action", "Comedy"));
-        movieGenres.put(R.id.btnToyStory3,         Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnBarbie,            Arrays.asList("Comedy"));
-        movieGenres.put(R.id.btnTopGunMaverick,    Arrays.asList("Action"));
-
-        // =========================
-        // ✅ קליקים לכל הסרטים
-        // =========================
-
-        // ישנים
-        safeClick(R.id.btnTitanic, () ->
-                openLegacyMovie("titanic_1997", "Titanic (1997)",
-                        "https://www.youtube.com/results?search_query=Titanic+trailer",
-                        R.drawable.titanic_poster));
-
-        safeClick(R.id.btnForrestGump, () ->
-                openLegacyMovie("forrest_gump_1994", "Forrest Gump (1994)",
-                        "https://www.youtube.com/results?search_query=Forrest+Gump+trailer",
-                        R.drawable.forrest_gump_poster));
-
-        safeClick(R.id.btnMatrix, () ->
-                openLegacyMovie("matrix_1999", "The Matrix (1999)",
-                        "https://www.youtube.com/results?search_query=The+Matrix+trailer",
-                        R.drawable.matrix_poster));
-
-        safeClick(R.id.btnBoozgalos, () ->
-                openLegacyMovie("boozgalos_2024", "בוזגלוס – הסרט (2024)",
-                        "https://www.youtube.com/watch?v=W5BYnCTs-Hc",
-                        R.drawable.boozgalos_poster));
-
-        safeClick(R.id.btnOppenheimer, () ->
-                openLegacyMovie("oppenheimer_2023", "Oppenheimer (2023)",
-                        "https://www.youtube.com/results?search_query=Oppenheimer+trailer",
-                        R.drawable.oppenheimer_poster));
-
-        safeClick(R.id.btnFightClub, () ->
-                openLegacyMovie("fight_club_1999", "Fight Club (1999)",
-                        "https://www.youtube.com/results?search_query=Fight+Club+trailer",
-                        R.drawable.fight_club_poster));
-
-        safeClick(R.id.btnToyStory, () ->
-                openLegacyMovie("toy_story_1995", "Toy Story (1995)",
-                        "https://www.youtube.com/results?search_query=Toy+Story+trailer",
-                        R.drawable.toy_story_poster));
-
-        safeClick(R.id.btnMeg, () ->
-                openLegacyMovie("the_meg_2018", "The Meg (2018)",
-                        "https://www.youtube.com/results?search_query=The+Meg+trailer",
-                        R.drawable.the_meg_poster));
-
-        safeClick(R.id.btnMeanGirls, () ->
-                openLegacyMovie("mean_girls_2004", "Mean Girls (2004)",
-                        "https://www.youtube.com/results?search_query=Mean+Girls+trailer",
-                        R.drawable.mean_girls_poster));
-
-        safeClick(R.id.btnMissy, () ->
-                openLegacyMovie("the_wrong_missy_2020", "The Wrong Missy (2020)",
-                        "https://www.youtube.com/results?search_query=The+Wrong+Missy+trailer",
-                        R.drawable.wrong_missy_poster));
-
-        safeClick(R.id.btnchiks, () ->
-                openLegacyMovie("white_chicks_2004", "White Chicks (2004)",
-                        "https://www.youtube.com/results?search_query=White+Chicks+trailer",
-                        R.drawable.white_chicks_poster));
-
-        safeClick(R.id.btnUp, () ->
-                openLegacyMovie("up_2009", "Up (2009)",
-                        "https://www.youtube.com/results?search_query=Up+trailer",
-                        R.drawable.up_poster));
-
-        safeClick(R.id.btnToystory, () ->
-                openLegacyMovie("toy_story_1995", "Toy Story (1995)",
-                        "https://www.youtube.com/results?search_query=Toy+Story+trailer",
-                        R.drawable.toy_story_poster));
-
-        safeClick(R.id.btnToalltheboys, () ->
-                openLegacyMovie("to_all_the_boys_2018", "To All the Boys I've Loved Before (2018)",
-                        "https://www.youtube.com/results?search_query=To+All+the+Boys+trailer",
-                        R.drawable.to_all_the_boys_poster));
-
-        safeClick(R.id.btnPianist, () ->
-                openLegacyMovie("the_pianist_2002", "The Pianist (2002)",
-                        "https://www.youtube.com/results?search_query=The+Pianist+trailer",
-                        R.drawable.the_pianist_poster));
-
-        safeClick(R.id.btnGodfather, () ->
-                openLegacyMovie("the_godfather_1972", "The Godfather (1972)",
-                        "https://www.youtube.com/results?search_query=The+Godfather+trailer",
-                        R.drawable.the_godfather_poster));
-
-        safeClick(R.id.btnSchindlers, () ->
-                openLegacyMovie("schindlers_list_1993", "Schindler's List (1993)",
-                        "https://www.youtube.com/results?search_query=Schindler%27s+List+trailer",
-                        R.drawable.schindlers_list_poster));
-
-        safeClick(R.id.btnT, () ->
-                openLegacyMovie("it_2017", "IT (2017)",
-                        "https://www.youtube.com/watch?v=FnCdOQsX5kc",
-                        R.drawable.it_poster));
-
-        // חדשים
-        safeClick(R.id.btnAvatar, () ->
-                openLegacyMovie("avatar_2009", "Avatar (2009)",
-                        "https://www.youtube.com/results?search_query=Avatar+2009+trailer",
-                        R.drawable.avatar_poster));
-
-        safeClick(R.id.btnDarkKnight, () ->
-                openLegacyMovie("dark_knight_2008", "The Dark Knight (2008)",
-                        "https://www.youtube.com/results?search_query=The+Dark+Knight+trailer",
-                        R.drawable.dark_knight_poster));
-
-        safeClick(R.id.btnInception, () ->
-                openLegacyMovie("inception_2010", "Inception (2010)",
-                        "https://www.youtube.com/results?search_query=Inception+trailer",
-                        R.drawable.inception_poster));
-
-        safeClick(R.id.btnEndgame, () ->
-                openLegacyMovie("avengers_endgame_2019", "Avengers: Endgame (2019)",
-                        "https://www.youtube.com/results?search_query=Avengers+Endgame+trailer",
-                        R.drawable.endgame_poster));
-
-        safeClick(R.id.btnLaLaLand, () ->
-                openLegacyMovie("la_la_land_2016", "La La Land (2016)",
-                        "https://www.youtube.com/results?search_query=La+La+Land+trailer",
-                        R.drawable.la_la_land_poster));
-
-        safeClick(R.id.btnLotrReturnKing, () ->
-                openLegacyMovie("lotr_return_king_2003", "The Lord of the Rings: The Return of the King (2003)",
-                        "https://www.youtube.com/results?search_query=Return+of+the+King+trailer",
-                        R.drawable.lotr_return_king_poster));
-
-        safeClick(R.id.btnJoker, () ->
-                openLegacyMovie("joker_2019", "Joker (2019)",
-                        "https://www.youtube.com/results?search_query=Joker+2019+trailer",
-                        R.drawable.joker_poster));
-
-        safeClick(R.id.btnHarryPotter1, () ->
-                openLegacyMovie("harry_potter_sorcerer_2001", "Harry Potter and the Sorcerer's Stone (2001)",
-                        "https://www.youtube.com/results?search_query=Harry+Potter+and+the+Sorcerer%27s+Stone+trailer",
-                        R.drawable.harry_potter1_poster));
-
-        safeClick(R.id.btnPlanetApes, () ->
-                openLegacyMovie("planet_of_the_apes_1968", "Planet of the Apes (1968)",
-                        "https://www.youtube.com/results?search_query=Planet+of+the+Apes+1968+trailer",
-                        R.drawable.planet_apes_poster));
-
-        safeClick(R.id.btnT2, () ->
-                openLegacyMovie("terminator_2_1991", "Terminator 2: Judgment Day (1991)",
-                        "https://www.youtube.com/results?search_query=Terminator+2+trailer",
-                        R.drawable.t2_poster));
-
-        safeClick(R.id.btnPirates1, () ->
-                openLegacyMovie("pirates_curse_black_pearl_2003", "Pirates of the Caribbean: The Curse of the Black Pearl (2003)",
-                        "https://www.youtube.com/results?search_query=Pirates+of+the+Caribbean+Curse+of+the+Black+Pearl+trailer",
-                        R.drawable.pirates1_poster));
-
-        safeClick(R.id.btnToyStory3, () ->
-                openLegacyMovie("toy_story_3_2010", "Toy Story 3 (2010)",
-                        "https://www.youtube.com/results?search_query=Toy+Story+3+trailer",
-                        R.drawable.toy_story3_poster));
-
-        safeClick(R.id.btnBarbie, () ->
-                openLegacyMovie("barbie_2023", "Barbie (2023)",
-                        "https://www.youtube.com/results?search_query=Barbie+2023+trailer",
-                        R.drawable.barbie_poster));
-
-        safeClick(R.id.btnTopGunMaverick, () ->
-                openLegacyMovie("top_gun_maverick_2022", "Top Gun: Maverick (2022)",
-                        "https://www.youtube.com/results?search_query=Top+Gun+Maverick+trailer",
-                        R.drawable.top_gun_maverick_poster));
-
-        // =========================
-        // ✅ סינון לפי selectedGenre (עובד גם ל-AI)
-        // =========================
-        if (!"All".equals(selectedGenre)) {
-            for (Map.Entry<Integer, List<String>> entry : movieGenres.entrySet()) {
-                View btn = findViewById(entry.getKey());
-                if (btn != null) {
-                    boolean show = entry.getValue().contains(selectedGenre);
-                    btn.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            }
-        }
-    }
-
-    // =====================================================
-    // ✅ טעינת סרטים חדשים מה-Firestore (שנוצרו ע"י משתמש)
-    // =====================================================
-    private void loadUserMovies() {
-
-        Query q = db.collection("titles")
-                .whereEqualTo("type", "movie");
-
-        // אצלך genres זה מערך שמכיל ערכים כמו "Comedy"/"Drama" וכו'
-        if (!"All".equals(selectedGenre)) {
-            q = q.whereArrayContains("genres", selectedGenre);
-        }
-
-        // ✅ מיון לפי שם
-        q = q.orderBy("title", Query.Direction.ASCENDING);
-
-        q.addSnapshotListener((snap, e) -> {
-            if (e != null || snap == null) return;
-
-            userTitles.clear();
-
-            for (DocumentSnapshot d : snap.getDocuments()) {
-                TitleCard t = new TitleCard();
-                t.id = d.getId();
-                t.title = d.getString("title");
-                t.type = d.getString("type");
-                t.posterResName = d.getString("posterResName");
-
-                // ✅ חדש
-                t.posterUrl = d.getString("posterUrl");
-
-                userTitles.add(t);
-            }
-
-            adapter.notifyDataSetChanged();
-        });
-    }
-
-    // =====================================================
-    // (נשאר אצלך) TMDB mapping אם תרצי בעתיד
-    // =====================================================
-    private String mapLabelToTmdbGenreId(String label) {
-        if (label == null) return null;
-        switch (label) {
-            case "action": return "28";
-            case "comedy": return "35";
-            case "drama": return "18";
-            case "thriller": return "53";
-            case "horror": return "27";
-            case "romance": return "10749";
-            case "sci_fi": return "878";
-            case "fantasy": return "14";
-            case "animation": return "16";
-            case "crime": return "80";
-            case "mystery": return "9648";
-            case "family": return "10751";
-            case "adventure": return "12";
-            case "documentary": return "99";
-            default: return null;
+            default: return "All";
         }
     }
 }

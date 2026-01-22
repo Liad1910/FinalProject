@@ -1,86 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Movies -->
+    <!-- 🎬 Movies -->
     <item
         android:id="@+id/nav_movies"
-        android:title="Movies">
-        <menu>
-            <item
-                android:id="@+id/nav_movies_action"
-                android:title="Action" />
-            <item
-                android:id="@+id/nav_movies_comedy"
-                android:title="Comedy" />
-            <item
-                android:id="@+id/nav_movies_drama"
-                android:title="Drama" />
-            <item
-                android:id="@+id/nav_movies_horror"
-                android:title="Horror" />
-            <item
-                android:id="@+id/nav_movies_romance"
-                android:title="Romance" />
-            <item
-                android:id="@+id/nav_movies_scifi"
-                android:title="Sci-Fi" />
-        </menu>
-    </item>
+        android:title="🎬 Movies" />
 
-    <!-- Series -->
     <item
         android:id="@+id/nav_series"
-        android:title="Series">
-        <menu>
-            <item
-                android:id="@+id/nav_series_action"
-                android:title="Action" />
-            <item
-                android:id="@+id/nav_series_comedy"
-                android:title="Comedy" />
-            <item
-                android:id="@+id/nav_series_drama"
-                android:title="Drama" />
-            <item
-                android:id="@+id/nav_series_horror"
-                android:title="Horror" />
-            <item
-                android:id="@+id/nav_series_romance"
-                android:title="Romance" />
-            <item
-                android:id="@+id/nav_series_scifi"
-                android:title="Sci-Fi" />
-        </menu>
-    </item>
+        android:title="📺 Series" />
 
-    <!-- Cinema -->
+
+    <!-- 🎥 Nearby cinema -->
     <item
         android:id="@+id/nav_nearby_cinema"
-        android:title="🎬 קולנוע קרוב אלייך" />
+        android:title="🎥 קולנוע קרוב אלייך" />
 
-    <!-- User / Account -->
-    <item
-        android:id="@+id/nav_login"
-        android:title="התחברות" />
-
-    <item
-        android:id="@+id/nav_register"
-        android:title="הרשמה" />
-
-    <item
-        android:id="@+id/nav_user_page"
-        android:title="הפרופיל שלי" />
-
-    <item
-        android:id="@+id/nav_create_title"
-        android:title="Create Movie/Series" />
-
-    <item
-        android:id="@+id/nav_logout"
-        android:title="התנתקות" />
-
+    <!-- 🤖 AI -->
     <item
         android:id="@+id/nav_ai"
         android:title="🤖 Movie AI" />
+
+    <!-- 👤 User -->
+    <item
+        android:id="@+id/nav_user_page"
+        android:title="👤 הפרופיל שלי" />
+
+    <item
+        android:id="@+id/nav_create_title"
+        android:title="➕ Create Movie / Series" />
+
+    <item
+        android:id="@+id/nav_login"
+        android:title="🔐 התחברות" />
+
+    <item
+        android:id="@+id/nav_register"
+        android:title="📝 הרשמה" />
+
+    <item
+        android:id="@+id/nav_logout"
+        android:title="🚪 התנתקות" />
 
 </menu>

@@ -1,482 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#050510">
+    android:background="#FFF7FB"
+    android:fillViewport="true">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- כותרת המסך -->
+        <!-- Title -->
         <TextView
             android:id="@+id/tvTitleMovies"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Movies"
             android:textSize="26sp"
             android:textStyle="bold"
-            android:textColor="#FF67F3"
-            android:shadowColor="#A45CFF"
-            android:shadowRadius="16"
-            android:layout_marginBottom="12dp" />
+            android:textColor="#2B2B2B"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#222222"
-            android:layout_marginBottom="12dp" />
-
-        <!-- שורה 1: Avatar / Dark Knight / Inception -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnAvatar"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/avatar_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Avatar" />
-
-            <ImageButton
-                android:id="@+id/btnDarkKnight"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/dark_knight_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="The Dark Knight" />
-
-            <ImageButton
-                android:id="@+id/btnInception"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/inception_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Inception" />
-        </LinearLayout>
-
-        <!-- שורה 2 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnEndgame"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/endgame_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Avengers: Endgame" />
-
-            <ImageButton
-                android:id="@+id/btnJoker"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/joker_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Joker" />
-
-            <ImageButton
-                android:id="@+id/btnLotrReturnKing"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/lotr_return_king_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="LOTR: Return of the King" />
-        </LinearLayout>
-
-        <!-- שורה 3 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnTitanic"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/titanic_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Titanic" />
-
-            <ImageButton
-                android:id="@+id/btnForrestGump"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/forrest_gump_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Forrest Gump" />
-
-            <ImageButton
-                android:id="@+id/btnLaLaLand"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/la_la_land_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="La La Land" />
-        </LinearLayout>
-
-        <!-- שורה 4 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnGodfather"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/the_godfather_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="The Godfather" />
-
-            <ImageButton
-                android:id="@+id/btnPianist"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/the_pianist_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="The Pianist" />
-
-            <ImageButton
-                android:id="@+id/btnSchindlers"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/schindlers_list_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Schindler's List" />
-        </LinearLayout>
-
-        <!-- שורה 5 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnHarryPotter1"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/harry_potter1_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Harry Potter 1" />
-
-            <ImageButton
-                android:id="@+id/btnMatrix"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/matrix_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="The Matrix" />
-
-            <ImageButton
-                android:id="@+id/btnPlanetApes"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/planet_apes_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Planet of the Apes" />
-        </LinearLayout>
-
-        <!-- שורה 6 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnT2"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/t2_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Terminator 2" />
-
-            <ImageButton
-                android:id="@+id/btnPirates1"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/pirates1_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Pirates of the Caribbean 1" />
-
-            <ImageButton
-                android:id="@+id/btnTopGunMaverick"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/top_gun_maverick_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Top Gun: Maverick" />
-        </LinearLayout>
-
-        <!-- שורה 7 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnToyStory"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/toy_story_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Toy Story" />
-
-            <ImageButton
-                android:id="@+id/btnToystory"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/toy_story_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Toy Story (2nd button)" />
-
-            <ImageButton
-                android:id="@+id/btnToyStory3"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/toy_story3_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Toy Story 3" />
-        </LinearLayout>
-
-        <!-- שורה 8 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnUp"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/up_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Up" />
-
-            <ImageButton
-                android:id="@+id/btnMeanGirls"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/mean_girls_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Mean Girls" />
-
-            <ImageButton
-                android:id="@+id/btnToalltheboys"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/to_all_the_boys_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="To All the Boys I've Loved Before" />
-        </LinearLayout>
-
-        <!-- שורה 9 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnBarbie"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/barbie_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Barbie" />
-
-            <ImageButton
-                android:id="@+id/btnBoozgalos"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/boozgalos_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Boozgalos" />
-
-            <ImageButton
-                android:id="@+id/btnMissy"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/wrong_missy_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="The Wrong Missy" />
-        </LinearLayout>
-
-        <!-- שורה 10 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <ImageButton
-                android:id="@+id/btnchiks"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/white_chicks_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="White Chicks" />
-
-            <ImageButton
-                android:id="@+id/btnMeg"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/the_meg_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="The Meg" />
-
-            <ImageButton
-                android:id="@+id/btnT"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/it_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="IT" />
-        </LinearLayout>
-
-        <!-- שורה 11 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="16dp">
-
-            <ImageButton
-                android:id="@+id/btnOppenheimer"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/oppenheimer_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Oppenheimer" />
-
-            <ImageButton
-                android:id="@+id/btnFightClub"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:src="@drawable/fight_club_poster"
-                android:scaleType="centerCrop"
-                android:background="@android:color/transparent"
-                android:contentDescription="Fight Club" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <!-- ✅ NEW: כותרת + גריד סרטים שנוצרו מהאפליקציה -->
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvSubtitleMovies"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="New from users"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp" />
+            android:text="חיפוש, סינון ומיון – כל הסרטים במקום אחד 🎬✨"
+            android:textSize="14sp"
+            android:textColor="#6B6B6B"
+            android:layout_marginTop="6dp"
+            app:layout_constraintTop_toBottomOf="@id/tvTitleMovies"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvUserMovies"
-            android:layout_width="match_parent"
+        <!-- Search Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSearch"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" />
+            android:layout_marginTop="14dp"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="8dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#22FF1493"
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitleMovies"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="חיפוש סרט…"
+                    app:boxBackgroundMode="filled"
+                    app:boxBackgroundColor="#FFF0F6"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxStrokeColor="#22FF1493"
+                    app:startIconDrawable="@android:drawable/ic_menu_search"
+                    app:startIconTint="#FF1493"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnClearSearch">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:textColor="#2B2B2B"
+                        android:textColorHint="#888888" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearSearch"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="10dp"
+                    android:text="✕"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textColor="#FF1493"
+                    android:backgroundTint="#FFF0F6"
+                    app:cornerRadius="14dp"
+                    app:layout_constraintTop_toTopOf="@id/tilSearch"
+                    app:layout_constraintBottom_toBottomOf="@id/tilSearch"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <!-- Controls row -->
+                <LinearLayout
+                    android:id="@+id/rowControls"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    app:layout_constraintTop_toBottomOf="@id/tilSearch"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSort"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="1"
+                        android:text="מיון"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#FF69B4"
+                        app:cornerRadius="16dp"
+                        android:layout_marginEnd="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGenre"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_weight="2"
+                        android:text="ז'אנר: הכל"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#FF1493"
+                        app:cornerRadius="16dp" />
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Results count -->
+        <TextView
+            android:id="@+id/tvResultsCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="נמצאו 0 סרטים"
+            android:textColor="#6B6B6B"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/cardSearch"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- RecyclerView Grid -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvUserTitles"
-            android:layout_width="match_parent"
+            android:id="@+id/rvAllMovies"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/tvResultsCount"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

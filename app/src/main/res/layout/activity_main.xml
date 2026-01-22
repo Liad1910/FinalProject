@@ -1,104 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFF7FB"
     android:fitsSystemWindows="true">
 
-    <!-- ================= CONTENT ================= -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#000000"
-        android:fitsSystemWindows="true">
+    <!-- שלום -->
+    <TextView
+        android:id="@+id/tvHelloMain"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="שלום אנונימי"
+        android:textColor="#2B2B2B"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:layout_marginTop="22dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- ===== Toolbar ורוד עבה עם hamburger ===== -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
-            android:layout_width="0dp"
-            android:layout_height="72dp"
-            android:background="#FF69B4"
-            app:title="WATCHLY"
-            app:titleTextColor="@android:color/white"
-            app:navigationIcon="@drawable/ic_menu"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <TextView
+        android:id="@+id/tvSubtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="בחרי משהו כיפי לצפייה 🎬✨"
+        android:textColor="#6B6B6B"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintTop_toBottomOf="@id/tvHelloMain"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- שלום -->
-        <TextView
-            android:id="@+id/tvHelloMain"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="שלום אנונימי"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/topAppBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Card לקרוסלה -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardCarousel"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="10dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#33FF69B4"
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintHeight_percent="0.66">
 
-        <!-- תמונה מרכזית (קרוסלה) -->
-        <ImageView
-            android:id="@+id/ivMainImage"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/up_poster"
-            android:scaleType="centerCrop"
-            android:elevation="10dp"
-            app:layout_constraintTop_toBottomOf="@id/tvHelloMain"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.55" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <!-- חץ אחורה -->
-        <ImageButton
-            android:id="@+id/btnPrev"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_media_previous"
-            android:tint="@android:color/white"
-            android:padding="8dp"
-            app:layout_constraintTop_toTopOf="@id/ivMainImage"
-            app:layout_constraintBottom_toBottomOf="@id/ivMainImage"
-            app:layout_constraintStart_toStartOf="parent" />
+            <ImageView
+                android:id="@+id/ivMainImage"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:src="@drawable/up_poster"
+                android:scaleType="centerCrop"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- חץ קדימה -->
-        <ImageButton
-            android:id="@+id/btnNext"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_media_next"
-            android:tint="@android:color/white"
-            android:padding="8dp"
-            app:layout_constraintTop_toTopOf="@id/ivMainImage"
-            app:layout_constraintBottom_toBottomOf="@id/ivMainImage"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <!-- Overlay תחתון -->
+            <View
+                android:id="@+id/overlay"
+                android:layout_width="0dp"
+                android:layout_height="170dp"
+                android:background="@drawable/gradient_bottom_overlay"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- כותרת הסרט -->
+            <TextView
+                android:id="@+id/tvCarouselTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Up (2009)"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="14dp"
+                android:layout_marginEnd="14dp"
+                android:layout_marginBottom="70dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- ================= DRAWER ================= -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        android:background="#FFF0F6"
+            <!-- כפתור צפה עכשיו -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWatchNow"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:text="צפה עכשיו"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                app:cornerRadius="16dp"
+                android:layout_marginStart="14dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#FF1493"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <!-- חץ אחורה -->
+            <ImageButton
+                android:id="@+id/btnPrev"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_media_previous"
+                app:tint="@android:color/white"
+                android:padding="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+
+            <!-- חץ קדימה -->
+            <ImageButton
+                android:id="@+id/btnNext"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:background="@android:color/transparent"
+                android:src="@android:drawable/ic_media_next"
+                app:tint="@android:color/white"
+                android:padding="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="76dp"
+        android:background="#FFFFFF"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
         app:itemIconTint="#FF1493"
         app:itemTextColor="#FF1493"
-        app:itemVerticalPadding="14dp"
-        app:menu="@menu/nav_drawer_menu" />
+        app:itemRippleColor="#33FF69B4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-</androidx.drawerlayout.widget.DrawerLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

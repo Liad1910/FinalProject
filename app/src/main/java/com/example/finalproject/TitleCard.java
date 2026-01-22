@@ -8,3 +8,4 @@ public class TitleCard {
 
     public String posterUrl;
 }
+// android:theme="@style/Theme.Watchly.Splash">

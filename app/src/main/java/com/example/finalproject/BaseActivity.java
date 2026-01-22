@@ -30,7 +30,7 @@ public class BaseActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ה-Layout הבסיסי עם Drawer + Toolbar
+        // Base layout עם Drawer + Toolbar
         super.setContentView(R.layout.activity_base);
 
         drawerLayout = findViewById(R.id.drawerLayout);
@@ -40,7 +40,7 @@ public class BaseActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Drawer toggle (המבורגר)
+        // Hamburger toggle
         toggle = new ActionBarDrawerToggle(
                 this,
                 drawerLayout,
@@ -53,13 +53,10 @@ public class BaseActivity extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        // עדכון תפריט לפי מצב התחברות
         updateMenuByAuthState();
     }
 
-    /**
-     * טוען Layout של דף ספציפי לתוך ה-FrameLayout
-     */
+    /** טוען Layout של דף ספציפי לתוך ה-FrameLayout */
     protected void setPageContent(@LayoutRes int layoutResId) {
         FrameLayout contentFrame = findViewById(R.id.contentFrame);
         contentFrame.removeAllViews();
@@ -76,19 +73,24 @@ public class BaseActivity extends AppCompatActivity
         boolean isLoggedIn = (user != null);
 
         // התחברות / הרשמה
-        menu.findItem(R.id.nav_login).setVisible(!isLoggedIn);
-        menu.findItem(R.id.nav_register).setVisible(!isLoggedIn);
+        MenuItem login = menu.findItem(R.id.nav_login);
+        MenuItem register = menu.findItem(R.id.nav_register);
+        if (login != null) login.setVisible(!isLoggedIn);
+        if (register != null) register.setVisible(!isLoggedIn);
 
         // פרופיל / יצירה / התנתקות
-        menu.findItem(R.id.nav_user_page).setVisible(isLoggedIn);
-        menu.findItem(R.id.nav_create_title).setVisible(isLoggedIn);
-        menu.findItem(R.id.nav_logout).setVisible(isLoggedIn);
+        MenuItem profile = menu.findItem(R.id.nav_user_page);
+        MenuItem create = menu.findItem(R.id.nav_create_title);
+        MenuItem logout = menu.findItem(R.id.nav_logout);
+
+        if (profile != null) profile.setVisible(isLoggedIn);
+        if (create != null) create.setVisible(isLoggedIn);
+        if (logout != null) logout.setVisible(isLoggedIn);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // חשוב: מתעדכן כשחוזרים ממסך התחברות / התנתקות
         updateMenuByAuthState();
     }
 
@@ -97,40 +99,16 @@ public class BaseActivity extends AppCompatActivity
     // =====================================================
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
         int id = item.getItemId();
 
-        // Movies
-        if (id == R.id.nav_movies_action) {
-            openMovies("Action");
-        } else if (id == R.id.nav_movies_comedy) {
-            openMovies("Comedy");
-        } else if (id == R.id.nav_movies_drama) {
-            openMovies("Drama");
-        } else if (id == R.id.nav_movies_horror) {
-            openMovies("Horror");
-        } else if (id == R.id.nav_movies_romance) {
-            openMovies("Romance");
-        } else if (id == R.id.nav_movies_scifi) {
-            openMovies("Sci-Fi");
+        // ✅ Movies / Series פשוטים
+        if (id == R.id.nav_movies) {
+            startActivity(new Intent(this, MoviesCategoryActivity.class));
+        } else if (id == R.id.nav_series) {
+            startActivity(new Intent(this, SeriesCategoryActivity.class));
         }
 
-        // Series
-        else if (id == R.id.nav_series_action) {
-            openSeries("Action");
-        } else if (id == R.id.nav_series_comedy) {
-            openSeries("Comedy");
-        } else if (id == R.id.nav_series_drama) {
-            openSeries("Drama");
-        } else if (id == R.id.nav_series_horror) {
-            openSeries("Horror");
-        } else if (id == R.id.nav_series_romance) {
-            openSeries("Romance");
-        } else if (id == R.id.nav_series_scifi) {
-            openSeries("Sci-Fi");
-        }
-
-        // User
+        // ✅ User
         else if (id == R.id.nav_login) {
             startActivity(new Intent(this, loginPage.class));
         } else if (id == R.id.nav_register) {
@@ -145,21 +123,6 @@ public class BaseActivity extends AppCompatActivity
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    // =====================================================
-    // פעולות עזר
-    // =====================================================
-    protected void openMovies(String genre) {
-        Intent intent = new Intent(this, MoviesCategoryActivity.class);
-        intent.putExtra("genre", genre);
-        startActivity(intent);
-    }
-
-    protected void openSeries(String genre) {
-        Intent intent = new Intent(this, SeriesCategoryActivity.class);
-        intent.putExtra("genre", genre);
-        startActivity(intent);
     }
 
     protected void logout() {
@@ -178,6 +141,3 @@ public class BaseActivity extends AppCompatActivity
         }
     }
 }
-
-//TMDB_API_KEY=ce829465ca9e4f15441987a1f3624293
-//HF_API_KEY= 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
