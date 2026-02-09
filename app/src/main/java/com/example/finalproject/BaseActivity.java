@@ -101,22 +101,34 @@ public class BaseActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        // ✅ Movies / Series פשוטים
+        // ✅ Movies / Series
         if (id == R.id.nav_movies) {
             startActivity(new Intent(this, MoviesCategoryActivity.class));
+
         } else if (id == R.id.nav_series) {
             startActivity(new Intent(this, SeriesCategoryActivity.class));
-        }
 
-        // ✅ User
-        else if (id == R.id.nav_login) {
+            // ✅ NEW: Nearby cinema
+        } else if (id == R.id.nav_nearby_cinema) {
+            startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
+
+            // ✅ NEW: AI
+        } else if (id == R.id.nav_ai) {
+            startActivity(new Intent(this, AiActivity.class));
+
+            // ✅ User
+        } else if (id == R.id.nav_login) {
             startActivity(new Intent(this, loginPage.class));
+
         } else if (id == R.id.nav_register) {
             startActivity(new Intent(this, registerPage.class));
+
         } else if (id == R.id.nav_user_page) {
             startActivity(new Intent(this, activity_user_page.class));
+
         } else if (id == R.id.nav_create_title) {
             startActivity(new Intent(this, CreateTitleActivity.class));
+
         } else if (id == R.id.nav_logout) {
             logout();
         }
