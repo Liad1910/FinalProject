@@ -53,6 +53,7 @@ public class BaseActivity extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
+        // מציג/מסתיר פריטים לפי מצב התחברות
         updateMenuByAuthState();
     }
 
@@ -67,18 +68,20 @@ public class BaseActivity extends AppCompatActivity
     // הצגה / הסתרה של פריטי תפריט לפי התחברות
     // =====================================================
     protected void updateMenuByAuthState() {
+        if (navigationView == null) return;
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         Menu menu = navigationView.getMenu();
 
         boolean isLoggedIn = (user != null);
 
-        // התחברות / הרשמה
+        // התחברות / הרשמה (מוצג רק כשלא מחובר)
         MenuItem login = menu.findItem(R.id.nav_login);
         MenuItem register = menu.findItem(R.id.nav_register);
         if (login != null) login.setVisible(!isLoggedIn);
         if (register != null) register.setVisible(!isLoggedIn);
 
-        // פרופיל / יצירה / התנתקות
+        // פרופיל / יצירה / התנתקות (מוצג רק כשמחובר)
         MenuItem profile = menu.findItem(R.id.nav_user_page);
         MenuItem create = menu.findItem(R.id.nav_create_title);
         MenuItem logout = menu.findItem(R.id.nav_logout);
@@ -101,22 +104,18 @@ public class BaseActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        // ✅ Movies / Series
         if (id == R.id.nav_movies) {
             startActivity(new Intent(this, MoviesCategoryActivity.class));
 
         } else if (id == R.id.nav_series) {
             startActivity(new Intent(this, SeriesCategoryActivity.class));
 
-            // ✅ NEW: Nearby cinema
         } else if (id == R.id.nav_nearby_cinema) {
             startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
 
-            // ✅ NEW: AI
         } else if (id == R.id.nav_ai) {
             startActivity(new Intent(this, AiActivity.class));
 
-            // ✅ User
         } else if (id == R.id.nav_login) {
             startActivity(new Intent(this, loginPage.class));
 
@@ -133,20 +132,26 @@ public class BaseActivity extends AppCompatActivity
             logout();
         }
 
-        drawerLayout.closeDrawer(GravityCompat.START);
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
         return true;
     }
 
     protected void logout() {
         FirebaseAuth.getInstance().signOut();
         updateMenuByAuthState();
-        startActivity(new Intent(this, MainActivity.class));
+
+        // רענון למסך הראשי
+        Intent i = new Intent(this, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
         finish();
     }
 
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();

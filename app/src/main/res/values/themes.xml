@@ -1,17 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.FinalProject" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <!-- ===============================
+         Theme ראשי של האפליקציה
+         =============================== -->
+    <style name="Base.Theme.FinalProject"
+        parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+        <item name="colorPrimary">#FF1493</item>
+        <item name="colorPrimaryVariant">#C51162</item>
+        <item name="colorSecondary">#FF1493</item>
     </style>
 
-    <style name="Theme.Watchly.Splash" parent="Theme.SplashScreen">
+    <!-- ===============================
+         Splash Screen (חייב Theme.SplashScreen)
+         =============================== -->
+    <style name="Theme.Watchly.Splash"
+        parent="Theme.SplashScreen">
+
+        <!-- רקע -->
         <item name="windowSplashScreenBackground">#6A1B9A</item>
+        <item name="android:windowBackground">#6A1B9A</item>
+
+        <!-- לוגו -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_watchly</item>
         <item name="windowSplashScreenIconBackgroundColor">#6A1B9A</item>
+
+        <!-- אחרי הספלאש -->
         <item name="postSplashScreenTheme">@style/Base.Theme.FinalProject</item>
     </style>
 
-
-    <style name="Theme.FinalProject" parent="Base.Theme.FinalProject" />
 </resources>
