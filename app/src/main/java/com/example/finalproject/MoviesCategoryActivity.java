@@ -225,7 +225,7 @@ public class MoviesCategoryActivity extends AppCompatActivity {
                 }
             });
         }
-
+d
         builder.setNegativeButton("סגור", null);
         builder.show();
     }
