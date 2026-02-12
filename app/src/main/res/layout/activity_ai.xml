@@ -1,109 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="#FFF7FB">
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Movie AI 🤖"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:padding="14dp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvChat"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="12dp" />
-
-    <!-- אזור הצעות (3 כפתורים) -->
+    <!-- ================= Chat UI ================= -->
     <LinearLayout
-        android:id="@+id/layoutSuggestions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/root"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:visibility="gone">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
-            android:id="@+id/tvSuggestionsTitle"
+            android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="הנה 3 הצעות 🎬"
+            android:text="Movie AI 🤖"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:paddingBottom="8dp" />
+            android:textSize="20sp"
+            android:textColor="#2B2B2B"
+            android:padding="14dp" />
 
-        <Button
-            android:id="@+id/btnSug1"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvChat"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="12dp" />
+
+        <!-- suggestions UI -->
+        <LinearLayout
+            android:id="@+id/layoutSuggestions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Suggestion 1" />
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone">
 
-        <Button
-            android:id="@+id/btnSug2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Suggestion 2"
-            android:layout_marginTop="6dp" />
+            <TextView
+                android:id="@+id/tvSuggestionsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="הנה 3 הצעות 🎬"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:paddingBottom="8dp"
+                android:textColor="#2B2B2B"/>
 
-        <Button
-            android:id="@+id/btnSug3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Suggestion 3"
-            android:layout_marginTop="6dp" />
+            <Button
+                android:id="@+id/btnSug1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Suggestion 1" />
 
+            <Button
+                android:id="@+id/btnSug2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Suggestion 2"
+                android:layout_marginTop="6dp" />
+
+            <Button
+                android:id="@+id/btnSug3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Suggestion 3"
+                android:layout_marginTop="6dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <Button
+                    android:id="@+id/btnLiked"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="אהבתי ✅" />
+
+                <Button
+                    android:id="@+id/btnDisliked"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="לא אהבתי ❌" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- input row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:padding="10dp">
 
-            <Button
-                android:id="@+id/btnLiked"
+            <EditText
+                android:id="@+id/etMessage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="אהבתי ✅" />
+                android:hint="כתבי פה..."
+                android:padding="10dp" />
 
             <Button
-                android:id="@+id/btnDisliked"
-                android:layout_width="0dp"
+                android:id="@+id/btnSend"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="לא אהבתי ❌" />
+                android:text="Send"
+                android:layout_marginStart="8dp" />
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- שורת הקלט -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="10dp">
+    <!-- ================= Bottom Navigation ================= -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="76dp"
+        android:background="#FFFFFF"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="#FF1493"
+        app:itemTextColor="#FF1493"
+        app:itemRippleColor="#33FF69B4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-        <EditText
-            android:id="@+id/etMessage"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="כתבי פה..."
-            android:padding="10dp" />
-
-        <Button
-            android:id="@+id/btnSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send"
-            android:layout_marginStart="8dp" />
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

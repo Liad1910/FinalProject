@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -21,6 +22,9 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,8 +49,9 @@ import okhttp3.Response;
 public class NearbyCinemaFreeActivity extends AppCompatActivity {
 
     private MapView map;
-
     private FusedLocationProviderClient fusedLocationClient;
+
+    private BottomNavigationView bottomNav;
 
     private static final MediaType PLAIN_TEXT =
             MediaType.get("text/plain; charset=utf-8");
@@ -76,12 +81,23 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // ❌ להסתיר תפריט עליון
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         // חשוב ל-OSMDroid כדי לא להיחסם
         Configuration.getInstance().setUserAgentValue(getPackageName());
 
         setContentView(R.layout.activity_nearby_cinema_free);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // ===== BottomNav =====
+        bottomNav = findViewById(R.id.bottomNav);
+        setupBottomNav();
+        // לא מסמנים כלום כי זה תחת "עוד"
+        bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
 
         // Map init
         map = findViewById(R.id.osmMap);
@@ -97,6 +113,100 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
 
         // טוען אוטומטית לפי מיקום אמיתי
         ensureLocationPermissionThenLoad();
+    }
+
+    // =====================================================
+    // מונע יצירת תפריט עליון (overflow)
+    // =====================================================
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
+    }
+
+    // =====================================================
+    // Bottom Nav setup
+    // =====================================================
+    private void setupBottomNav() {
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.bnav_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+            }
+
+            if (id == R.id.bnav_movies) {
+                startActivity(new Intent(this, MoviesCategoryActivity.class));
+                return true;
+            }
+
+            if (id == R.id.bnav_series) {
+                startActivity(new Intent(this, SeriesCategoryActivity.class));
+                return true;
+            }
+
+            if (id == R.id.bnav_more) {
+                showMoreDialog();
+                bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    // =====================================================
+    // Dialog "עוד"
+    // =====================================================
+    private void showMoreDialog() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        boolean isLoggedIn = (user != null && !user.isAnonymous());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("עוד");
+
+        if (!isLoggedIn) {
+            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט"};
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        startActivity(new Intent(this, loginPage.class));
+                        break;
+                    case 1:
+                        startActivity(new Intent(this, registerPage.class));
+                        break;
+                    case 2:
+                        // כבר פה
+                        break;
+                    case 3:
+                        startActivity(new Intent(this, AiActivity.class));
+                        break;
+                }
+            });
+        } else {
+            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "התנתקות"};
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        startActivity(new Intent(this, activity_user_page.class));
+                        break;
+                    case 1:
+                        // כבר פה
+                        break;
+                    case 2:
+                        startActivity(new Intent(this, AiActivity.class));
+                        break;
+                    case 3:
+                        FirebaseAuth.getInstance().signOut();
+                        startActivity(new Intent(this, MainActivity.class));
+                        finish();
+                        break;
+                }
+            });
+        }
+
+        builder.setNegativeButton("סגור", null);
+        builder.show();
     }
 
     // =========================
@@ -128,7 +238,6 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
 
         if (!fineGranted && !coarseGranted) return;
 
-        // בדיקה שהמיקום דלוק במכשיר
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         boolean enabled = lm != null && (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
@@ -164,7 +273,7 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
                     showOrUpdateMyLocationMarker(me);
 
                     Toast.makeText(this, "טוען קולנועים לידך...", Toast.LENGTH_SHORT).show();
-                    loadCinemasFromOverpass(lat, lon, 7000); // 7 ק"מ
+                    loadCinemasFromOverpass(lat, lon, 7000);
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(this,
@@ -187,11 +296,7 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
         map.invalidate();
     }
 
-    // ==========================
-    // Overpass -> cinemas
-    // ==========================
     private void loadCinemasFromOverpass(double lat, double lon, int radiusMeters) {
-
         clearCinemaMarkers();
 
         String query =
@@ -243,12 +348,9 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
 
                         double clat, clon;
 
-                        // node
                         if (el.has("lat") && el.has("lon")) {
                             clat = el.getDouble("lat");
                             clon = el.getDouble("lon");
-
-                            // way/relation -> center
                         } else if (el.has("center")) {
                             JSONObject c = el.getJSONObject("center");
                             clat = c.getDouble("lat");
@@ -290,9 +392,6 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
         });
     }
 
-    // ==========================
-    // Marker click -> Google actions
-    // ==========================
     private void addCinemaMarker(double lat, double lon, String name) {
         if (map == null) return;
 
@@ -302,16 +401,14 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
         m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
 
         m.setOnMarkerClickListener((marker, mapView) -> {
-            String cinemaName = name;
-
             new AlertDialog.Builder(NearbyCinemaFreeActivity.this)
-                    .setTitle(cinemaName)
+                    .setTitle(name)
                     .setMessage("מה תרצי לעשות?")
                     .setPositiveButton("🎬 סרטים שמוקרנים עכשיו", (d, which) ->
-                            openGoogleSearch(cinemaName + " showtimes")
+                            openGoogleSearch(name + " showtimes")
                     )
                     .setNeutralButton("📍 פתח בגוגל מפות", (d, which) ->
-                            openGoogleMapsAt(lat, lon, cinemaName)
+                            openGoogleMapsAt(lat, lon, name)
                     )
                     .setNegativeButton("סגור", null)
                     .show();
@@ -353,9 +450,6 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
         startActivity(new Intent(Intent.ACTION_VIEW, web));
     }
 
-    // ====================
-    // lifecycle map
-    // ====================
     @Override
     protected void onResume() {
         super.onResume();

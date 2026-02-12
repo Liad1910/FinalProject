@@ -1,12 +1,17 @@
 package com.example.finalproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,6 +27,9 @@ public class activity_user_page extends BaseActivity {
     private TextView tvEmail, tvMsgUser, tvFavorites;
     private EditText etUsername, etBirthYear, etMovie, etSeries, etGenre;
 
+    // Bottom nav
+    private BottomNavigationView bottomNav;
+
     // Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -31,8 +39,13 @@ public class activity_user_page extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ✅ טוען את הדף בתוך BaseActivity (כולל תפריט)
+        // טוען את הדף בתוך BaseActivity
         setPageContent(R.layout.activity_user_page);
+
+        // ❌ להסתיר תפריט עליון (ActionBar)
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         // Firebase init
         FirebaseApp.initializeApp(this);
@@ -52,7 +65,128 @@ public class activity_user_page extends BaseActivity {
 
         findViewById(R.id.btnSaveUser).setOnClickListener(v -> saveUserData());
 
+        // ✅ BottomNavigation
+        bottomNav = findViewById(R.id.bottomNav);
+        if (bottomNav != null) {
+            setupBottomNav();
+        } else {
+            Log.e(TAG, "bottomNav not found in activity_user_page.xml (add BottomNavigationView)");
+        }
+
         loadUserData();
+    }
+
+    // =====================================================
+    // מונע יצירת תפריט עליון (overflow)
+    // =====================================================
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
+    }
+
+    // =====================================================
+    // Bottom Nav setup
+    // =====================================================
+    private void setupBottomNav() {
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.bnav_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+            }
+
+            if (id == R.id.bnav_movies) {
+                startActivity(new Intent(this, MoviesCategoryActivity.class));
+                return true;
+            }
+
+            if (id == R.id.bnav_series) {
+                startActivity(new Intent(this, SeriesCategoryActivity.class));
+                return true;
+            }
+
+            if (id == R.id.bnav_more) {
+                showMoreDialog();
+                bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
+                return true;
+            }
+
+            return false;
+        });
+
+        // שלא ייבחר טאב אוטומטית
+        bottomNav.getMenu().setGroupCheckable(0, false, true);
+    }
+
+    // =====================================================
+    // Dialog "עוד" – דינמי לפי מצב התחברות + אנונימי
+    // =====================================================
+    private void showMoreDialog() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        boolean isLoggedIn = (user != null && !user.isAnonymous());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("עוד");
+
+        if (!isLoggedIn) {
+
+            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט"};
+
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        startActivity(new Intent(this, loginPage.class));
+                        break;
+                    case 1:
+                        startActivity(new Intent(this, registerPage.class));
+                        break;
+                    case 2:
+                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
+                        break;
+                    case 3:
+                        startActivity(new Intent(this, AiActivity.class));
+                        break;
+                }
+            });
+
+        } else {
+
+            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "התנתקות"};
+
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        // את כבר בפרופיל, אז אפשר פשוט לא לעשות כלום
+                        // או לבצע רענון: recreate();
+                        break;
+                    case 1:
+                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
+                        break;
+                    case 2:
+                        startActivity(new Intent(this, AiActivity.class));
+                        break;
+                    case 3:
+                        logoutFromBottomMenu();
+                        break;
+                }
+            });
+        }
+
+        builder.setNegativeButton("סגור", null);
+        builder.show();
+    }
+
+    private void logoutFromBottomMenu() {
+        FirebaseAuth.getInstance().signOut();
+        Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
+
+        updateMenuByAuthState();
+
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
     }
 
     // =====================================================
@@ -67,6 +201,8 @@ public class activity_user_page extends BaseActivity {
         }
 
         String uid = currentUser.getUid();
+
+        // אם את לא רוצה להראות אימייל בכלל - אפשר למחוק את השורה הזאת:
         tvEmail.setText(currentUser.getEmail());
 
         userDocRef = db.collection("users").document(uid);
@@ -104,7 +240,6 @@ public class activity_user_page extends BaseActivity {
                 Log.d(TAG, "No user document for uid=" + uid);
             }
 
-            // ⭐ טוען מועדפים בכל מקרה
             loadFavorites();
         });
     }
@@ -135,9 +270,7 @@ public class activity_user_page extends BaseActivity {
                         }
                     }
 
-                    tvFavorites.setText(
-                            sb.length() == 0 ? "(אין מועדפים עדיין)" : sb.toString()
-                    );
+                    tvFavorites.setText(sb.length() == 0 ? "(אין מועדפים עדיין)" : sb.toString());
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error loading favorites", e);

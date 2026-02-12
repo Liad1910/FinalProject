@@ -1,17 +1,23 @@
 package com.example.finalproject;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -42,10 +48,18 @@ public class SeriesCategoryActivity extends AppCompatActivity {
     private enum SortMode { AZ, ZA }
     private SortMode sortMode = SortMode.AZ;
 
+    // Bottom nav
+    private BottomNavigationView bottomNav;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_series_category);
+
+        // ❌ להסתיר תפריט עליון
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         tvTitleSeries = findViewById(R.id.tvTitleSeries);
         tvResultsCount = findViewById(R.id.tvResultsCountSeries);
@@ -55,10 +69,17 @@ public class SeriesCategoryActivity extends AppCompatActivity {
 
         rvAllSeries = findViewById(R.id.rvAllSeries);
         rvAllSeries.setLayoutManager(new GridLayoutManager(this, 3));
+        rvAllSeries.setNestedScrollingEnabled(false);
+
         adapter = new MoviesGridAdapter(this, filteredSeries);
         rvAllSeries.setAdapter(adapter);
 
         db = FirebaseFirestore.getInstance();
+
+        // ===== BottomNav =====
+        bottomNav = findViewById(R.id.bottomNav);
+        setupBottomNav();
+        bottomNav.setSelectedItemId(R.id.bnav_series);
 
         buildLegacySeries();
         loadUserSeries();
@@ -66,7 +87,7 @@ public class SeriesCategoryActivity extends AppCompatActivity {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchQuery = s.toString().trim();
+                searchQuery = (s != null) ? s.toString().trim() : "";
                 applyFilters();
             }
             @Override public void afterTextChanged(Editable s) {}
@@ -81,6 +102,98 @@ public class SeriesCategoryActivity extends AppCompatActivity {
 
         btnSort.setText("מיון A→Z");
         tvTitleSeries.setText("Series");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
+    }
+
+    // =====================================================
+    // Bottom Nav setup
+    // =====================================================
+    private void setupBottomNav() {
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.bnav_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+            }
+
+            if (id == R.id.bnav_movies) {
+                startActivity(new Intent(this, MoviesCategoryActivity.class));
+                return true;
+            }
+
+            if (id == R.id.bnav_series) {
+                // כבר פה
+                return true;
+            }
+
+            if (id == R.id.bnav_more) {
+                showMoreDialog();
+                bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    // =====================================================
+    // "עוד"
+    // =====================================================
+    private void showMoreDialog() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        boolean isLoggedIn = (user != null && !user.isAnonymous());
+
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("עוד");
+
+        if (!isLoggedIn) {
+            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט"};
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        startActivity(new Intent(this, loginPage.class));
+                        break;
+                    case 1:
+                        startActivity(new Intent(this, registerPage.class));
+                        break;
+                    case 2:
+                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
+                        break;
+                    case 3:
+                        startActivity(new Intent(this, AiActivity.class));
+                        break;
+                }
+            });
+        } else {
+            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "התנתקות"};
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        startActivity(new Intent(this, activity_user_page.class));
+                        break;
+                    case 1:
+                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
+                        break;
+                    case 2:
+                        startActivity(new Intent(this,AiActivity.class));
+                        break;
+                    case 3:
+                        FirebaseAuth.getInstance().signOut();
+                        startActivity(new Intent(this, MainActivity.class));
+                        finish();
+                        break;
+                }
+            });
+        }
+
+        builder.setNegativeButton("סגור", null);
+        builder.show();
     }
 
     private void buildLegacySeries() {
@@ -131,8 +244,11 @@ public class SeriesCategoryActivity extends AppCompatActivity {
             if (!"All".equals(selectedGenre) && (s.genres == null || !s.genres.contains(selectedGenre)))
                 continue;
 
-            if (!searchQuery.isEmpty() && !s.title.toLowerCase().contains(searchQuery.toLowerCase()))
-                continue;
+            if (searchQuery != null && !searchQuery.isEmpty()) {
+                String t = (s.title != null) ? s.title.toLowerCase() : "";
+                if (!t.contains(searchQuery.toLowerCase()))
+                    continue;
+            }
 
             filteredSeries.add(s);
         }
@@ -148,13 +264,19 @@ public class SeriesCategoryActivity extends AppCompatActivity {
     private void showGenreDialog() {
         final String[] genres = {"All","Drama","Comedy","Crime","Sci-Fi","Fantasy","Horror"};
 
+        int preselect = 0;
+        for (int i = 0; i < genres.length; i++) {
+            if (genres[i].equals(selectedGenre)) { preselect = i; break; }
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle("בחרי ז'אנר")
-                .setSingleChoiceItems(genres, 0, (d, i) -> selectedGenre = genres[i])
+                .setSingleChoiceItems(genres, preselect, (d, i) -> selectedGenre = genres[i])
                 .setPositiveButton("אישור", (d, w) -> {
-                    btnGenre.setText("ז'אנר: " + selectedGenre);
+                    btnGenre.setText("ז'אנר: " + ("All".equals(selectedGenre) ? "הכל" : selectedGenre));
                     applyFilters();
                 })
+                .setNegativeButton("ביטול", null)
                 .show();
     }
 }

@@ -1,167 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/rootScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF7FB"
-    android:fillViewport="true">
+    android:background="#FFF7FB">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+    <!-- ================= Scroll Area ================= -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/rootScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Title -->
-        <TextView
-            android:id="@+id/tvTitleMovies"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Movies"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="#2B2B2B"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tvSubtitleMovies"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="חיפוש, סינון ומיון – כל הסרטים במקום אחד 🎬✨"
-            android:textSize="14sp"
-            android:textColor="#6B6B6B"
-            android:layout_marginTop="6dp"
-            app:layout_constraintTop_toBottomOf="@id/tvTitleMovies"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Search Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSearch"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            app:cardCornerRadius="22dp"
-            app:cardElevation="8dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#22FF1493"
-            app:layout_constraintTop_toBottomOf="@id/tvSubtitleMovies"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tvTitleMovies"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:padding="12dp">
+                android:text="Movies"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#2B2B2B"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilSearch"
-                    android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tvSubtitleMovies"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="חיפוש, סינון ומיון – כל הסרטים במקום אחד 🎬✨"
+                android:textSize="14sp"
+                android:textColor="#6B6B6B"
+                android:layout_marginTop="6dp"
+                app:layout_constraintTop_toBottomOf="@id/tvTitleMovies"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Search Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="8dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#22FF1493"
+                app:layout_constraintTop_toBottomOf="@id/tvSubtitleMovies"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="חיפוש סרט…"
-                    app:boxBackgroundMode="filled"
-                    app:boxBackgroundColor="#FFF0F6"
-                    app:boxCornerRadiusTopStart="16dp"
-                    app:boxCornerRadiusTopEnd="16dp"
-                    app:boxCornerRadiusBottomStart="16dp"
-                    app:boxCornerRadiusBottomEnd="16dp"
-                    app:boxStrokeColor="#22FF1493"
-                    app:startIconDrawable="@android:drawable/ic_menu_search"
-                    app:startIconTint="#FF1493"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/btnClearSearch">
+                    android:padding="12dp">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etSearch"
-                        android:layout_width="match_parent"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilSearch"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:textColor="#2B2B2B"
-                        android:textColorHint="#888888" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:hint="חיפוש סרט…"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="#FFF0F6"
+                        app:boxCornerRadiusTopStart="16dp"
+                        app:boxCornerRadiusTopEnd="16dp"
+                        app:boxCornerRadiusBottomStart="16dp"
+                        app:boxCornerRadiusBottomEnd="16dp"
+                        app:boxStrokeColor="#22FF1493"
+                        app:startIconDrawable="@android:drawable/ic_menu_search"
+                        app:startIconTint="#FF1493"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/btnClearSearch">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnClearSearch"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:layout_marginStart="10dp"
-                    android:text="✕"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    android:textColor="#FF1493"
-                    android:backgroundTint="#FFF0F6"
-                    app:cornerRadius="14dp"
-                    app:layout_constraintTop_toTopOf="@id/tilSearch"
-                    app:layout_constraintBottom_toBottomOf="@id/tilSearch"
-                    app:layout_constraintEnd_toEndOf="parent" />
-
-                <!-- Controls row -->
-                <LinearLayout
-                    android:id="@+id/rowControls"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
-                    app:layout_constraintTop_toBottomOf="@id/tilSearch"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSearch"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:textColor="#2B2B2B"
+                            android:textColorHint="#888888" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSort"
-                        android:layout_width="0dp"
+                        android:id="@+id/btnClearSearch"
+                        android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:layout_weight="1"
-                        android:text="מיון"
+                        android:layout_marginStart="10dp"
+                        android:text="✕"
                         android:textAllCaps="false"
                         android:textStyle="bold"
-                        android:textColor="@android:color/white"
-                        android:backgroundTint="#FF69B4"
-                        app:cornerRadius="16dp"
-                        android:layout_marginEnd="8dp" />
+                        android:textColor="#FF1493"
+                        android:backgroundTint="#FFF0F6"
+                        app:cornerRadius="14dp"
+                        app:layout_constraintTop_toTopOf="@id/tilSearch"
+                        app:layout_constraintBottom_toBottomOf="@id/tilSearch"
+                        app:layout_constraintEnd_toEndOf="parent" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnGenre"
+                    <!-- Controls row -->
+                    <LinearLayout
+                        android:id="@+id/rowControls"
                         android:layout_width="0dp"
-                        android:layout_height="44dp"
-                        android:layout_weight="2"
-                        android:text="ז'אנר: הכל"
-                        android:textAllCaps="false"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/white"
-                        android:backgroundTint="#FF1493"
-                        app:cornerRadius="16dp" />
-                </LinearLayout>
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="10dp"
+                        android:gravity="center_vertical"
+                        app:layout_constraintTop_toBottomOf="@id/tilSearch"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSort"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:text="מיון"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            android:backgroundTint="#FF69B4"
+                            app:cornerRadius="16dp"
+                            android:layout_marginEnd="8dp" />
 
-        <!-- Results count -->
-        <TextView
-            android:id="@+id/tvResultsCount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="נמצאו 0 סרטים"
-            android:textColor="#6B6B6B"
-            android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/cardSearch"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnGenre"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="2"
+                            android:text="ז'אנר: הכל"
+                            android:textAllCaps="false"
+                            android:textStyle="bold"
+                            android:textColor="@android:color/white"
+                            android:backgroundTint="#FF1493"
+                            app:cornerRadius="16dp" />
+                    </LinearLayout>
 
-        <!-- RecyclerView Grid -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvAllMovies"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@id/tvResultsCount"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+            <!-- Results count -->
+            <TextView
+                android:id="@+id/tvResultsCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="נמצאו 0 סרטים"
+                android:textColor="#6B6B6B"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/cardSearch"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- RecyclerView Grid -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAllMovies"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginTop="10dp"
+                app:layout_constraintTop_toBottomOf="@id/tvResultsCount"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ================= Bottom Navigation ================= -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="76dp"
+        android:background="#FFFFFF"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="#FF1493"
+        app:itemTextColor="#FF1493"
+        app:itemRippleColor="#33FF69B4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
