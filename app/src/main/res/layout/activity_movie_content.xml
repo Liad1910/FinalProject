@@ -10,8 +10,8 @@
         android:id="@+id/rootScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="72dp"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:paddingBottom="92dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,6 +19,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Title -->
             <TextView
                 android:id="@+id/tvMovieTitle"
                 android:layout_width="match_parent"
@@ -28,12 +29,13 @@
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textAlignment="center"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="12dp" />
 
+            <!-- Poster Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPoster"
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
+                android:layout_height="240dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="10dp"
                 app:strokeWidth="1dp"
@@ -47,64 +49,80 @@
                     android:scaleType="centerCrop" />
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Buttons grid 2x2 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="14dp"
-                android:weightSum="3">
+                android:orientation="vertical"
+                android:layout_marginTop="14dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnTrailer"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:text="טריילר"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="#FF1493"
-                    app:cornerRadius="16dp"
-                    android:layout_marginEnd="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnShare"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:text="שיתוף"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="#FF69B4"
-                    app:cornerRadius="16dp"
-                    android:layout_marginEnd="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnFavorites"
-                    android:layout_width="0dp"
-                    android:layout_height="44dp"
-                    android:layout_weight="1"
-                    android:text="מועדפים"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="#A855F7"
-                    app:cornerRadius="16dp" />
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnWatchlist"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="10dp"
-                    android:text="רשימת צפייה 🔔"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="#7C3AED"
-                    app:cornerRadius="16dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTrailer"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="טריילר"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#FF1493"
+                        app:cornerRadius="16dp"
+                        android:layout_marginEnd="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnShare"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="שיתוף"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#FF69B4"
+                        app:cornerRadius="16dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:layout_marginTop="10dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFavorites"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="מועדפים"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#A855F7"
+                        app:cornerRadius="16dp"
+                        android:layout_marginEnd="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnWatchlist"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="רשימת צפייה 🔔"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#7C3AED"
+                        app:cornerRadius="16dp"/>
+                </LinearLayout>
             </LinearLayout>
 
+            <!-- Reviews title -->
             <TextView
                 android:id="@+id/tvReviewsTitle"
                 android:layout_width="match_parent"
@@ -115,6 +133,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <!-- Add review card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -131,7 +150,6 @@
                     android:padding="14dp">
 
                     <TextView
-                        android:id="@+id/tvAddReviewTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="הוספת ביקורת"
@@ -163,7 +181,7 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSendReview"
                         android:layout_width="match_parent"
-                        android:layout_height="46dp"
+                        android:layout_height="48dp"
                         android:layout_marginTop="10dp"
                         android:text="שלח ביקורת 💖"
                         android:textAllCaps="false"
@@ -174,6 +192,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- No reviews -->
             <TextView
                 android:id="@+id/tvNoReviews"
                 android:layout_width="match_parent"
@@ -184,6 +203,7 @@
                 android:textSize="14sp"
                 android:textAlignment="center" />
 
+            <!-- Reviews list -->
             <LinearLayout
                 android:id="@+id/layoutReviewsList"
                 android:layout_width="match_parent"
@@ -193,7 +213,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="20dp" />
+                android:layout_height="10dp" />
 
         </LinearLayout>
     </ScrollView>
@@ -206,7 +226,6 @@
         android:background="@android:color/white"
         app:menu="@menu/bottom_nav_menu"
         app:labelVisibilityMode="labeled"
-        app:itemIconTint="@null"
-        app:itemTextColor="#2B2B2B" />
+        app:itemIconTint="@null" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

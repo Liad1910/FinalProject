@@ -1,12 +1,18 @@
 package com.example.finalproject;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,8 +26,16 @@ public class MainActivity extends BaseActivity {
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
 
-    // 🔔 כדי שלא תופעל התראה כמה פעמים
-    private boolean watchlistNotifScheduled = false;
+    // ===== Android 13+ permission launcher =====
+    private final ActivityResultLauncher<String> notificationPermissionLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    isGranted -> {
+                        if (isGranted) {
+                            scheduleRemindersIfNeeded(auth.getCurrentUser());
+                        }
+                    }
+            );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,20 +52,11 @@ public class MainActivity extends BaseActivity {
         tvHelloMain = findViewById(R.id.tvHelloMain);
         bottomNav = findViewById(R.id.bottomNav);
 
-        // מאזין לשינויים בהתחברות
+        // ===== Auth listener =====
         authStateListener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             updateHelloText(user);
-
-            // 🔔 תזכורת רשימת צפייה בכניסה לאפליקציה
-            if (!watchlistNotifScheduled && user != null) {
-                watchlistNotifScheduled = true;
-
-                // אם את רוצה רק למשתמש לא אנונימי:
-                // if (!user.isAnonymous()) {
-                WatchlistReminderScheduler.scheduleInSeconds(MainActivity.this, 2);
-                // }
-            }
+            handleNotificationPermission(user);
         };
 
         ensureAnonymousIfNeeded();
@@ -63,17 +68,14 @@ public class MainActivity extends BaseActivity {
                 startActivity(new Intent(this, MainActivity.class));
                 return true;
             }
-
             if (id == R.id.bnav_movies) {
                 startActivity(new Intent(this, MoviesCategoryActivity.class));
                 return true;
             }
-
             if (id == R.id.bnav_series) {
                 startActivity(new Intent(this, SeriesCategoryActivity.class));
                 return true;
             }
-
             if (id == R.id.bnav_more) {
                 showMoreDialog();
                 bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
@@ -110,8 +112,43 @@ public class MainActivity extends BaseActivity {
     }
 
     // =====================================================
-    // מבטיח משתמש אנונימי אם אין משתמש
+    // Notification permission handling
     // =====================================================
+
+    private void handleNotificationPermission(FirebaseUser user) {
+
+        if (user == null || user.isAnonymous()) return;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            scheduleRemindersIfNeeded(user);
+            return;
+        }
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            scheduleRemindersIfNeeded(user);
+
+        } else {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
+    }
+
+    private void scheduleRemindersIfNeeded(FirebaseUser user) {
+        if (user == null || user.isAnonymous()) return;
+
+        // בדיקה אחרי 2 שניות
+        WatchlistReminderScheduler.scheduleInSeconds(this, 2);
+
+        // יומי
+        WatchlistReminderScheduler.scheduleDaily(this);
+    }
+
+    // =====================================================
+    // Anonymous login
+    // =====================================================
+
     private void ensureAnonymousIfNeeded() {
         FirebaseUser user = auth.getCurrentUser();
 
@@ -121,15 +158,18 @@ public class MainActivity extends BaseActivity {
                     String msg = (task.getException() != null)
                             ? task.getException().getMessage()
                             : "unknown error";
-                    Toast.makeText(this, "כניסה אנונימית נכשלה: " + msg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,
+                            "כניסה אנונימית נכשלה: " + msg,
+                            Toast.LENGTH_LONG).show();
                 }
             });
         }
     }
 
     // =====================================================
-    // עדכון טקסט שלום
+    // Hello text
     // =====================================================
+
     private void updateHelloText(FirebaseUser user) {
 
         if (tvHelloMain == null) return;
@@ -161,8 +201,9 @@ public class MainActivity extends BaseActivity {
     }
 
     // =====================================================
-    // Dialog עוד
+    // More dialog
     // =====================================================
+
     private void showMoreDialog() {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -228,15 +269,9 @@ public class MainActivity extends BaseActivity {
         builder.show();
     }
 
-    // =====================================================
-    // Logout
-    // =====================================================
     private void logoutFromBottomMenu() {
         FirebaseAuth.getInstance().signOut();
         Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
-
-        watchlistNotifScheduled = false;
-
         startActivity(new Intent(this, MainActivity.class));
         finish();
     }

@@ -161,18 +161,47 @@ public class MovieContentActivity extends AppCompatActivity {
 
     // ================= Watchlist =================
     private void saveToWatchlist() {
+        if (userDocRef == null) {
+            Toast.makeText(this, "צריך להתחבר", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // ✅ אם אין movieId תקין – לא לשמור עם "null" שידרוס הכל
+        if (movieId == null || movieId.trim().isEmpty()) {
+            Toast.makeText(this, "שגיאה: אין מזהה סרט", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Map<String, Object> data = new HashMap<>();
         data.put("movieId", movieId);
-        data.put("title", movieTitle);
+        data.put("title", movieTitle != null ? movieTitle : "Movie");
         data.put("posterUrl", posterUrl);
         data.put("addedAt", System.currentTimeMillis());
 
+        // ✅ שומרים לפי movieId (ייחודי) ואז מגבילים ל-5
         userDocRef.collection("watchlist").document(movieId).set(data)
                 .addOnSuccessListener(a -> {
                     Toast.makeText(this, "נוסף לרשימת צפייה 🔔", Toast.LENGTH_SHORT).show();
+
+                    // ✅ להשאיר עד 5: מוחקים את הישנים ביותר אם צריך
+                    userDocRef.collection("watchlist")
+                            .orderBy("addedAt", Query.Direction.DESCENDING)
+                            .get()
+                            .addOnSuccessListener(qs -> {
+                                int size = qs.size();
+                                if (size <= 5) return;
+
+                                // מוחקים החל מהאינדקס 5 (כל מה שמעבר ל-5 החדשים)
+                                for (int i = 5; i < size; i++) {
+                                    qs.getDocuments().get(i).getReference().delete();
+                                }
+                            });
+
+                    // תזכורת יומית/בכניסה לפי מה שעשית
                     WatchlistReminderScheduler.scheduleDaily(this);
                 });
     }
+
 
     // ================= Reviews =================
     private void setupReviewForm() {

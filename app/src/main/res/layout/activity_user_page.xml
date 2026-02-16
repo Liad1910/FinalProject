@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="#FFF7FB">
 
-    <!-- ================= Scroll Area ================= -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollUser"
         android:layout_width="0dp"
@@ -22,9 +21,7 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- Card -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardUser"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="24dp"
@@ -41,192 +38,138 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Email -->
+                    <!-- EMAIL -->
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
                         android:text="Email"
                         android:textStyle="bold"
                         android:textColor="#2B2B2B"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
 
                     <TextView
                         android:id="@+id/tvEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#2B2B2B"
-                        android:textSize="16sp"
+                        android:background="#FFF0F6"
                         android:padding="12dp"
                         android:layout_marginTop="6dp"
-                        android:background="#FFF0F6" />
+                        android:textColor="#2B2B2B"/>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="14dp"
-                        android:layout_marginBottom="10dp"
-                        android:background="#1A000000" />
-
-                    <!-- Username -->
+                    <!-- USERNAME -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
                         android:hint="Username"
                         app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="#FFF0F6"
-                        app:boxCornerRadiusTopStart="18dp"
-                        app:boxCornerRadiusTopEnd="18dp"
-                        app:boxCornerRadiusBottomStart="18dp"
-                        app:boxCornerRadiusBottomEnd="18dp"
-                        app:startIconDrawable="@android:drawable/ic_menu_edit"
-                        app:startIconTint="#FF1493">
+                        app:boxBackgroundColor="#FFF0F6">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etUsername"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="#2B2B2B"/>
+                            android:layout_height="wrap_content"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Birth Year -->
+                    <!-- BIRTH YEAR -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:hint="Birth year"
                         app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="#FFF0F6"
-                        app:boxCornerRadiusTopStart="18dp"
-                        app:boxCornerRadiusTopEnd="18dp"
-                        app:boxCornerRadiusBottomStart="18dp"
-                        app:boxCornerRadiusBottomEnd="18dp"
-                        app:startIconDrawable="@android:drawable/ic_menu_today"
-                        app:startIconTint="#FF1493">
+                        app:boxBackgroundColor="#FFF0F6">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etBirthYear"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="number"
-                            android:textColor="#2B2B2B"/>
+                            android:inputType="number"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Favorite Movie -->
+                    <!-- FAVORITE MOVIE -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:hint="Favorite movie"
                         app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="#FFF0F6"
-                        app:boxCornerRadiusTopStart="18dp"
-                        app:boxCornerRadiusTopEnd="18dp"
-                        app:boxCornerRadiusBottomStart="18dp"
-                        app:boxCornerRadiusBottomEnd="18dp"
-                        app:startIconDrawable="@android:drawable/ic_media_play"
-                        app:startIconTint="#FF1493">
+                        app:boxBackgroundColor="#FFF0F6">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etMovie"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="#2B2B2B"/>
+                            android:layout_height="wrap_content"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Favorite Series -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
+                    <!-- FAVORITES LIST -->
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:hint="Favorite series"
-                        app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="#FFF0F6"
-                        app:boxCornerRadiusTopStart="18dp"
-                        app:boxCornerRadiusTopEnd="18dp"
-                        app:boxCornerRadiusBottomStart="18dp"
-                        app:boxCornerRadiusBottomEnd="18dp"
-                        app:startIconDrawable="@android:drawable/ic_menu_slideshow"
-                        app:startIconTint="#FF1493">
+                        android:text="מועדפים"
+                        android:textStyle="bold"
+                        android:layout_marginTop="20dp"
+                        android:textColor="#2B2B2B"/>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etSeries"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="#2B2B2B"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Favorite Genre -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:hint="Favorite genre"
-                        app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="#FFF0F6"
-                        app:boxCornerRadiusTopStart="18dp"
-                        app:boxCornerRadiusTopEnd="18dp"
-                        app:boxCornerRadiusBottomStart="18dp"
-                        app:boxCornerRadiusBottomEnd="18dp"
-                        app:startIconDrawable="@android:drawable/ic_menu_sort_by_size"
-                        app:startIconTint="#FF1493">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etGenre"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="#2B2B2B"/>
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- Favorites -->
                     <TextView
                         android:id="@+id/tvFavorites"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="(אין מועדפים עדיין)"
-                        android:textColor="#2B2B2B"
                         android:background="#FFF0F6"
                         android:padding="12dp"
-                        android:layout_marginTop="16dp" />
+                        android:layout_marginTop="8dp"
+                        android:text="(אין מועדפים עדיין)"/>
 
-                    <!-- Message -->
+                    <!-- WATCHLIST -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="רשימת צפייה"
+                        android:textStyle="bold"
+                        android:layout_marginTop="20dp"
+                        android:textColor="#2B2B2B"/>
+
+                    <TextView
+                        android:id="@+id/tvWatchlist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#FFF0F6"
+                        android:padding="12dp"
+                        android:layout_marginTop="8dp"
+                        android:text="(אין ברשימת צפייה עדיין)"/>
+
+                    <!-- MESSAGE -->
                     <TextView
                         android:id="@+id/tvMsgUser"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="#D7263D"
-                        android:layout_marginTop="12dp" />
+                        android:layout_marginTop="12dp"
+                        android:textColor="#D7263D"/>
 
-                    <!-- Save -->
+                    <!-- SAVE BUTTON -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSaveUser"
                         android:layout_width="match_parent"
                         android:layout_height="52dp"
                         android:text="Save"
-                        android:textAllCaps="false"
-                        android:textStyle="bold"
+                        android:layout_marginTop="16dp"
                         android:textColor="@android:color/white"
-                        android:backgroundTint="#FF1493"
-                        app:cornerRadius="18dp"
-                        android:layout_marginTop="14dp"/>
+                        android:backgroundTint="#FF1493"/>
 
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ================= Bottom Navigation ================= -->
+    <!-- BOTTOM NAV -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
         android:layout_height="76dp"
         android:background="#FFFFFF"
         app:menu="@menu/bottom_nav_menu"
-        app:labelVisibilityMode="labeled"
-        app:itemIconTint="#FF1493"
-        app:itemTextColor="#FF1493"
-        app:itemRippleColor="#33FF69B4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
