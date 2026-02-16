@@ -1,188 +1,212 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/rootScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFF7FB">
 
-    <LinearLayout
+    <ScrollView
+        android:id="@+id/rootScroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="72dp"
+        android:fillViewport="true">
 
-        <!-- כותרת -->
-        <TextView
-            android:id="@+id/tvMovieTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Movie Title"
-            android:textColor="#2B2B2B"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:layout_marginBottom="10dp" />
-
-        <!-- פוסטר בתוך Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardPoster"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="10dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#33FF69B4">
-
-            <ImageView
-                android:id="@+id/imgPoster"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/poster_default_movie"
-                android:scaleType="centerCrop" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- כפתורים: טריילר / שיתוף / מועדפים -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="14dp"
-            android:weightSum="3">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTrailer"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                android:text="טריילר"
-                android:textAllCaps="false"
+            <TextView
+                android:id="@+id/tvMovieTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Movie Title"
+                android:textColor="#2B2B2B"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:backgroundTint="#FF1493"
-                app:cornerRadius="16dp"
-                android:layout_marginEnd="8dp" />
+                android:textAlignment="center"
+                android:layout_marginBottom="10dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnShare"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                android:text="שיתוף"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:backgroundTint="#FF69B4"
-                app:cornerRadius="16dp"
-                android:layout_marginEnd="8dp" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPoster"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="10dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#33FF69B4">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnFavorites"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_weight="1"
-                android:text="מועדפים"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:backgroundTint="#A855F7"
-                app:cornerRadius="16dp" />
-        </LinearLayout>
-
-        <!-- כותרת ביקורות -->
-        <TextView
-            android:id="@+id/tvReviewsTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:text="ביקורות משתמשים"
-            android:textColor="#2B2B2B"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <!-- כרטיס הוספת ביקורת -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            app:cardCornerRadius="22dp"
-            app:cardElevation="8dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#22FF1493">
+                <ImageView
+                    android:id="@+id/imgPoster"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/poster_default_movie"
+                    android:scaleType="centerCrop" />
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="14dp">
-
-                <TextView
-                    android:id="@+id/tvAddReviewTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="הוספת ביקורת"
-                    android:textColor="#2B2B2B"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <RatingBar
-                    android:id="@+id/ratingBarReview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:numStars="5"
-                    android:stepSize="1"
-                    android:isIndicator="false"
-                    android:layout_marginTop="6dp" />
-
-                <EditText
-                    android:id="@+id/etReviewText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:hint="כתבי מה חשבת על הסרט..."
-                    android:padding="12dp"
-                    android:minLines="2"
-                    android:textColor="#2B2B2B"
-                    android:textColorHint="#888888"
-                    android:background="@drawable/bg_input_round_light" />
+                android:orientation="horizontal"
+                android:layout_marginTop="14dp"
+                android:weightSum="3">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSendReview"
-                    android:layout_width="match_parent"
-                    android:layout_height="46dp"
-                    android:layout_marginTop="10dp"
-                    android:text="שלח ביקורת 💖"
+                    android:id="@+id/btnTrailer"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="טריילר"
                     android:textAllCaps="false"
                     android:textStyle="bold"
                     android:textColor="@android:color/white"
                     android:backgroundTint="#FF1493"
+                    app:cornerRadius="16dp"
+                    android:layout_marginEnd="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnShare"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="שיתוף"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="#FF69B4"
+                    app:cornerRadius="16dp"
+                    android:layout_marginEnd="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnFavorites"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:text="מועדפים"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="#A855F7"
                     app:cornerRadius="16dp" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnWatchlist"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
+                    android:text="רשימת צפייה 🔔"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="#7C3AED"
+                    app:cornerRadius="16dp" />
+
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- אין ביקורות -->
-        <TextView
-            android:id="@+id/tvNoReviews"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="אין ביקורות עדיין. תהיי הראשונה 😉"
-            android:textColor="#6B6B6B"
-            android:textSize="14sp"
-            android:textAlignment="center" />
+            <TextView
+                android:id="@+id/tvReviewsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:text="ביקורות משתמשים"
+                android:textColor="#2B2B2B"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-        <!-- רשימת ביקורות -->
-        <LinearLayout
-            android:id="@+id/layoutReviewsList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="vertical" />
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="8dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#22FF1493">
 
-        <!-- ריווח תחתון -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="20dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
 
-    </LinearLayout>
-</ScrollView>
+                    <TextView
+                        android:id="@+id/tvAddReviewTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="הוספת ביקורת"
+                        android:textColor="#2B2B2B"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <RatingBar
+                        android:id="@+id/ratingBarReview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:stepSize="1"
+                        android:isIndicator="false"
+                        android:layout_marginTop="6dp" />
+
+                    <EditText
+                        android:id="@+id/etReviewText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="כתבי מה חשבת על הסרט..."
+                        android:padding="12dp"
+                        android:minLines="2"
+                        android:textColor="#2B2B2B"
+                        android:textColorHint="#888888"
+                        android:background="@drawable/bg_input_round_light" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSendReview"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="10dp"
+                        android:text="שלח ביקורת 💖"
+                        android:textAllCaps="false"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="#FF1493"
+                        app:cornerRadius="16dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tvNoReviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="אין ביקורות עדיין. תהיי הראשונה 😉"
+                android:textColor="#6B6B6B"
+                android:textSize="14sp"
+                android:textAlignment="center" />
+
+            <LinearLayout
+                android:id="@+id/layoutReviewsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_gravity="bottom"
+        android:background="@android:color/white"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="@null"
+        app:itemTextColor="#2B2B2B" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

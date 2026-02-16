@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -14,7 +12,10 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -25,14 +26,14 @@ import com.google.firebase.firestore.Query;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MovieContentActivity extends BaseActivity {
+public class MovieContentActivity extends AppCompatActivity {
 
-    // ===== Extras =====
     public static final String EXTRA_MOVIE_ID = "EXTRA_MOVIE_ID";
     public static final String EXTRA_MOVIE_TITLE = "EXTRA_MOVIE_TITLE";
     public static final String EXTRA_TRAILER_URL = "EXTRA_TRAILER_URL";
     public static final String EXTRA_POSTER_RES_ID = "EXTRA_POSTER_RES_ID";
     public static final String EXTRA_TITLE_ID = "EXTRA_TITLE_ID";
+    public static final String EXTRA_OPEN_TAB_ID = "OPEN_TAB_ID";
 
     private String movieId;
     private String movieTitle;
@@ -45,7 +46,6 @@ public class MovieContentActivity extends BaseActivity {
     private FirebaseUser currentUser;
     private DocumentReference userDocRef;
 
-    // UI
     private RatingBar ratingBarReview;
     private EditText etReviewText;
     private Button btnSendReview;
@@ -55,11 +55,8 @@ public class MovieContentActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_movie_content);
 
-        // ✅ טוען את התוכן לתוך BaseActivity (עם Drawer)
-        setPageContent(R.layout.activity_movie_content);
-
-        // Firebase
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         currentUser = auth.getCurrentUser();
@@ -68,12 +65,12 @@ public class MovieContentActivity extends BaseActivity {
             userDocRef = db.collection("users").document(currentUser.getUid());
         }
 
-        // Views
         TextView tvTitle = findViewById(R.id.tvMovieTitle);
         ImageView imgPoster = findViewById(R.id.imgPoster);
         Button btnTrailer = findViewById(R.id.btnTrailer);
         Button btnShare = findViewById(R.id.btnShare);
         Button btnFavorites = findViewById(R.id.btnFavorites);
+        Button btnWatchlist = findViewById(R.id.btnWatchlist);
 
         ratingBarReview = findViewById(R.id.ratingBarReview);
         etReviewText = findViewById(R.id.etReviewText);
@@ -82,17 +79,24 @@ public class MovieContentActivity extends BaseActivity {
         layoutReviewsList = findViewById(R.id.layoutReviewsList);
         tvNoReviews = findViewById(R.id.tvNoReviews);
 
+        setupBottomNav();
         setupButtons(btnTrailer, btnShare, btnFavorites);
         setupReviewForm();
 
-        // ===== Firestore title page =====
+        btnWatchlist.setOnClickListener(v -> {
+            if (userDocRef == null || movieId == null) {
+                Toast.makeText(this, "צריך להתחבר", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            saveToWatchlist();
+        });
+
         String titleId = getIntent().getStringExtra(EXTRA_TITLE_ID);
         if (titleId != null && !titleId.trim().isEmpty()) {
             loadTitleFromFirestore(titleId, tvTitle, imgPoster);
             return;
         }
 
-        // ===== Old flow (carousel / categories) =====
         movieId = getIntent().getStringExtra(EXTRA_MOVIE_ID);
         movieTitle = getIntent().getStringExtra(EXTRA_MOVIE_TITLE);
         trailerUrl = getIntent().getStringExtra(EXTRA_TRAILER_URL);
@@ -109,9 +113,22 @@ public class MovieContentActivity extends BaseActivity {
         loadReviews();
     }
 
-    // =====================================================
-    // Buttons
-    // =====================================================
+    // ================= Bottom Nav =================
+    private void setupBottomNav() {
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        if (bottomNav == null) return;
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            Intent i = new Intent(MovieContentActivity.this, MainActivity.class);
+            i.putExtra(EXTRA_OPEN_TAB_ID, item.getItemId());
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(i);
+            finish();
+            return true;
+        });
+    }
+
+    // ================= Buttons =================
     private void setupButtons(Button btnTrailer, Button btnShare, Button btnFavorites) {
 
         btnTrailer.setOnClickListener(v -> {
@@ -125,10 +142,11 @@ public class MovieContentActivity extends BaseActivity {
         });
 
         btnShare.setOnClickListener(v -> {
+            String safeTitle = (movieTitle != null && !movieTitle.trim().isEmpty()) ? movieTitle : "Movie";
             Intent i = new Intent(Intent.ACTION_SEND);
             i.setType("text/plain");
-            i.putExtra(Intent.EXTRA_SUBJECT, movieTitle);
-            i.putExtra(Intent.EXTRA_TEXT, movieTitle + (trailerUrl != null ? "\n" + trailerUrl : ""));
+            i.putExtra(Intent.EXTRA_SUBJECT, safeTitle);
+            i.putExtra(Intent.EXTRA_TEXT, safeTitle + (trailerUrl != null ? "\n" + trailerUrl : ""));
             startActivity(Intent.createChooser(i, "שתף דרך"));
         });
 
@@ -141,9 +159,22 @@ public class MovieContentActivity extends BaseActivity {
         });
     }
 
-    // =====================================================
-    // Reviews
-    // =====================================================
+    // ================= Watchlist =================
+    private void saveToWatchlist() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("movieId", movieId);
+        data.put("title", movieTitle);
+        data.put("posterUrl", posterUrl);
+        data.put("addedAt", System.currentTimeMillis());
+
+        userDocRef.collection("watchlist").document(movieId).set(data)
+                .addOnSuccessListener(a -> {
+                    Toast.makeText(this, "נוסף לרשימת צפייה 🔔", Toast.LENGTH_SHORT).show();
+                    WatchlistReminderScheduler.scheduleDaily(this);
+                });
+    }
+
+    // ================= Reviews =================
     private void setupReviewForm() {
         if (currentUser == null) {
             ratingBarReview.setIsIndicator(true);
@@ -190,10 +221,10 @@ public class MovieContentActivity extends BaseActivity {
                 .addOnSuccessListener(q -> {
                     layoutReviewsList.removeAllViews();
                     if (q.isEmpty()) {
-                        tvNoReviews.setVisibility(View.VISIBLE);
+                        tvNoReviews.setVisibility(android.view.View.VISIBLE);
                         return;
                     }
-                    tvNoReviews.setVisibility(View.GONE);
+                    tvNoReviews.setVisibility(android.view.View.GONE);
                     for (DocumentSnapshot d : q) addReviewView(d);
                 });
     }
@@ -211,7 +242,8 @@ public class MovieContentActivity extends BaseActivity {
         user.setTypeface(null, android.graphics.Typeface.BOLD);
 
         TextView rate = new TextView(this);
-        rate.setText("⭐ " + doc.getDouble("rating").intValue() + "/5");
+        Double r = doc.getDouble("rating");
+        rate.setText("⭐ " + (r != null ? r.intValue() : 0) + "/5");
         rate.setTextColor(Color.parseColor("#FFC94F"));
 
         TextView text = new TextView(this);
@@ -229,9 +261,6 @@ public class MovieContentActivity extends BaseActivity {
         return (int) (v * getResources().getDisplayMetrics().density);
     }
 
-    // =====================================================
-    // Firestore title page
-    // =====================================================
     private void loadTitleFromFirestore(String id, TextView tvTitle, ImageView imgPoster) {
         db.collection("titles").document(id).get().addOnSuccessListener(doc -> {
             movieId = id;
@@ -239,7 +268,7 @@ public class MovieContentActivity extends BaseActivity {
             trailerUrl = doc.getString("trailerUrl");
             posterUrl = doc.getString("posterUrl");
 
-            tvTitle.setText(movieTitle);
+            tvTitle.setText(movieTitle != null ? movieTitle : "Movie");
 
             if (posterUrl != null && !posterUrl.isEmpty()) {
                 Glide.with(this).load(posterUrl)

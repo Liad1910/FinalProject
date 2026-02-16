@@ -1,6 +1,5 @@
 package com.example.finalproject;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -8,8 +7,8 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -60,7 +59,7 @@ public class MoviesCategoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movies_category);
 
-        // ❌ להסתיר תפריט עליון (ActionBar)
+        // להסתיר ActionBar
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
@@ -182,8 +181,7 @@ public class MoviesCategoryActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         boolean isLoggedIn = (user != null && !user.isAnonymous());
 
-        androidx.appcompat.app.AlertDialog.Builder builder =
-                new androidx.appcompat.app.AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("עוד");
 
         if (!isLoggedIn) {
@@ -225,7 +223,7 @@ public class MoviesCategoryActivity extends AppCompatActivity {
                 }
             });
         }
-d
+
         builder.setNegativeButton("סגור", null);
         builder.show();
     }
@@ -316,8 +314,9 @@ d
                 m.trailerUrl = d.getString("trailerUrl");
                 m.isUserTitle = true;
 
+                @SuppressWarnings("unchecked")
                 List<String> g = (List<String>) d.get("genres");
-                m.genres = (g != null) ? g : Arrays.asList("All");
+                m.genres = (g != null && !g.isEmpty()) ? g : Arrays.asList("All");
 
                 allMovies.add(m);
             }

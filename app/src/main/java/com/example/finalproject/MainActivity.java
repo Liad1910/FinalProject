@@ -20,6 +20,9 @@ public class MainActivity extends BaseActivity {
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
 
+    // 🔔 כדי שלא תופעל התראה כמה פעמים
+    private boolean watchlistNotifScheduled = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +42,16 @@ public class MainActivity extends BaseActivity {
         authStateListener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             updateHelloText(user);
+
+            // 🔔 תזכורת רשימת צפייה בכניסה לאפליקציה
+            if (!watchlistNotifScheduled && user != null) {
+                watchlistNotifScheduled = true;
+
+                // אם את רוצה רק למשתמש לא אנונימי:
+                // if (!user.isAnonymous()) {
+                WatchlistReminderScheduler.scheduleInSeconds(MainActivity.this, 2);
+                // }
+            }
         };
 
         ensureAnonymousIfNeeded();
@@ -50,6 +63,7 @@ public class MainActivity extends BaseActivity {
                 startActivity(new Intent(this, MainActivity.class));
                 return true;
             }
+
             if (id == R.id.bnav_movies) {
                 startActivity(new Intent(this, MoviesCategoryActivity.class));
                 return true;
@@ -114,7 +128,7 @@ public class MainActivity extends BaseActivity {
     }
 
     // =====================================================
-    // עדכון טקסט שלום - בלי אימייל
+    // עדכון טקסט שלום
     // =====================================================
     private void updateHelloText(FirebaseUser user) {
 
@@ -130,14 +144,12 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        // קודם כל מנסים displayName
         String name = user.getDisplayName();
         if (name != null && !name.trim().isEmpty()) {
             tvHelloMain.setText("שלום " + name);
             return;
         }
 
-        // אם אין displayName – ניקח את השם מהמייל בלי להציג את המייל
         String email = user.getEmail();
         if (email != null && email.contains("@")) {
             String username = email.substring(0, email.indexOf("@"));
@@ -223,7 +235,7 @@ public class MainActivity extends BaseActivity {
         FirebaseAuth.getInstance().signOut();
         Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
 
-        updateMenuByAuthState();
+        watchlistNotifScheduled = false;
 
         startActivity(new Intent(this, MainActivity.class));
         finish();
