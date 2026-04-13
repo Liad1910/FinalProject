@@ -3,7 +3,6 @@ package com.example.finalproject;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +40,36 @@ public class activity_user_page extends BaseActivity {
         tvFavorites = findViewById(R.id.tvFavorites);
         tvWatchlist = findViewById(R.id.tvWatchlist);
         bottomNav = findViewById(R.id.bottomNav);
+
+        // ===== BottomNav =====
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.bnav_home) {
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+                return true;
+            }
+            if (id == R.id.bnav_movies) {
+                startActivity(new Intent(this, MoviesCategoryActivity.class));
+                finish();
+                return true;
+            }
+            if (id == R.id.bnav_series) {
+                startActivity(new Intent(this, SeriesCategoryActivity.class));
+                finish();
+                return true;
+            }
+            if (id == R.id.bnav_more) {
+                showMoreDialog();
+                bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
+                return true;
+            }
+
+            return false;
+        });
+
+        bottomNav.getMenu().setGroupCheckable(0, false, true);
 
         loadUserData();
     }
@@ -128,5 +157,46 @@ public class activity_user_page extends BaseActivity {
                             .setNegativeButton("ביטול", null)
                             .show();
                 });
+    }
+
+    private void showMoreDialog() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        boolean isLoggedIn = (user != null && !user.isAnonymous());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("עוד");
+
+        if (!isLoggedIn) {
+            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט"};
+
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0: startActivity(new Intent(this, loginPage.class)); break;
+                    case 1: startActivity(new Intent(this, registerPage.class)); break;
+                    case 2: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
+                    case 3: startActivity(new Intent(this, AiActivity.class)); break;
+                }
+            });
+
+        } else {
+            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "התנתקות"};
+
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0: startActivity(new Intent(this, activity_user_page.class)); break;
+                    case 1: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
+                    case 2: startActivity(new Intent(this, AiActivity.class)); break;
+                    case 3:
+                        FirebaseAuth.getInstance().signOut();
+                        Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(this, MainActivity.class));
+                        finish();
+                        break;
+                }
+            });
+        }
+
+        builder.setNegativeButton("סגור", null);
+        builder.show();
     }
 }

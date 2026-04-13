@@ -2,6 +2,7 @@ package com.example.finalproject;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,7 +27,6 @@ public class MainActivity extends BaseActivity {
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
 
-    // ===== Android 13+ permission launcher =====
     private final ActivityResultLauncher<String> notificationPermissionLauncher =
             registerForActivityResult(
                     new ActivityResultContracts.RequestPermission(),
@@ -52,20 +52,21 @@ public class MainActivity extends BaseActivity {
         tvHelloMain = findViewById(R.id.tvHelloMain);
         bottomNav = findViewById(R.id.bottomNav);
 
-        // ===== Auth listener =====
         authStateListener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             updateHelloText(user);
-            handleNotificationPermission(user);
         };
 
         ensureAnonymousIfNeeded();
+
+        // תזמון התראות — עם הגנת דגל
+        handleNotificationPermission(auth.getCurrentUser());
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
             if (id == R.id.bnav_home) {
-                startActivity(new Intent(this, MainActivity.class));
+                // נשארים במסך הבית בלי ליצור Activity חדש
                 return true;
             }
             if (id == R.id.bnav_movies) {
@@ -116,7 +117,6 @@ public class MainActivity extends BaseActivity {
     // =====================================================
 
     private void handleNotificationPermission(FirebaseUser user) {
-
         if (user == null || user.isAnonymous()) return;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
@@ -127,9 +127,7 @@ public class MainActivity extends BaseActivity {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.POST_NOTIFICATIONS)
                 == PackageManager.PERMISSION_GRANTED) {
-
             scheduleRemindersIfNeeded(user);
-
         } else {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
         }
@@ -138,11 +136,15 @@ public class MainActivity extends BaseActivity {
     private void scheduleRemindersIfNeeded(FirebaseUser user) {
         if (user == null || user.isAnonymous()) return;
 
-        // בדיקה אחרי 2 שניות
-        WatchlistReminderScheduler.scheduleInSeconds(this, 2);
+        // בודקים אם כבר תוזמן בסשן הזה
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        boolean alreadyScheduled = prefs.getBoolean("notifications_scheduled", false);
 
-        // יומי
-        WatchlistReminderScheduler.scheduleDaily(this);
+        if (!alreadyScheduled) {
+            WatchlistReminderScheduler.scheduleOnceOnAppOpen(this);
+            WatchlistReminderScheduler.scheduleDaily(this);
+            prefs.edit().putBoolean("notifications_scheduled", true).apply();
+        }
     }
 
     // =====================================================
@@ -171,7 +173,6 @@ public class MainActivity extends BaseActivity {
     // =====================================================
 
     private void updateHelloText(FirebaseUser user) {
-
         if (tvHelloMain == null) return;
 
         if (user == null) {
@@ -205,7 +206,6 @@ public class MainActivity extends BaseActivity {
     // =====================================================
 
     private void showMoreDialog() {
-
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         boolean isLoggedIn = (user != null && !user.isAnonymous());
 
@@ -213,7 +213,6 @@ public class MainActivity extends BaseActivity {
         builder.setTitle("עוד");
 
         if (!isLoggedIn) {
-
             String[] options = {
                     "התחברות",
                     "הרשמה",
@@ -239,7 +238,6 @@ public class MainActivity extends BaseActivity {
             });
 
         } else {
-
             String[] options = {
                     "פרופיל",
                     "הקולנוע הקרוב",
