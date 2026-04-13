@@ -10,23 +10,31 @@
         <item name="colorPrimary">#FF1493</item>
         <item name="colorPrimaryVariant">#C51162</item>
         <item name="colorSecondary">#FF1493</item>
+
+        <!-- אנימציה חלקה בין דפים -->
+        <item name="android:windowAnimationStyle">@style/SmoothTransition</item>
     </style>
 
     <!-- ===============================
-         Splash Screen (חייב Theme.SplashScreen)
+         אנימציית מעבר חלקה
+         =============================== -->
+    <style name="SmoothTransition">
+        <item name="android:activityOpenEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:activityOpenExitAnimation">@android:anim/fade_out</item>
+        <item name="android:activityCloseEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:activityCloseExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <!-- ===============================
+         Splash Screen
          =============================== -->
     <style name="Theme.Watchly.Splash"
         parent="Theme.SplashScreen">
 
-        <!-- רקע -->
         <item name="windowSplashScreenBackground">#6A1B9A</item>
         <item name="android:windowBackground">#6A1B9A</item>
-
-        <!-- לוגו -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_watchly</item>
         <item name="windowSplashScreenIconBackgroundColor">#6A1B9A</item>
-
-        <!-- אחרי הספלאש -->
         <item name="postSplashScreenTheme">@style/Base.Theme.FinalProject</item>
     </style>
 

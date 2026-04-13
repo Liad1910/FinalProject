@@ -58,23 +58,27 @@ public class MainActivity extends BaseActivity {
         };
 
         ensureAnonymousIfNeeded();
-
-        // תזמון התראות — עם הגנת דגל
         handleNotificationPermission(auth.getCurrentUser());
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
             if (id == R.id.bnav_home) {
-                // נשארים במסך הבית בלי ליצור Activity חדש
+                // כבר בבית, לא עושים כלום
                 return true;
             }
             if (id == R.id.bnav_movies) {
-                startActivity(new Intent(this, MoviesCategoryActivity.class));
+                Intent i = new Intent(this, MoviesCategoryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
                 return true;
             }
             if (id == R.id.bnav_series) {
-                startActivity(new Intent(this, SeriesCategoryActivity.class));
+                Intent i = new Intent(this, SeriesCategoryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
                 return true;
             }
             if (id == R.id.bnav_more) {
@@ -87,7 +91,6 @@ public class MainActivity extends BaseActivity {
         });
 
         bottomNav.getMenu().setGroupCheckable(0, false, true);
-
         updateHelloText(auth.getCurrentUser());
     }
 
@@ -136,7 +139,6 @@ public class MainActivity extends BaseActivity {
     private void scheduleRemindersIfNeeded(FirebaseUser user) {
         if (user == null || user.isAnonymous()) return;
 
-        // בודקים אם כבר תוזמן בסשן הזה
         SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
         boolean alreadyScheduled = prefs.getBoolean("notifications_scheduled", false);
 
@@ -217,23 +219,17 @@ public class MainActivity extends BaseActivity {
                     "התחברות",
                     "הרשמה",
                     "הקולנוע הקרוב",
-                    "צ'אט"
+                    "צ'אט",
+                    "צור סרט / סדרה"
             };
 
             builder.setItems(options, (dialog, which) -> {
                 switch (which) {
-                    case 0:
-                        startActivity(new Intent(this, loginPage.class));
-                        break;
-                    case 1:
-                        startActivity(new Intent(this, registerPage.class));
-                        break;
-                    case 2:
-                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
-                        break;
-                    case 3:
-                        startActivity(new Intent(this, AiActivity.class));
-                        break;
+                    case 0: startActivity(new Intent(this, loginPage.class)); break;
+                    case 1: startActivity(new Intent(this, registerPage.class)); break;
+                    case 2: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
+                    case 3: startActivity(new Intent(this, AiActivity.class)); break;
+                    case 4: startActivity(new Intent(this, CreateTitleActivity.class)); break;
                 }
             });
 
@@ -242,23 +238,17 @@ public class MainActivity extends BaseActivity {
                     "פרופיל",
                     "הקולנוע הקרוב",
                     "צ'אט",
+                    "צור סרט / סדרה",
                     "התנתקות"
             };
 
             builder.setItems(options, (dialog, which) -> {
                 switch (which) {
-                    case 0:
-                        startActivity(new Intent(this, activity_user_page.class));
-                        break;
-                    case 1:
-                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
-                        break;
-                    case 2:
-                        startActivity(new Intent(this, AiActivity.class));
-                        break;
-                    case 3:
-                        logoutFromBottomMenu();
-                        break;
+                    case 0: startActivity(new Intent(this, activity_user_page.class)); break;
+                    case 1: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
+                    case 2: startActivity(new Intent(this, AiActivity.class)); break;
+                    case 3: startActivity(new Intent(this, CreateTitleActivity.class)); break;
+                    case 4: logoutFromBottomMenu(); break;
                 }
             });
         }
@@ -270,7 +260,9 @@ public class MainActivity extends BaseActivity {
     private void logoutFromBottomMenu() {
         FirebaseAuth.getInstance().signOut();
         Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(this, MainActivity.class));
+        Intent i = new Intent(this, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(i);
         finish();
     }
 }

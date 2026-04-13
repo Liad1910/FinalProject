@@ -110,50 +110,48 @@ public class SeriesCategoryActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    // Bottom Nav setup
-    // =====================================================
+// BottomNav + "עוד"
+// =====================================================
     private void setupBottomNav() {
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
             if (id == R.id.bnav_home) {
-                startActivity(new Intent(this, MainActivity.class));
+                Intent i = new Intent(this, MainActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
                 return true;
             }
-
             if (id == R.id.bnav_movies) {
-                startActivity(new Intent(this, MoviesCategoryActivity.class));
+                Intent i = new Intent(this, MoviesCategoryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
                 return true;
             }
-
             if (id == R.id.bnav_series) {
                 // כבר פה
                 return true;
             }
-
             if (id == R.id.bnav_more) {
                 showMoreDialog();
                 bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
                 return true;
             }
-
             return false;
         });
     }
 
-    // =====================================================
-    // "עוד"
-    // =====================================================
     private void showMoreDialog() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         boolean isLoggedIn = (user != null && !user.isAnonymous());
 
-        androidx.appcompat.app.AlertDialog.Builder builder =
-                new androidx.appcompat.app.AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("עוד");
 
         if (!isLoggedIn) {
-            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט"};
+            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט", "צור סרט / סדרה"};
             builder.setItems(options, (dialog, which) -> {
                 switch (which) {
                     case 0:
@@ -168,10 +166,13 @@ public class SeriesCategoryActivity extends AppCompatActivity {
                     case 3:
                         startActivity(new Intent(this, AiActivity.class));
                         break;
+                    case 4:
+                        startActivity(new Intent(this, CreateTitleActivity.class));
+                        break;
                 }
             });
         } else {
-            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "התנתקות"};
+            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "צור סרט / סדרה", "התנתקות"};
             builder.setItems(options, (dialog, which) -> {
                 switch (which) {
                     case 0:
@@ -181,9 +182,12 @@ public class SeriesCategoryActivity extends AppCompatActivity {
                         startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
                         break;
                     case 2:
-                        startActivity(new Intent(this,AiActivity.class));
+                        startActivity(new Intent(this, AiActivity.class));
                         break;
                     case 3:
+                        startActivity(new Intent(this, CreateTitleActivity.class));
+                        break;
+                    case 4:
                         FirebaseAuth.getInstance().signOut();
                         startActivity(new Intent(this, MainActivity.class));
                         finish();

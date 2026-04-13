@@ -41,7 +41,6 @@ public class activity_user_page extends BaseActivity {
         tvWatchlist = findViewById(R.id.tvWatchlist);
         bottomNav = findViewById(R.id.bottomNav);
 
-        // ===== BottomNav =====
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
@@ -79,7 +78,6 @@ public class activity_user_page extends BaseActivity {
         if (currentUser == null) return;
 
         tvEmail.setText(currentUser.getEmail());
-
         userDocRef = db.collection("users").document(currentUser.getUid());
 
         loadFavorites();
@@ -167,7 +165,7 @@ public class activity_user_page extends BaseActivity {
         builder.setTitle("עוד");
 
         if (!isLoggedIn) {
-            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט"};
+            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט", "צור סרט / סדרה"};
 
             builder.setItems(options, (dialog, which) -> {
                 switch (which) {
@@ -175,18 +173,20 @@ public class activity_user_page extends BaseActivity {
                     case 1: startActivity(new Intent(this, registerPage.class)); break;
                     case 2: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
                     case 3: startActivity(new Intent(this, AiActivity.class)); break;
+                    case 4: startActivity(new Intent(this, CreateTitleActivity.class)); break;
                 }
             });
 
         } else {
-            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "התנתקות"};
+            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "צור סרט / סדרה", "התנתקות"};
 
             builder.setItems(options, (dialog, which) -> {
                 switch (which) {
                     case 0: startActivity(new Intent(this, activity_user_page.class)); break;
                     case 1: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
                     case 2: startActivity(new Intent(this, AiActivity.class)); break;
-                    case 3:
+                    case 3: startActivity(new Intent(this, CreateTitleActivity.class)); break;
+                    case 4:
                         FirebaseAuth.getInstance().signOut();
                         Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(this, MainActivity.class));

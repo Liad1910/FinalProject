@@ -30,4 +30,9 @@
         android:title="צ'אט"
         android:icon="@android:drawable/ic_dialog_email"/>
 
+    <item
+        android:id="@+id/more_create"
+        android:title="צור סרט / סדרה"
+        android:icon="@android:drawable/ic_menu_add"/>
+
 </menu>
