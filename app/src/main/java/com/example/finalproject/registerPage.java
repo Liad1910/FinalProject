@@ -1,42 +1,43 @@
 package com.example.finalproject;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Spinner;
 import android.widget.ArrayAdapter;
-import android.content.Intent;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.FirebaseApp;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class registerPage extends AppCompatActivity {
 
-    EditText eTEmail, eTPass, eTUsername, eTBirthYear, eTMovie, eTSeries;
+    EditText eTEmail, eTPass, eTUsername, eTBirthYear;
     Spinner spGenre;
     TextView tVMsg;
     FirebaseFirestore db;
     FirebaseAuth mAuth;
+    BottomNavigationView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register_page);
 
         FirebaseApp.initializeApp(this);
@@ -50,37 +51,104 @@ public class registerPage extends AppCompatActivity {
         eTBirthYear = findViewById(R.id.eTBirthYear);
         spGenre = findViewById(R.id.spGenre);
         tVMsg = findViewById(R.id.tVMsg);
+        bottomNav = findViewById(R.id.bottomNav);
 
-        // Spinner - 6 ז'אנרים
         String[] genres = {
                 "Choose favorite genre",
-                "Action",
-                "Comedy",
-                "Drama",
-                "Horror",
-                "Romance",
-                "Sci-Fi"
+                "Action", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi"
         };
-
         ArrayAdapter<String> genreAdapter =
                 new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, genres);
         genreAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spGenre.setAdapter(genreAdapter);
+
+        setupBottomNav();
+    }
+
+    private void setupBottomNav() {
+        bottomNav.getMenu().setGroupCheckable(0, false, true);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.bnav_home) {
+                Intent i = new Intent(this, MainActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
+                return true;
+            }
+            if (id == R.id.bnav_movies) {
+                Intent i = new Intent(this, MoviesCategoryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
+                return true;
+            }
+            if (id == R.id.bnav_series) {
+                Intent i = new Intent(this, SeriesCategoryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
+                return true;
+            }
+            if (id == R.id.bnav_more) {
+                showMoreDialog();
+                bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void showMoreDialog() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        boolean isLoggedIn = (user != null && !user.isAnonymous());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("עוד");
+
+        if (!isLoggedIn) {
+            String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט", "צור סרט / סדרה"};
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0: startActivity(new Intent(this, loginPage.class)); break;
+                    case 1: return; // כבר פה
+                    case 2: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
+                    case 3: startActivity(new Intent(this, AiActivity.class)); break;
+                    case 4: startActivity(new Intent(this, CreateTitleActivity.class)); break;
+                }
+            });
+        } else {
+            String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "צור סרט / סדרה", "התנתקות"};
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0: startActivity(new Intent(this, activity_user_page.class)); break;
+                    case 1: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
+                    case 2: startActivity(new Intent(this, AiActivity.class)); break;
+                    case 3: startActivity(new Intent(this, CreateTitleActivity.class)); break;
+                    case 4:
+                        FirebaseAuth.getInstance().signOut();
+                        Intent i = new Intent(this, MainActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(i);
+                        finish();
+                        break;
+                }
+            });
+        }
+        builder.setNegativeButton("סגור", null);
+        builder.show();
     }
 
     public void createUser(View view) {
-
         String email = eTEmail.getText().toString().trim();
         String pass = eTPass.getText().toString().trim();
         String username = eTUsername.getText().toString().trim();
         String birthYear = eTBirthYear.getText().toString().trim();
-
         String genre = spGenre.getSelectedItem().toString();
 
-        // בדיקות שדות
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) ||
-                TextUtils.isEmpty(username) || TextUtils.isEmpty(birthYear) )
-             {
+                TextUtils.isEmpty(username) || TextUtils.isEmpty(birthYear)) {
             tVMsg.setText("Please fill all fields");
             return;
         }
@@ -103,7 +171,6 @@ public class registerPage extends AppCompatActivity {
 
         mAuth.createUserWithEmailAndPassword(email, pass)
                 .addOnSuccessListener((AuthResult result) -> {
-
                     FirebaseUser user = result.getUser();
                     if (user == null) {
                         pd.dismiss();
@@ -120,17 +187,12 @@ public class registerPage extends AppCompatActivity {
                     map.put("birthYear", birthYear);
                     map.put("favoriteGenre", genre);
 
-                    db.collection("users").document(uid)
-                            .set(map)
+                    db.collection("users").document(uid).set(map)
                             .addOnSuccessListener(aVoid -> {
                                 pd.dismiss();
                                 tVMsg.setText("User created!");
-
-                                // מעבר למיין אחרי שהפרופיל נשמר
                                 Intent intent = new Intent(registerPage.this, MainActivity.class);
-                                // לנקות את הסטאק כדי שלא יהיה אפשר BACK להרשמה
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                                        Intent.FLAG_ACTIVITY_NEW_TASK);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
                                 finish();
                             })
