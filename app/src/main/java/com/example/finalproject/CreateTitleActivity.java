@@ -72,6 +72,19 @@ public class CreateTitleActivity extends BaseActivity {
         btnCreate = findViewById(R.id.btnCreateTitle);
         bottomNav = findViewById(R.id.bottomNav);
 
+        // =====================================================
+        // תיקון RadioButton — רק אחד דלוק בכל פעם
+        // =====================================================
+        rbMovie.setOnClickListener(v -> {
+            rbMovie.setChecked(true);
+            rbSeries.setChecked(false);
+        });
+
+        rbSeries.setOnClickListener(v -> {
+            rbSeries.setChecked(true);
+            rbMovie.setChecked(false);
+        });
+
         setupBottomNav();
         bottomNav.getMenu().setGroupCheckable(0, false, true);
 
@@ -104,9 +117,7 @@ public class CreateTitleActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return false;
-    }
+    public boolean onCreateOptionsMenu(Menu menu) { return false; }
 
     // =====================================================
     // BottomNav
@@ -160,7 +171,7 @@ public class CreateTitleActivity extends BaseActivity {
                     case 1: startActivity(new Intent(this, registerPage.class)); break;
                     case 2: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
                     case 3: startActivity(new Intent(this, AiActivity.class)); break;
-                    case 4: return;
+                    case 4: return; // כבר פה
                 }
             });
         } else {
@@ -170,7 +181,7 @@ public class CreateTitleActivity extends BaseActivity {
                     case 0: startActivity(new Intent(this, activity_user_page.class)); break;
                     case 1: startActivity(new Intent(this, NearbyCinemaFreeActivity.class)); break;
                     case 2: startActivity(new Intent(this, AiActivity.class)); break;
-                    case 3: return;
+                    case 3: return; // כבר פה
                     case 4:
                         FirebaseAuth.getInstance().signOut();
                         Intent i = new Intent(this, MainActivity.class);
@@ -212,7 +223,6 @@ public class CreateTitleActivity extends BaseActivity {
         String titleId = buildTitleId(type, title, year);
         Integer finalYear = year;
 
-        // ===== בדיקה ב־TMDB לפני השמירה =====
         Toast.makeText(this, "בודקת אם קיים ב־TMDB... 🔍", Toast.LENGTH_SHORT).show();
         verifyOnTmdb(type, title, year, exists -> {
             if (!exists) {
@@ -222,7 +232,6 @@ public class CreateTitleActivity extends BaseActivity {
                 return;
             }
 
-            // קיים — בודקים אם כבר במסד
             db.collection("titles").document(titleId).get()
                     .addOnSuccessListener(doc -> {
                         if (doc.exists()) {
@@ -252,14 +261,12 @@ public class CreateTitleActivity extends BaseActivity {
                         && response.body() != null
                         && response.body().results != null
                         && !response.body().results.isEmpty();
-
                 runOnUiThread(() -> callback.onResult(found));
             }
 
             @Override
             public void onFailure(@NonNull Call<TmdbSearchResponse> call, @NonNull Throwable t) {
                 Log.e("TMDB", "verify failure", t);
-                // אם TMDB לא זמין — נאפשר להמשיך בכל זאת
                 runOnUiThread(() -> callback.onResult(true));
             }
         });

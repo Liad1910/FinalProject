@@ -122,16 +122,7 @@
                             android:textColor="#2B2B2B"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Stay connected -->
-                    <CheckBox
-                        android:id="@+id/cbStayConnect"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="השאר אותי מחובר"
-                        android:textColor="#2B2B2B"
-                        android:buttonTint="#FF1493"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="6dp"/>
+
 
                     <!-- Message -->
                     <TextView

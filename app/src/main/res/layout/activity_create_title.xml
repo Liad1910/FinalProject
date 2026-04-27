@@ -16,49 +16,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Title -->
+            <!-- Header -->
             <TextView
-                android:id="@+id/tvCreateTitle"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Create Movie / Series"
-                android:textSize="26sp"
+                android:text="🎬 הוספת כותרת"
+                android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="#1F1F1F"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:textColor="#2B2B2B"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"/>
 
             <TextView
-                android:id="@+id/tvCreateSubtitle"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="הוסיפי כותרת חדשה, בחרי סוג וז׳אנר — ונביא פוסטר אוטומטית 💖"
-                android:textSize="14sp"
+                android:text="הוסיפי סרט או סדרה — הפוסטר יובא אוטומטית 💖"
+                android:textSize="13sp"
                 android:textColor="#6B6B6B"
-                android:layout_marginTop="6dp"
-                app:layout_constraintTop_toBottomOf="@id/tvCreateTitle"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:layout_marginBottom="16dp"/>
 
-            <!-- Card -->
+            <!-- Card ראשי -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardCreate"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="10dp"
+                app:cardElevation="6dp"
                 app:strokeWidth="1dp"
                 app:strokeColor="#33FF69B4"
-                app:layout_constraintTop_toBottomOf="@id/tvCreateSubtitle"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:layout_marginBottom="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -66,17 +57,18 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Name -->
+                    <!-- שם -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="שם סרט / סדרה"
+                        android:layout_marginBottom="10dp"
                         app:boxBackgroundMode="filled"
                         app:boxBackgroundColor="#FFF0F6"
-                        app:boxCornerRadiusTopStart="18dp"
-                        app:boxCornerRadiusTopEnd="18dp"
-                        app:boxCornerRadiusBottomStart="18dp"
-                        app:boxCornerRadiusBottomEnd="18dp"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
                         app:startIconDrawable="@android:drawable/ic_menu_edit"
                         app:startIconTint="#FF1493">
 
@@ -85,22 +77,21 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textColor="#1F1F1F"
-                            android:textColorHint="#7A7A7A"
-                            android:singleLine="true" />
+                            android:singleLine="true"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Year -->
+                    <!-- שנה -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
                         android:hint="שנה (רשות) – לדוגמה: 2020"
+                        android:layout_marginBottom="16dp"
                         app:boxBackgroundMode="filled"
                         app:boxBackgroundColor="#FFF0F6"
-                        app:boxCornerRadiusTopStart="18dp"
-                        app:boxCornerRadiusTopEnd="18dp"
-                        app:boxCornerRadiusBottomStart="18dp"
-                        app:boxCornerRadiusBottomEnd="18dp"
+                        app:boxCornerRadiusTopStart="14dp"
+                        app:boxCornerRadiusTopEnd="14dp"
+                        app:boxCornerRadiusBottomStart="14dp"
+                        app:boxCornerRadiusBottomEnd="14dp"
                         app:startIconDrawable="@android:drawable/ic_menu_today"
                         app:startIconTint="#FF1493">
 
@@ -110,133 +101,144 @@
                             android:layout_height="wrap_content"
                             android:inputType="number"
                             android:textColor="#1F1F1F"
-                            android:textColorHint="#7A7A7A"
-                            android:singleLine="true" />
+                            android:singleLine="true"/>
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Type -->
+                    <!-- סוג -->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="סוג"
                         android:textStyle="bold"
-                        android:textColor="#1F1F1F"
-                        android:layout_marginTop="14dp"
-                        android:layout_marginBottom="6dp" />
+                        android:textColor="#2B2B2B"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="8dp"/>
 
-                    <com.google.android.material.card.MaterialCardView
+                    <RadioGroup
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:cardCornerRadius="18dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#1A000000">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
 
-                        <RadioGroup
-                            android:layout_width="match_parent"
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:padding="10dp">
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="#FF1493"
+                            app:cardBackgroundColor="#FFF0F6">
 
                             <RadioButton
                                 android:id="@+id/rbMovie"
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:checked="true"
-                                android:text="Movie"
+                                android:text="🎬 Movie"
                                 android:textStyle="bold"
-                                android:textColor="#1F1F1F"
-                                android:buttonTint="#FF1493" />
+                                android:textColor="#FF1493"
+                                android:gravity="center"
+                                android:padding="12dp"
+                                android:buttonTint="#FF1493"/>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="#7C3AED"
+                            app:cardBackgroundColor="#F5F0FF">
 
                             <RadioButton
                                 android:id="@+id/rbSeries"
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Series"
+                                android:text="📺 Series"
                                 android:textStyle="bold"
-                                android:textColor="#1F1F1F"
-                                android:buttonTint="#7C3AED" />
-                        </RadioGroup>
-                    </com.google.android.material.card.MaterialCardView>
+                                android:textColor="#7C3AED"
+                                android:gravity="center"
+                                android:padding="12dp"
+                                android:buttonTint="#7C3AED"/>
+                        </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Genre -->
+                    </RadioGroup>
+
+                    <!-- ז'אנר -->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="ז׳אנר"
                         android:textStyle="bold"
-                        android:textColor="#1F1F1F"
-                        android:layout_marginTop="14dp"
-                        android:layout_marginBottom="6dp" />
+                        android:textColor="#2B2B2B"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="8dp"/>
 
-                    <com.google.android.material.textfield.TextInputLayout
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:boxBackgroundMode="filled"
-                        app:boxBackgroundColor="#FFF0F6"
-                        app:boxCornerRadiusTopStart="18dp"
-                        app:boxCornerRadiusTopEnd="18dp"
-                        app:boxCornerRadiusBottomStart="18dp"
-                        app:boxCornerRadiusBottomEnd="18dp"
-                        app:startIconDrawable="@android:drawable/ic_menu_sort_by_size"
-                        app:startIconTint="#FF1493"
-                        app:endIconMode="dropdown_menu"
-                        android:hint="בחרי ז׳אנר">
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#DDDDDD"
+                        app:cardBackgroundColor="#FFF0F6"
+                        android:layout_marginBottom="10dp">
 
                         <Spinner
                             android:id="@+id/spGenre"
                             android:layout_width="match_parent"
                             android:layout_height="52dp"
                             android:entries="@array/genres_array"
-                            android:background="@android:color/transparent" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:padding="12dp"
+                            android:background="@android:color/transparent"/>
+                    </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Selected Genre -->
+                    <!-- ז'אנר שנבחר -->
                     <TextView
                         android:id="@+id/tvSelectedGenre"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         android:text="Genre: לא נבחר"
                         android:textStyle="bold"
                         android:textColor="#7C3AED"
-                        android:background="#FFF0F6" />
+                        android:textSize="13sp"
+                        android:background="#F5F0FF"
+                        android:layout_marginBottom="16dp"/>
 
-                    <!-- Button -->
+                    <!-- כפתור -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCreateTitle"
                         android:layout_width="match_parent"
                         android:layout_height="54dp"
-                        android:layout_marginTop="16dp"
-                        android:text="Create / Open"
+                        android:text="✅ Create / Open"
                         android:textAllCaps="false"
                         android:textStyle="bold"
+                        android:textSize="16sp"
                         android:textColor="@android:color/white"
                         android:backgroundTint="#FF1493"
-                        app:cornerRadius="18dp"
-                        app:icon="@android:drawable/ic_menu_add"
-                        app:iconGravity="textStart"
-                        app:iconPadding="10dp" />
+                        app:cornerRadius="18dp"/>
 
-                    <!-- Tip -->
+                    <!-- טיפ -->
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="טיפ: אפשר להשאיר שנה ריקה 🙂"
-                        android:textColor="#6B6B6B"
-                        android:textAlignment="center"
-                        android:layout_marginTop="12dp" />
+                        android:text="💡 אפשר להשאיר שנה ריקה"
+                        android:textColor="#9B9B9B"
+                        android:textSize="12sp"
+                        android:gravity="center"
+                        android:layout_marginTop="10dp"/>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Nav -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="0dp"

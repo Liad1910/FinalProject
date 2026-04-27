@@ -40,7 +40,7 @@ public class loginPage extends AppCompatActivity {
         eTEmail = findViewById(R.id.eTEmail);
         eTPass = findViewById(R.id.eTPass);
         tVMsg = findViewById(R.id.tVMsg);
-        cbStayConnect = findViewById(R.id.cbStayConnect);
+
         bottomNav = findViewById(R.id.bottomNav);
 
         setupBottomNav();

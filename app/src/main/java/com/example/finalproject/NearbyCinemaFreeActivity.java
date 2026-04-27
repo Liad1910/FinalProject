@@ -37,6 +37,7 @@ import org.osmdroid.views.overlay.Marker;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -50,30 +51,28 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
 
     private MapView map;
     private FusedLocationProviderClient fusedLocationClient;
-
     private BottomNavigationView bottomNav;
 
-    private static final MediaType PLAIN_TEXT =
-            MediaType.get("text/plain; charset=utf-8");
+    private static final MediaType PLAIN_TEXT = MediaType.get("text/plain; charset=utf-8");
 
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build();
 
     private final List<Marker> cinemaMarkers = new ArrayList<>();
     private Marker myLocationMarker;
 
-    // ============== Permissions launcher ==============
     private final ActivityResultLauncher<String[]> locationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-
                 boolean fine = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_FINE_LOCATION));
                 boolean coarse = Boolean.TRUE.equals(result.get(Manifest.permission.ACCESS_COARSE_LOCATION));
 
                 if (fine || coarse) {
                     fetchCurrentLocationAndLoadCinemas();
                 } else {
-                    Toast.makeText(this,
-                            "בלי הרשאת מיקום אי אפשר לטעון קולנועים לידך",
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "בלי הרשאת מיקום אי אפשר לטעון קולנועים לידך", Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -81,51 +80,36 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ❌ להסתיר תפריט עליון
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
-        }
+        if (getSupportActionBar() != null) getSupportActionBar().hide();
 
-        // חשוב ל-OSMDroid כדי לא להיחסם
-        Configuration.getInstance().setUserAgentValue(getPackageName());
+        // ===== User Agent תקין =====
+        Configuration.getInstance().setUserAgentValue("Watchly/1.0 (Android)");
 
         setContentView(R.layout.activity_nearby_cinema_free);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // ===== BottomNav =====
         bottomNav = findViewById(R.id.bottomNav);
         setupBottomNav();
-        // לא מסמנים כלום כי זה תחת "עוד"
         bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
 
-        // Map init
         map = findViewById(R.id.osmMap);
         if (map != null) {
             map.setTileSource(TileSourceFactory.MAPNIK);
             map.setMultiTouchControls(true);
-
-            // ברירת מחדל עד שמקבלים מיקום
-            GeoPoint center = new GeoPoint(32.0853, 34.7818);
             map.getController().setZoom(12.0);
-            map.getController().setCenter(center);
+            map.getController().setCenter(new GeoPoint(32.0853, 34.7818));
         }
 
-        // טוען אוטומטית לפי מיקום אמיתי
         ensureLocationPermissionThenLoad();
     }
 
-    // =====================================================
-    // מונע יצירת תפריט עליון (overflow)
-    // =====================================================
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return false;
-    }
+    public boolean onCreateOptionsMenu(Menu menu) { return false; }
 
     // =====================================================
-// BottomNav + "עוד"
-// =====================================================
+    // BottomNav
+    // =====================================================
     private void setupBottomNav() {
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -171,54 +155,38 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
             String[] options = {"התחברות", "הרשמה", "הקולנוע הקרוב", "צ'אט", "צור סרט / סדרה"};
             builder.setItems(options, (dialog, which) -> {
                 switch (which) {
-                    case 0:
-                        startActivity(new Intent(this, loginPage.class));
-                        break;
-                    case 1:
-                        startActivity(new Intent(this, registerPage.class));
-                        break;
-                    case 2:
-                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
-                        break;
-                    case 3:
-                        startActivity(new Intent(this, AiActivity.class));
-                        break;
-                    case 4:
-                        startActivity(new Intent(this, CreateTitleActivity.class));
-                        break;
+                    case 0: startActivity(new Intent(this, loginPage.class)); break;
+                    case 1: startActivity(new Intent(this, registerPage.class)); break;
+                    case 2: return; // כבר פה
+                    case 3: startActivity(new Intent(this, AiActivity.class)); break;
+                    case 4: startActivity(new Intent(this, CreateTitleActivity.class)); break;
                 }
             });
         } else {
             String[] options = {"פרופיל", "הקולנוע הקרוב", "צ'אט", "צור סרט / סדרה", "התנתקות"};
             builder.setItems(options, (dialog, which) -> {
                 switch (which) {
-                    case 0:
-                        startActivity(new Intent(this, activity_user_page.class));
-                        break;
-                    case 1:
-                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
-                        break;
-                    case 2:
-                        startActivity(new Intent(this, AiActivity.class));
-                        break;
-                    case 3:
-                        startActivity(new Intent(this, CreateTitleActivity.class));
-                        break;
+                    case 0: startActivity(new Intent(this, activity_user_page.class)); break;
+                    case 1: return; // כבר פה
+                    case 2: startActivity(new Intent(this, AiActivity.class)); break;
+                    case 3: startActivity(new Intent(this, CreateTitleActivity.class)); break;
                     case 4:
                         FirebaseAuth.getInstance().signOut();
-                        startActivity(new Intent(this, MainActivity.class));
+                        Intent i = new Intent(this, MainActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(i);
                         finish();
                         break;
                 }
             });
         }
-
         builder.setNegativeButton("סגור", null);
         builder.show();
     }
-    // =========================
+
+    // =====================================================
     // Permission + location
-    // =========================
+    // =====================================================
     private void ensureLocationPermissionThenLoad() {
         boolean fineGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
@@ -254,7 +222,7 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
             return;
         }
 
-        Toast.makeText(this, "מביא מיקום אמיתי...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "מביא מיקום...", Toast.LENGTH_SHORT).show();
 
         CancellationTokenSource cts = new CancellationTokenSource();
         CurrentLocationRequest req = new CurrentLocationRequest.Builder()
@@ -264,9 +232,7 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
         fusedLocationClient.getCurrentLocation(req, cts.getToken())
                 .addOnSuccessListener(location -> {
                     if (location == null) {
-                        Toast.makeText(this,
-                                "לא הצלחתי להביא מיקום. נסי לצאת החוצה/להפעיל GPS.",
-                                Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "לא הצלחתי להביא מיקום. נסי להפעיל GPS.", Toast.LENGTH_LONG).show();
                         return;
                     }
 
@@ -276,70 +242,61 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
                     GeoPoint me = new GeoPoint(lat, lon);
                     map.getController().setZoom(14.5);
                     map.getController().setCenter(me);
-
                     showOrUpdateMyLocationMarker(me);
 
                     Toast.makeText(this, "טוען קולנועים לידך...", Toast.LENGTH_SHORT).show();
                     loadCinemasFromOverpass(lat, lon, 7000);
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this,
-                                "שגיאה בקבלת מיקום: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show()
-                );
+                        Toast.makeText(this, "שגיאה בקבלת מיקום: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 
     private void showOrUpdateMyLocationMarker(GeoPoint me) {
         if (map == null) return;
-
         if (myLocationMarker == null) {
             myLocationMarker = new Marker(map);
             myLocationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             myLocationMarker.setTitle("📍 המיקום שלי");
             map.getOverlays().add(myLocationMarker);
         }
-
         myLocationMarker.setPosition(me);
         map.invalidate();
     }
 
+    // =====================================================
+    // Overpass
+    // =====================================================
     private void loadCinemasFromOverpass(double lat, double lon, int radiusMeters) {
         clearCinemaMarkers();
 
-        String query =
-                "[out:json][timeout:25];" +
-                        "(" +
-                        "  node[amenity=cinema](around:" + radiusMeters + "," + lat + "," + lon + ");" +
-                        "  way[amenity=cinema](around:" + radiusMeters + "," + lat + "," + lon + ");" +
-                        "  relation[amenity=cinema](around:" + radiusMeters + "," + lat + "," + lon + ");" +
-                        ");" +
-                        "out center tags;";
+        String query = "[out:json][timeout:30];" +
+                "node[amenity=cinema](around:" + radiusMeters + "," + lat + "," + lon + ");" +
+                "out body;";
 
+        // ===== User Agent תקין למניעת שגיאה 406 =====
         Request request = new Request.Builder()
                 .url("https://overpass-api.de/api/interpreter")
+                .header("User-Agent", "Watchly/1.0 (Android)")
                 .post(RequestBody.create(query, PLAIN_TEXT))
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
-
             @Override
             public void onFailure(Call call, IOException e) {
                 runOnUiThread(() ->
                         Toast.makeText(NearbyCinemaFreeActivity.this,
-                                "נכשל לטעון קולנועים (בדקי אינטרנט)",
+                                "נכשל לטעון קולנועים — בדקי אינטרנט",
                                 Toast.LENGTH_LONG).show());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-
-                String txt = (response.body() != null) ? response.body().string() : "";
+                String txt = response.body() != null ? response.body().string() : "";
 
                 if (!response.isSuccessful()) {
-                    String shortBody = txt.length() > 200 ? txt.substring(0, 200) : txt;
                     runOnUiThread(() ->
                             Toast.makeText(NearbyCinemaFreeActivity.this,
-                                    "Overpass error: " + response.code() + "\n" + shortBody,
+                                    "שגיאה מהשרת: " + response.code(),
                                     Toast.LENGTH_LONG).show());
                     return;
                 }
@@ -347,29 +304,21 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
                 try {
                     JSONObject root = new JSONObject(txt);
                     JSONArray elements = root.getJSONArray("elements");
-
                     int added = 0;
 
                     for (int i = 0; i < elements.length(); i++) {
                         JSONObject el = elements.getJSONObject(i);
 
-                        double clat, clon;
+                        if (!el.has("lat") || !el.has("lon")) continue;
 
-                        if (el.has("lat") && el.has("lon")) {
-                            clat = el.getDouble("lat");
-                            clon = el.getDouble("lon");
-                        } else if (el.has("center")) {
-                            JSONObject c = el.getJSONObject("center");
-                            clat = c.getDouble("lat");
-                            clon = c.getDouble("lon");
-                        } else {
-                            continue;
-                        }
+                        double clat = el.getDouble("lat");
+                        double clon = el.getDouble("lon");
 
-                        String name = "Cinema";
+                        String name = "קולנוע";
                         if (el.has("tags")) {
                             JSONObject tags = el.getJSONObject("tags");
-                            if (tags.has("name")) name = tags.getString("name");
+                            if (tags.has("name:he")) name = tags.getString("name:he");
+                            else if (tags.has("name")) name = tags.getString("name");
                         }
 
                         final double fLat = clat;
@@ -381,12 +330,17 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
                     }
 
                     final int finalAdded = added;
-
                     runOnUiThread(() -> {
                         if (map != null) map.invalidate();
-                        Toast.makeText(NearbyCinemaFreeActivity.this,
-                                "סימנתי " + finalAdded + " קולנועים ✅ (לחצי על אחד)",
-                                Toast.LENGTH_LONG).show();
+                        if (finalAdded == 0) {
+                            Toast.makeText(NearbyCinemaFreeActivity.this,
+                                    "לא נמצאו קולנועים בקרבתך 😕",
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(NearbyCinemaFreeActivity.this,
+                                    "נמצאו " + finalAdded + " קולנועים ✅ לחצי על סימן",
+                                    Toast.LENGTH_LONG).show();
+                        }
                     });
 
                 } catch (Exception e) {
@@ -409,17 +363,14 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
 
         m.setOnMarkerClickListener((marker, mapView) -> {
             new AlertDialog.Builder(NearbyCinemaFreeActivity.this)
-                    .setTitle(name)
+                    .setTitle("🎬 " + name)
                     .setMessage("מה תרצי לעשות?")
-                    .setPositiveButton("🎬 סרטים שמוקרנים עכשיו", (d, which) ->
-                            openGoogleSearch(name + " showtimes")
-                    )
-                    .setNeutralButton("📍 פתח בגוגל מפות", (d, which) ->
-                            openGoogleMapsAt(lat, lon, name)
-                    )
+                    .setPositiveButton("🎬 סרטים שמוקרנים", (d, which) ->
+                            openGoogleSearch(name + " showtimes"))
+                    .setNeutralButton("📍 גוגל מפות", (d, which) ->
+                            openGoogleMapsAt(lat, lon, name))
                     .setNegativeButton("סגור", null)
                     .show();
-
             return true;
         });
 
@@ -429,9 +380,7 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
 
     private void clearCinemaMarkers() {
         if (map == null) return;
-        for (Marker m : cinemaMarkers) {
-            map.getOverlays().remove(m);
-        }
+        for (Marker m : cinemaMarkers) map.getOverlays().remove(m);
         cinemaMarkers.clear();
         map.invalidate();
     }
@@ -439,15 +388,12 @@ public class NearbyCinemaFreeActivity extends AppCompatActivity {
     private void openGoogleMapsAt(double lat, double lon, String label) {
         Uri uri = Uri.parse("geo:" + lat + "," + lon + "?q=" +
                 lat + "," + lon + "(" + Uri.encode(label) + ")");
-
         Intent i = new Intent(Intent.ACTION_VIEW, uri);
         i.setPackage("com.google.android.apps.maps");
-
         try {
             startActivity(i);
         } catch (ActivityNotFoundException e) {
-            Uri web = Uri.parse("https://www.google.com/maps/search/?api=1&query=" +
-                    lat + "," + lon);
+            Uri web = Uri.parse("https://www.google.com/maps/search/?api=1&query=" + lat + "," + lon);
             startActivity(new Intent(Intent.ACTION_VIEW, web));
         }
     }

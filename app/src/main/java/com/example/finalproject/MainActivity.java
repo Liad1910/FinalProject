@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -33,11 +34,9 @@ public class MainActivity extends BaseActivity {
     private FirebaseAuth.AuthStateListener authStateListener;
     private FirebaseFirestore db;
 
-    // כרטיסים
     private MaterialCardView cardGuest, cardStats, cardFavorites, cardWatchlist;
     private MaterialButton btnLoginGuest, btnRegisterGuest;
 
-    // סטטיסטיקה
     private TextView tvFavCount, tvWatchlistCount, tvReviewsCount;
     private TextView tvFavoritesList, tvWatchlistList;
 
@@ -54,7 +53,10 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setPageContent(R.layout.activity_main);
 
+        // הסתרת ActionBar ו-Toolbar של BaseActivity
         if (getSupportActionBar() != null) getSupportActionBar().hide();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) toolbar.setVisibility(View.GONE);
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -117,8 +119,17 @@ public class MainActivity extends BaseActivity {
         });
 
         bottomNav.getMenu().setGroupCheckable(0, false, true);
-        updateHelloText(auth.getCurrentUser());
-        updateUI(auth.getCurrentUser());
+    }
+
+    // =====================================================
+    // onResume — מתרענן בכל חזרה למסך
+    // =====================================================
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FirebaseUser user = auth.getCurrentUser();
+        updateHelloText(user);
+        updateUI(user);
     }
 
     // =====================================================
@@ -149,7 +160,6 @@ public class MainActivity extends BaseActivity {
                 .get()
                 .addOnSuccessListener(snap -> {
                     tvFavCount.setText(String.valueOf(snap.size()));
-
                     StringBuilder sb = new StringBuilder();
                     for (DocumentSnapshot doc : snap.getDocuments()) {
                         String title = doc.getString("title");
@@ -164,7 +174,6 @@ public class MainActivity extends BaseActivity {
                 .get()
                 .addOnSuccessListener(snap -> {
                     tvWatchlistCount.setText(String.valueOf(snap.size()));
-
                     StringBuilder sb = new StringBuilder();
                     for (DocumentSnapshot doc : snap.getDocuments()) {
                         String title = doc.getString("title");
@@ -174,8 +183,8 @@ public class MainActivity extends BaseActivity {
                     tvWatchlistList.setText(sb.length() > 0 ? sb.toString().trim() : "(אין ברשימת צפייה עדיין)");
                 });
 
-        // ביקורות — סופרים ביקורות שהמשתמש כתב
-        db.collectionGroup("reviews")
+        // ביקורות
+        db.collection("reviews")
                 .whereEqualTo("userId", uid)
                 .get()
                 .addOnSuccessListener(snap -> tvReviewsCount.setText(String.valueOf(snap.size())))
@@ -232,11 +241,7 @@ public class MainActivity extends BaseActivity {
     private void ensureAnonymousIfNeeded() {
         if (auth.getCurrentUser() == null) {
             auth.signInAnonymously().addOnCompleteListener(this, task -> {
-                if (!task.isSuccessful()) {
-                    String msg = task.getException() != null
-                            ? task.getException().getMessage() : "unknown error";
-                    Toast.makeText(this, "כניסה אנונימית נכשלה: " + msg, Toast.LENGTH_LONG).show();
-                }
+                // אין הודעה למשתמש
             });
         }
     }
