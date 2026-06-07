@@ -40,12 +40,12 @@
 
                     <!-- EMAIL -->
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:text="Email"
                         android:textStyle="bold"
                         android:textColor="#2B2B2B"
-                        android:textSize="14sp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textSize="14sp" />
 
                     <TextView
                         android:id="@+id/tvEmail"
@@ -54,7 +54,8 @@
                         android:background="#FFF0F6"
                         android:padding="12dp"
                         android:layout_marginTop="6dp"
-                        android:textColor="#2B2B2B"/>
+                        android:text="Email: -"
+                        android:textColor="#2B2B2B" />
 
                     <!-- USERNAME -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -68,7 +69,7 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etUsername"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- BIRTH YEAR -->
@@ -84,7 +85,7 @@
                             android:id="@+id/etBirthYear"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="number"/>
+                            android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- FAVORITE MOVIE -->
@@ -99,7 +100,22 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etMovie"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- FAVORITE GENRE -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="Favorite genre"
+                        app:boxBackgroundMode="filled"
+                        app:boxBackgroundColor="#FFF0F6">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etFavoriteGenre"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- FAVORITES LIST -->
@@ -109,7 +125,7 @@
                         android:text="מועדפים"
                         android:textStyle="bold"
                         android:layout_marginTop="20dp"
-                        android:textColor="#2B2B2B"/>
+                        android:textColor="#2B2B2B" />
 
                     <TextView
                         android:id="@+id/tvFavorites"
@@ -118,7 +134,7 @@
                         android:background="#FFF0F6"
                         android:padding="12dp"
                         android:layout_marginTop="8dp"
-                        android:text="(אין מועדפים עדיין)"/>
+                        android:text="(אין מועדפים עדיין)" />
 
                     <!-- WATCHLIST -->
                     <TextView
@@ -127,7 +143,7 @@
                         android:text="רשימת צפייה"
                         android:textStyle="bold"
                         android:layout_marginTop="20dp"
-                        android:textColor="#2B2B2B"/>
+                        android:textColor="#2B2B2B" />
 
                     <TextView
                         android:id="@+id/tvWatchlist"
@@ -136,7 +152,7 @@
                         android:background="#FFF0F6"
                         android:padding="12dp"
                         android:layout_marginTop="8dp"
-                        android:text="(אין ברשימת צפייה עדיין)"/>
+                        android:text="(אין ברשימת צפייה עדיין)" />
 
                     <!-- MESSAGE -->
                     <TextView
@@ -144,7 +160,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:textColor="#D7263D"/>
+                        android:textColor="#D7263D" />
 
                     <!-- SAVE BUTTON -->
                     <com.google.android.material.button.MaterialButton
@@ -154,7 +170,7 @@
                         android:text="Save"
                         android:layout_marginTop="16dp"
                         android:textColor="@android:color/white"
-                        android:backgroundTint="#FF1493"/>
+                        android:backgroundTint="#FF1493" />
 
                 </LinearLayout>
 
@@ -172,6 +188,7 @@
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -470,7 +470,7 @@ public class AiActivity extends AppCompatActivity {
     }
 
     private void fetchFromTmdbByGenre(String genreLabel, int limit, ListCb ok, ErrCb bad) {
-        String apiKey = BuildConfig.TMDB_API_KEY;
+        String apiKey = "ce829465ca9e4f15441987a1f3624293";
         if (apiKey == null || apiKey.trim().isEmpty()) { bad.onErr("TMDB_API_KEY ריק"); return; }
 
         int genreId = tmdbGenreIdFor(genreLabel);

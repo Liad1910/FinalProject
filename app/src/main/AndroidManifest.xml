@@ -10,8 +10,6 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
-
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -20,7 +18,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Base.Theme.FinalProject">
+        android:theme="@style/Base.Theme.FinalProject"
+        tools:targetApi="31">
 
         <!-- Receiver לרשת -->
         <receiver
@@ -34,55 +33,66 @@
         <!-- Activities -->
         <activity
             android:name=".NearbyCinemaFreeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <activity
             android:name=".AiActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <activity
             android:name=".CreateTitleActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <activity
             android:name=".MovieContentActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <activity
             android:name=".MoviesCategoryActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <activity
             android:name=".SeriesCategoryActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <activity
             android:name=".activity_user_page"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <activity
             android:name=".loginPage"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <activity
             android:name=".registerPage"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Base.Theme.FinalProject" />
 
         <!-- Launcher + Splash -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.Watchly.Splash">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
-
+            android:exported="true"
+            android:theme="@style/Base.Theme.FinalProject" />
 
     </application>
 

@@ -22,7 +22,7 @@ android {
         def tmdbKey = props.getProperty("TMDB_API_KEY", "")
 
         buildConfigField "String", "HF_API_KEY", "\"${hfKey}\""
-        buildConfigField "String", "TMDB_API_KEY", "\"${tmdbKey}\""
+        buildConfigField "String", "TMDB_API_KEY", "\"ce829465ca9e4f15441987a1f3624293\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

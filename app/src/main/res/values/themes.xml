@@ -7,13 +7,28 @@
     <style name="Base.Theme.FinalProject"
         parent="Theme.MaterialComponents.DayNight.NoActionBar">
 
+        <!-- צבעים ראשיים -->
         <item name="colorPrimary">#FF1493</item>
         <item name="colorPrimaryVariant">#C51162</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+
         <item name="colorSecondary">#FF1493</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+
+        <!-- צבעי רקע בסיסיים -->
+        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">#000000</item>
+
+        <!-- כדי ש-MaterialCardView יעבוד תקין -->
+        <item name="materialCardViewStyle">@style/Widget.MaterialComponents.CardView</item>
 
         <!-- אנימציה חלקה בין דפים -->
         <item name="android:windowAnimationStyle">@style/SmoothTransition</item>
     </style>
+
+    <!-- אם ה-Manifest משתמש בשם Theme.FinalProject -->
+    <style name="Theme.FinalProject" parent="Base.Theme.FinalProject" />
 
     <!-- ===============================
          אנימציית מעבר חלקה
@@ -35,6 +50,8 @@
         <item name="android:windowBackground">#6A1B9A</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_watchly</item>
         <item name="windowSplashScreenIconBackgroundColor">#6A1B9A</item>
+
+        <!-- אחרי מסך הפתיחה עוברים ל-Theme הראשי -->
         <item name="postSplashScreenTheme">@style/Base.Theme.FinalProject</item>
     </style>
 

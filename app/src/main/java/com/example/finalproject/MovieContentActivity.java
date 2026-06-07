@@ -12,6 +12,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -33,7 +34,6 @@ public class MovieContentActivity extends AppCompatActivity {
     public static final String EXTRA_TRAILER_URL = "EXTRA_TRAILER_URL";
     public static final String EXTRA_POSTER_RES_ID = "EXTRA_POSTER_RES_ID";
     public static final String EXTRA_TITLE_ID = "EXTRA_TITLE_ID";
-    public static final String EXTRA_OPEN_TAB_ID = "OPEN_TAB_ID";
 
     private String movieId;
     private String movieTitle;
@@ -61,7 +61,7 @@ public class MovieContentActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         currentUser = auth.getCurrentUser();
 
-        if (currentUser != null) {
+        if (currentUser != null && !currentUser.isAnonymous()) {
             userDocRef = db.collection("users").document(currentUser.getUid());
         }
 
@@ -113,29 +113,54 @@ public class MovieContentActivity extends AppCompatActivity {
         loadReviews();
     }
 
-    // ================= Bottom Nav =================
     private void setupBottomNav() {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-        if (bottomNav == null) return;
+
+        if (bottomNav == null) {
+            return;
+        }
 
         bottomNav.setOnItemSelectedListener(item -> {
-            Intent i = new Intent(MovieContentActivity.this, MainActivity.class);
-            i.putExtra(EXTRA_OPEN_TAB_ID, item.getItemId());
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(i);
-            finish();
-            return true;
+            int id = item.getItemId();
+
+            if (id == R.id.bnav_home) {
+                Intent i = new Intent(this, MainActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
+                return true;
+
+            } else if (id == R.id.bnav_movies) {
+                Intent i = new Intent(this, MoviesCategoryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
+                return true;
+
+            } else if (id == R.id.bnav_series) {
+                Intent i = new Intent(this, SeriesCategoryActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(i);
+                finish();
+                return true;
+
+            } else if (id == R.id.bnav_more) {
+                showMoreDialog();
+                bottomNav.getMenu().findItem(R.id.bnav_more).setChecked(false);
+                return true;
+            }
+
+            return false;
         });
     }
 
-    // ================= Buttons =================
     private void setupButtons(Button btnTrailer, Button btnShare, Button btnFavorites) {
-
         btnTrailer.setOnClickListener(v -> {
             if (trailerUrl != null && !trailerUrl.isEmpty()) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl)));
                 return;
             }
+
             String q = (movieTitle != null ? movieTitle : "trailer") + " official trailer";
             Uri uri = Uri.parse("https://www.youtube.com/results?search_query=" + Uri.encode(q));
             startActivity(new Intent(Intent.ACTION_VIEW, uri));
@@ -143,10 +168,12 @@ public class MovieContentActivity extends AppCompatActivity {
 
         btnShare.setOnClickListener(v -> {
             String safeTitle = (movieTitle != null && !movieTitle.trim().isEmpty()) ? movieTitle : "Movie";
+
             Intent i = new Intent(Intent.ACTION_SEND);
             i.setType("text/plain");
             i.putExtra(Intent.EXTRA_SUBJECT, safeTitle);
             i.putExtra(Intent.EXTRA_TEXT, safeTitle + (trailerUrl != null ? "\n" + trailerUrl : ""));
+
             startActivity(Intent.createChooser(i, "שתף דרך"));
         });
 
@@ -155,18 +182,17 @@ public class MovieContentActivity extends AppCompatActivity {
                 Toast.makeText(this, "צריך להתחבר", Toast.LENGTH_SHORT).show();
                 return;
             }
+
             saveToFavorites();
         });
     }
 
-    // ================= Watchlist =================
     private void saveToWatchlist() {
         if (userDocRef == null) {
             Toast.makeText(this, "צריך להתחבר", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // ✅ אם אין movieId תקין – לא לשמור עם "null" שידרוס הכל
         if (movieId == null || movieId.trim().isEmpty()) {
             Toast.makeText(this, "שגיאה: אין מזהה סרט", Toast.LENGTH_SHORT).show();
             return;
@@ -178,38 +204,37 @@ public class MovieContentActivity extends AppCompatActivity {
         data.put("posterUrl", posterUrl);
         data.put("addedAt", System.currentTimeMillis());
 
-        // ✅ שומרים לפי movieId (ייחודי) ואז מגבילים ל-5
         userDocRef.collection("watchlist").document(movieId).set(data)
                 .addOnSuccessListener(a -> {
                     Toast.makeText(this, "נוסף לרשימת צפייה 🔔", Toast.LENGTH_SHORT).show();
 
-                    // ✅ להשאיר עד 5: מוחקים את הישנים ביותר אם צריך
                     userDocRef.collection("watchlist")
                             .orderBy("addedAt", Query.Direction.DESCENDING)
                             .get()
                             .addOnSuccessListener(qs -> {
                                 int size = qs.size();
-                                if (size <= 5) return;
 
-                                // מוחקים החל מהאינדקס 5 (כל מה שמעבר ל-5 החדשים)
+                                if (size <= 5) {
+                                    return;
+                                }
+
                                 for (int i = 5; i < size; i++) {
                                     qs.getDocuments().get(i).getReference().delete();
                                 }
                             });
 
-                    // תזכורת יומית/בכניסה לפי מה שעשית
                     WatchlistReminderScheduler.scheduleDaily(this);
                 });
     }
 
-
-    // ================= Reviews =================
     private void setupReviewForm() {
-        if (currentUser == null) {
+        if (currentUser == null || currentUser.isAnonymous()) {
             ratingBarReview.setIsIndicator(true);
             etReviewText.setEnabled(false);
+
             btnSendReview.setOnClickListener(v ->
                     Toast.makeText(this, "צריך להתחבר כדי לכתוב ביקורת", Toast.LENGTH_SHORT).show());
+
         } else {
             btnSendReview.setOnClickListener(v -> sendReview());
         }
@@ -241,7 +266,9 @@ public class MovieContentActivity extends AppCompatActivity {
     }
 
     private void loadReviews() {
-        if (movieId == null) return;
+        if (movieId == null) {
+            return;
+        }
 
         db.collection("reviews")
                 .whereEqualTo("movieId", movieId)
@@ -249,12 +276,17 @@ public class MovieContentActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(q -> {
                     layoutReviewsList.removeAllViews();
+
                     if (q.isEmpty()) {
                         tvNoReviews.setVisibility(android.view.View.VISIBLE);
                         return;
                     }
+
                     tvNoReviews.setVisibility(android.view.View.GONE);
-                    for (DocumentSnapshot d : q) addReviewView(d);
+
+                    for (DocumentSnapshot d : q) {
+                        addReviewView(d);
+                    }
                 });
     }
 
@@ -262,6 +294,7 @@ public class MovieContentActivity extends AppCompatActivity {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
         box.setBackgroundColor(Color.parseColor("#151528"));
+
         int p = dp(10);
         box.setPadding(p, p, p, p);
 
@@ -300,10 +333,13 @@ public class MovieContentActivity extends AppCompatActivity {
             tvTitle.setText(movieTitle != null ? movieTitle : "Movie");
 
             if (posterUrl != null && !posterUrl.isEmpty()) {
-                Glide.with(this).load(posterUrl)
+                Glide.with(this)
+                        .load(posterUrl)
                         .placeholder(R.drawable.poster_default_movie)
                         .into(imgPoster);
+
                 posterResId = R.drawable.poster_default_movie;
+
             } else {
                 imgPoster.setImageResource(R.drawable.poster_default_movie);
             }
@@ -324,5 +360,89 @@ public class MovieContentActivity extends AppCompatActivity {
         userDocRef.collection("favorites").document(movieId).set(data)
                 .addOnSuccessListener(a ->
                         Toast.makeText(this, "נוסף למועדפים 💖", Toast.LENGTH_SHORT).show());
+    }
+
+    private void showMoreDialog() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        boolean isLoggedIn = (user != null && !user.isAnonymous());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("עוד");
+
+        if (!isLoggedIn) {
+            String[] options = {
+                    "התחברות",
+                    "הרשמה",
+                    "הקולנוע הקרוב",
+                    "צ'אט",
+                    "צור סרט / סדרה"
+            };
+
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        startActivity(new Intent(this, loginPage.class));
+                        break;
+
+                    case 1:
+                        startActivity(new Intent(this, registerPage.class));
+                        break;
+
+                    case 2:
+                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
+                        break;
+
+                    case 3:
+                        startActivity(new Intent(this, AiActivity.class));
+                        break;
+
+                    case 4:
+                        startActivity(new Intent(this, CreateTitleActivity.class));
+                        break;
+                }
+            });
+
+        } else {
+            String[] options = {
+                    "פרופיל",
+                    "הקולנוע הקרוב",
+                    "צ'אט",
+                    "צור סרט / סדרה",
+                    "התנתקות"
+            };
+
+            builder.setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        startActivity(new Intent(this, activity_user_page.class));
+                        break;
+
+                    case 1:
+                        startActivity(new Intent(this, NearbyCinemaFreeActivity.class));
+                        break;
+
+                    case 2:
+                        startActivity(new Intent(this, AiActivity.class));
+                        break;
+
+                    case 3:
+                        startActivity(new Intent(this, CreateTitleActivity.class));
+                        break;
+
+                    case 4:
+                        FirebaseAuth.getInstance().signOut();
+                        Toast.makeText(this, "התנתקת בהצלחה", Toast.LENGTH_SHORT).show();
+
+                        Intent i = new Intent(this, MainActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        startActivity(i);
+                        finish();
+                        break;
+                }
+            });
+        }
+
+        builder.setNegativeButton("סגור", null);
+        builder.show();
     }
 }
